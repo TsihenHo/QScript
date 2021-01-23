@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:stateListAnimator="@null">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Toolbar"
+            android:layout_height="wrap_content"
+            app:menu="@menu/main_toolbar"
+            app:title="@string/app_name" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundColor"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:id="@+id/main_activationStatusLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_yellow_solid"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:id="@+id/main_activationStatusIcon"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_check_circle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/main_activationStatusTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/n_a"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/main_activationStatusDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="@string/internal_error"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="start|top"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_info"
+                    app:tint="@color/themeColor" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/module_version"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/main_textViewVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="@string/n_a"
+                        android:textColor="@color/secondTextColor"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4dp"
+                        android:text="@string/update_module_and_reboot"
+                        android:textColor="@color/thirdTextColor"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="start|top"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/themeColor" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/module_settings"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="@string/please_set_in_qq_or_tim"
+                        android:textColor="@color/secondTextColor"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4dp"
+                        android:text="@string/how_to_set_module"
+                        android:textColor="@color/thirdTextColor"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4dp"
+                        android:text="@string/not_support"
+                        android:textColor="@color/thirdTextColor"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="16dp">
+
+                        <TextView
+                            android:id="@+id/main_relativeLayoutButtonOpenQQ"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/nullColor"
+                            android:gravity="center"
+                            android:onClick="openModuleSettingForHost"
+                            android:paddingLeft="0dp"
+                            android:paddingTop="2dp"
+                            android:paddingRight="0dp"
+                            android:paddingBottom="2dp"
+                            android:text="@string/qq"
+                            android:textColor="@color/themeColor"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:id="@+id/main_relativeLayoutButtonOpenTIM"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:background="@color/nullColor"
+                            android:gravity="center"
+                            android:onClick="openModuleSettingForHost"
+                            android:paddingLeft="0dp"
+                            android:paddingTop="2dp"
+                            android:paddingRight="0dp"
+                            android:paddingBottom="2dp"
+                            android:text="@string/tim"
+                            android:textColor="@color/themeColor"
+                            android:textSize="18sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/main_githubRepo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_null_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="start|top"
+                android:onClick="handleClickEvent"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginRight="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_github"
+                    app:tint="@color/secondTextColor" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/github"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="18sp" />
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/main_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_null_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="start|top"
+                android:onClick="handleClickEvent"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_help"
+                    app:tint="@color/secondTextColor" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/tips"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
