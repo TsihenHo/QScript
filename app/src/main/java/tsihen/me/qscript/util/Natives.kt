@@ -13,7 +13,7 @@ object Natives {
     @Throws(Throwable::class)
     fun load(ctx: Context) {
         try {
-            Natives.getpagesize()
+            getpagesize()
             return
         } catch (ignored: UnsatisfiedLinkError) {
         }
@@ -29,7 +29,7 @@ object Natives {
         val soFile = File(dir, soName)
         if (!soFile.exists()) {
             val inputStream = Natives::class.java.classLoader!!
-                .getResourceAsStream("lib/$abi/libnatives.so")
+                .getResourceAsStream("lib/$abi/libnative-lib.so")
                 ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")
             //clean up old files
             for (name in dir.list()) {

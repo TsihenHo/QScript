@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import tsihen.me.qscript.activity.SettingActivity
 import tsihen.me.qscript.util.*
 import tsihen.me.qscript.util.HookStatue.getStatue
 import tsihen.me.qscript.util.HookStatue.getStatueName
@@ -44,7 +45,9 @@ class MainActivity : AppCompatActivity() {
             delta = System.currentTimeMillis() - delta
             dbgInfo += "\n构建时间:" + (if (ts > 0) Date(ts).toString() else "unknown") + ", " +
                     "δ(delta)=" + delta + "ms\n" +
-                    "被支持的 ABI(S)=" + Arrays.toString(Build.SUPPORTED_ABIS) + "\n页大小=" + Natives.getpagesize()
+                    "被支持的 ABI(S):" + Arrays.toString(Build.SUPPORTED_ABIS) +
+                    "\n当前 ABI: ${Build.CPU_ABI}" + "\n是否支持？：${Build.CPU_ABI in Build.SUPPORTED_ABIS}" +
+                    "\n页大小:" + Natives.getpagesize()
         } catch (e: Throwable) {
             dbgInfo += "\n" + e.toString()
         }
@@ -120,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             AlertDialog.Builder(this).setTitle("错误")
-                .setMessage("拉起模块设置失败, 请确认 $pkg 已安装并启用\n$e")
+                .setMessage("拉起模块设置失败, 请确认 $pkg 已安装并启用。错误信息如下：\n$e")
                 .setCancelable(true).setPositiveButton(android.R.string.ok, null).show()
         }
     }

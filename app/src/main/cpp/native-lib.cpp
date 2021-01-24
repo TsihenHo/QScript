@@ -2,26 +2,6 @@
 #include <string>
 #include <unistd.h>
 #include <android/log.h>
-
-uint32_t update_adler32(unsigned adler, const uint8_t *data, uint32_t len) {
-    unsigned s1 = adler & 0xffffu;
-    unsigned s2 = (adler >> 16u) & 0xffffu;
-
-    while (len > 0) {
-        /*at least 5550 sums can be done before the sums overflow, saving a lot of module divisions*/
-        unsigned amount = len > 5550 ? 5550 : len;
-        len -= amount;
-        while (amount > 0) {
-            s1 += (*data++);
-            s2 += s1;
-            --amount;
-        }
-        s1 %= 65521;
-        s2 %= 65521;
-    }
-    return (s2 << 16u) | s1;
-}
-
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_tsihen_me_qscript_MainActivity_stringFromJNI(
@@ -96,7 +76,7 @@ Java_tsihen_me_qscript_util_Utils_ntGetBuildTimestamp(JNIEnv *env, jclass clazz)
     t.tm_isdst = date.tm_isdst;
 
     long long finalTime = ((long long) mktime(&t)) * 1000;
+    __android_log_write(ANDROID_LOG_DEBUG, "QSDump", "In JNI...");
 
     return finalTime;
-//    return doGetBuildTimestamp(env, clazz);
 }
