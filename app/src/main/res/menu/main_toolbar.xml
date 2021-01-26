@@ -9,4 +9,9 @@
         android:title="@string/about"
         android:id="@+id/menu_item_about"
         app:showAsAction="never" />
+    <item
+        android:title="@string/open_qn"
+        android:id="@+id/menu_item_openQN"
+        app:showAsAction="never"
+        android:visible="false" />
 </menu>

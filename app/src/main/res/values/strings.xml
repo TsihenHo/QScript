@@ -28,4 +28,5 @@
     <string name="taichi_yang_not_activated">太极·阳 未激活</string>
     <string name="taichi_yang_activated">太极·阳 已激活</string>
     <string name="new_script">新建脚本…</string>
+    <string name="open_qn">打开 QN（兼容模式）</string>
 </resources>

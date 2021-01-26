@@ -18,6 +18,7 @@ import tsihen.me.qscript.MainHook
 import tsihen.me.qscript.activity.SettingActivity
 import tsihen.me.qscript.util.*
 import tsihen.me.qscript.util.Initiator.load
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 /**
@@ -95,6 +96,11 @@ class JumpActivityHook : AbsDelayableHook() {
                             val intentField =
                                 XposedHelpers.findField(msg.obj.javaClass, "intent")
                             val proxyIntent = intentField[msg.obj] as Intent
+                            // 兼容 QN
+                            if (proxyIntent.hasExtra("qn_act_proxy_intent")) {
+                                intentField.set(msg.obj, proxyIntent.getParcelableExtra("qn_act_proxy_intent"))
+                                return@Callback false
+                            }
                             val targetIntent =
                                 proxyIntent.getParcelableExtra<Intent>(JavaUtil.KEY_EXTRA_TARGET_INTENT)
                             if (targetIntent != null) {
@@ -125,6 +131,14 @@ class JumpActivityHook : AbsDelayableHook() {
                                         )
                                     val intent =
                                         mIntentField[launchActivityItem] as Intent
+                                    // 兼容 QN
+                                    if (intent.hasExtra("qn_act_proxy_intent")) {
+                                        mIntentField[launchActivityItem] =
+                                            intent.getParcelableExtra(
+                                                "qn_act_proxy_intent"
+                                            )
+                                        return@Callback false
+                                    }
                                     // 获取插件的
                                     val proxyIntent: Intent? =
                                         intent.getParcelableExtra(JavaUtil.KEY_EXTRA_TARGET_INTENT)
@@ -135,10 +149,19 @@ class JumpActivityHook : AbsDelayableHook() {
                                         mIntentField[launchActivityItem] = proxyIntent.apply {
                                             putExtra(JUMP_ACTION_CMD, JUMP_ACTION_CHECK_ACTIVITY)
                                         }
-                                        logi("JumpActivity : 取出 activity = ${getObject(proxyIntent.component!!, "mClass", String::class.java)}")
+                                        logi(
+                                            "JumpActivity : 取出 activity = ${
+                                                getObject(
+                                                    proxyIntent.component!!,
+                                                    "mClass",
+                                                    String::class.java
+                                                )
+                                            }"
+                                        )
                                     } else if (activityClass != null) {
                                         mIntentField[launchActivityItem] = Intent(intent).apply {
-                                            component = ComponentName(PACKAGE_NAME_QQ, activityClass)
+                                            component =
+                                                ComponentName(PACKAGE_NAME_QQ, activityClass)
                                             putExtra(JUMP_ACTION_CMD, JUMP_ACTION_CHECK_ACTIVITY)
                                         }
                                         logi("JumpActivity : 取出 activity = $activityClass")

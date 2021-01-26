@@ -1,7 +1,6 @@
 package tsihen.me.qscript.activity
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
@@ -10,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.activity_setting.*
@@ -91,6 +89,9 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
             }
         }
+        if (Initiator.load("nil.nadph.qnotified.activity.SettingsActivity") != null) {
+            logi("SettingActivity : 发现 QNotified")
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -116,6 +117,12 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
                 .show()
             R.id.script_manage -> startActivity<ScriptManageActivity>()
+            R.id.menu_item_openQN -> {
+                val realIntent = Intent()
+                realIntent.component =
+                    ComponentName(PACKAGE_NAME_QQ, "nil.nadph.qnotified.activity.SettingsActivity")
+                startActivity(realIntent)
+            }
         }
     }
 }
