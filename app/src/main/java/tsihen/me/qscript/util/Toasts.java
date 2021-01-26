@@ -69,10 +69,10 @@ public class Toasts {
             } else {
                 try {
                     if (clazz_QQToast == null) {
-                        clazz_QQToast = load("com/tencent/mobileqq/widget/QQToast");
+                        clazz_QQToast = load("com/tencent/mobileqq/widget/QQToast", null);
                     }
                     if (clazz_QQToast == null) {
-                        Class clz = load("com/tencent/mobileqq/activity/aio/doodle/DoodleLayout");
+                        Class<?> clz = load("com/tencent/mobileqq/activity/aio/doodle/DoodleLayout", null);
                         assert clz != null;
                         Field[] fs = clz.getDeclaredFields();
                         for (Field f : fs) {
@@ -122,7 +122,7 @@ public class Toasts {
                     log(e);
                     Toast.makeText(ctx, text, duration).show();
                 }
-            };
+            }
     }
 
     public static void info(Context ctx, @NonNull CharSequence text, int duration) {

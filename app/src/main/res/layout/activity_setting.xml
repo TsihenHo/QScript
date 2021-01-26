@@ -1,70 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".activity.SettingActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_trans_border_ripple"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="start|top"
-        android:orientation="horizontal"
-        android:paddingLeft="0dp"
-        android:paddingTop="18dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="18dp">
+        android:elevation="0dp"
+        android:stateListAnimator="@null">
 
-        <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@string/nothing"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_info"
-            android:tint="@color/themeColor"
-            tools:ignore="UseAppTint" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Toolbar"
+            android:layout_height="wrap_content"
+            app:menu="@menu/main_toolbar"
+            app:title="@string/app_name" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/statusLinearLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:text="@string/module_version"
-                android:textColor="@color/firstTextColor"
-                android:textSize="18sp" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_yellow_solid"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
 
-            <TextView
-                android:id="@+id/textViewVersion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="2dp"
-                android:text="@string/n_a"
-                android:textColor="@color/secondTextColor"
-                android:textSize="14sp" />
+                <ImageView
+                    android:id="@+id/statusIcon"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_check_circle" />
 
-            <TextView
-                android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/statusTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/n_a"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/statusDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="@string/internal_error"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:text="@string/update_module_and_reboot"
-                android:textColor="@color/thirdTextColor"
-                android:textSize="14sp" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="start|top"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="@string/nothing"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_info"
+                    android:tint="@color/themeColor"
+                    tools:ignore="UseAppTint" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="@string/module_version"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/textViewVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="@string/n_a"
+                        android:textColor="@color/secondTextColor"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4dp"
+                        android:text="@string/update_module_and_reboot"
+                        android:textColor="@color/thirdTextColor"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/script_manage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="管理一下可爱的脚本们 :)"
+                app:image="@drawable/ic_script"
+                app:title="脚本管理" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="有事没事都来看看，会有意想不到的收获\n注：部分功能仅供调试使用，不要乱点"
+                app:image="@drawable/ic_settings"
+                app:title="高级设置" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/bug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="你们一定很乐意帮开发者找 bug 的，对吗"
+                app:image="@drawable/ic_bug"
+                app:title="问题反馈" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/about_me"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="关于这个苦逼开发者"
+                app:image="@drawable/ic_people"
+                app:title="关于" />
         </LinearLayout>
-    </LinearLayout>
-</LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

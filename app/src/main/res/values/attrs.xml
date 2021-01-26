@@ -138,4 +138,11 @@
         <item>戳一戳独立入口</item>
         <item>短视频录制及拍照</item>
     </string-array>
+
+    <declare-styleable name="ViewWithTwoLinesAndImage">
+        <attr name="title" format="string" />
+        <attr name="desc" format="string" />
+        <attr name="image" format="reference" />
+        <attr name="arrow" format="string" />
+    </declare-styleable>
 </resources>

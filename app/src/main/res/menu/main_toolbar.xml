@@ -6,10 +6,6 @@
         android:id="@+id/menu_item_debugInfo"
         app:showAsAction="never" />
     <item
-        android:title="@string/change_theme"
-        android:id="@+id/menu_item_switchTheme"
-        app:showAsAction="never" />
-    <item
         android:title="@string/about"
         android:id="@+id/menu_item_about"
         app:showAsAction="never" />

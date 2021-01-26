@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import tsihen.me.qscript.activity.SettingActivity
+import tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
 import tsihen.me.qscript.util.*
 import tsihen.me.qscript.util.HookStatue.getStatue
 import tsihen.me.qscript.util.HookStatue.getStatueName
@@ -22,6 +23,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private var dbgInfo = ""
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -76,10 +78,6 @@ class MainActivity : AppCompatActivity() {
                         .setMessage(dbgInfo).show()
                     return@setOnMenuItemClickListener true
                 }
-                R.id.menu_item_switchTheme -> {
-                    Toast.makeText(this@MainActivity, "暂不支持", Toast.LENGTH_SHORT).show()
-                    return@setOnMenuItemClickListener true
-                }
                 R.id.menu_item_about -> {
                     AlertDialog.Builder(this@MainActivity)
                         .setTitle("关于").setPositiveButton(android.R.string.ok, null)
@@ -99,12 +97,12 @@ class MainActivity : AppCompatActivity() {
      */
 //    private external fun stringFromJNI(): String
 
-    companion object {
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
-        }
-    }
+//    companion object {
+//        // Used to load the 'native-lib' library on application startup.
+//        init {
+//            System.loadLibrary("native-lib")
+//        }
+//    }
 
     fun openModuleSettingForHost(view: View) {
         val pkg: String = when (view.id) {

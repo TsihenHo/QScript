@@ -9,6 +9,7 @@ import java.io.FileOutputStream
 object Natives {
     external fun getpagesize(): Int
 
+    @Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("UnsafeDynamicallyLoadedCode")
     @Throws(Throwable::class)
     fun load(ctx: Context) {
@@ -28,6 +29,7 @@ object Natives {
         }
         val soFile = File(dir, soName)
         if (!soFile.exists()) {
+            logi("Natives : SoFile不存在，正在复制...")
             val inputStream = Natives::class.java.classLoader!!
                 .getResourceAsStream("lib/$abi/libnative-lib.so")
                 ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")

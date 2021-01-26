@@ -9,11 +9,6 @@
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTheme">
-        <activity android:name=".activity.SettingActivity">
-            <intent-filter>
-                <action android:name="qscript.SETTING" />
-            </intent-filter>
-        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

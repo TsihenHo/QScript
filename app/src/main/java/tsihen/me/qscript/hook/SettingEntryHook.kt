@@ -1,9 +1,7 @@
 package tsihen.me.qscript.hook
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +9,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import tsihen.me.qscript.activity.SettingActivity
 import tsihen.me.qscript.util.*
 
 class SettingEntryHook : AbsDelayableHook() {
@@ -34,7 +33,7 @@ class SettingEntryHook : AbsDelayableHook() {
                 object : XC_MethodHook(52) {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         var itemClass: Class<*>? = null
-                        var itemRef: View? = null
+                        var itemRef: View?
                         itemRef = getObject(
                             param.thisObject,
                             "a",
@@ -65,9 +64,10 @@ class SettingEntryHook : AbsDelayableHook() {
                             true
                         }
                         item.setOnClickListener {
-                            val intent = Intent(param.thisObject as Activity, Initiator.load(".activity.JumpActivity"))
-                            intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_SETTING_ACTIVITY)
-                            (param.thisObject as Activity).startActivity(intent)
+                            (param.thisObject as Activity).startActivity<SettingActivity>()
+//                            val intent = Intent(param.thisObject as Activity, Initiator.load(".activity.JumpActivity"))
+//                            intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_SETTING_ACTIVITY)
+//                            (param.thisObject as Activity).startActivity(intent)
                         }
                         (itemRef.parent as ViewGroup).addView(
                             item,

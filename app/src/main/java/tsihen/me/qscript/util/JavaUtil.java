@@ -18,10 +18,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
+import dalvik.system.BaseDexClassLoader;
 import dalvik.system.DexClassLoader;
 import dalvik.system.PathClassLoader;
+import tsihen.me.qscript.MainHook;
+import tsihen.me.qscript.R;
 
 import static de.robv.android.xposed.XposedHelpers.findField;
+import static tsihen.me.qscript.util.Utils.getObject;
 import static tsihen.me.qscript.util.Utils.log;
 import static tsihen.me.qscript.util.Utils.logd;
 import static tsihen.me.qscript.util.Utils.loge;
@@ -47,13 +51,10 @@ public class JavaUtil {
             Context moudleContext = context.createPackageContext(modulePackageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
             if (moudleContext == null) {
                 loge("Module Context is null");
+                return null;
             }
             String apkPath = moudleContext.getPackageCodePath();
-            logd(apkPath);
             File f = new File(apkPath);
-            if (f == null) {
-                loge("File is null");
-            }
             return f;
         } catch (PackageManager.NameNotFoundException e) {
             log(e);
@@ -70,10 +71,9 @@ public class JavaUtil {
             Context moudleContext = context.createPackageContext(modulePackageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
             if (moudleContext == null) {
                 loge("Module Context is null");
+                return null;
             }
-            String apkPath = moudleContext.getPackageCodePath();
-            logd(apkPath);
-            return apkPath;
+            return moudleContext.getPackageCodePath();
         } catch (PackageManager.NameNotFoundException e) {
             log(e);
         }
@@ -104,6 +104,73 @@ public class JavaUtil {
 
         //设置
         dexElementsField.set(pathListObject, newDexElements);
+    }
+
+    private static String sModulePath = null;
+
+    @SuppressLint("PrivateApi")
+    public static void injectModuleResources(Resources res) {
+        if (res == null) return;
+        try {
+            res.getString(R.string.nothing);
+            res.getLayout(R.layout.activity_setting);
+            return;
+        } catch (Resources.NotFoundException ignored) {
+        }
+        try {
+            if (sModulePath == null) {
+                String modulePath = null;
+                BaseDexClassLoader pcl = (BaseDexClassLoader) MainHook.class.getClassLoader();
+                Object pathList = getObject(pcl, "pathList", null);
+                assert pathList != null;
+                Object[] dexElements = (Object[]) getObject(pathList, "dexElements", null);
+                assert dexElements != null;
+                for (Object element : dexElements) {
+                    File file = (File) getObject(element, "path", null);
+                    if (file == null || file.isDirectory())
+                        file = (File) getObject(element, "zip", null);
+                    if (file == null || file.isDirectory())
+                        file = (File) getObject(element, "file", null);
+                    if (file != null && !file.isDirectory()) {
+                        String path = file.getPath();
+                        if (modulePath == null || !modulePath.contains("tsihen.me.qscript")) {
+                            modulePath = path;
+                        }
+                    }
+                }
+                if (modulePath == null) {
+                    throw new RuntimeException("get module path failed, loader=" + MainHook.class.getClassLoader());
+                }
+                sModulePath = modulePath;
+            }
+            AssetManager assets = res.getAssets();
+            @SuppressLint("DiscouragedPrivateApi")
+            Method addAssetPath = AssetManager.class.getDeclaredMethod("addAssetPath", String.class);
+            addAssetPath.setAccessible(true);
+            int cookie = (int) addAssetPath.invoke(assets, sModulePath);
+            try {
+                res.getString(R.string.nothing);
+            } catch (Resources.NotFoundException e) {
+                loge("Fatal: injectModuleResources: test injection failure!");
+                loge("injectModuleResources: cookie=" + cookie + ", path=" + sModulePath + ", loader=" + MainHook.class.getClassLoader());
+                long length = -1;
+                boolean read = false;
+                boolean exist = false;
+                boolean isDir = false;
+                try {
+                    File f = new File(sModulePath);
+                    exist = f.exists();
+                    isDir = f.isDirectory();
+                    length = f.length();
+                    read = f.canRead();
+                } catch (Throwable e2) {
+                    log(e2);
+                }
+                loge("sModulePath: exists = " + exist + ", isDirectory = " + isDir + ", canRead = " + read + ", fileLength = " + length);
+            }
+        } catch (Exception e) {
+            log(e);
+        }
     }
 }
 

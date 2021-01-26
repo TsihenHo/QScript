@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="@string/new_script"
+        android:icon="@drawable/ic_add"
+        android:id="@+id/menu_item_newScript"
+        app:showAsAction="ifRoom" />
+</menu>

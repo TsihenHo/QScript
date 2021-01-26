@@ -3,9 +3,12 @@ package tsihen.me.qscript
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import dalvik.system.DexClassLoader
+import dalvik.system.PathClassLoader
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import tsihen.me.qscript.hook.AbsDelayableHook
+import tsihen.me.qscript.hook.JumpActivityHook
 import tsihen.me.qscript.util.*
 
 class MainHook {
@@ -34,21 +37,14 @@ class MainHook {
             Bundle::class.java,
             object : XC_MethodHook(51) {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    qqApplication = (param.thisObject as Activity).application
+                    val ctx = param.thisObject as Activity
+                    qqApplication = ctx.application
                     if (secInited) return
                     if (System.getProperty(QS_FULL_TAG) == "true") {
                         loge("Error: QScript reload.Stop it.")
                         return
                     }
                     System.setProperty(QS_FULL_TAG, "true")
-                    try {
-                        Natives.load(param.thisObject as Activity)
-                    } catch (e: Exception) {
-                        log(e)
-                    }
-                    if (getBuildTimestamp() < 0) {
-                        return
-                    }
                     getInstance().performHook(param.thisObject as Activity)
                     secInited = true
                 }

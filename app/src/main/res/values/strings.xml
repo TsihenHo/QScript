@@ -17,6 +17,7 @@
     <string name="about">关于</string>
     <string name="github">Github</string>
     <string name="tips">提示</string>
+    <string name="about_me">作者：Tsihen&lt;br /&gt;QQ：3318448676&lt;br /&gt;E-Mail：3318448676@qq.com&lt;br /&gt;&lt;strong&gt;本模块无毒无害，开源地址：&lt;a href="https://github.com/GoldenHuaji/QScript"&gt;Github&lt;/a&gt;&lt;/strong&gt;</string>
 
     <string name="xposed_not_activated">Xposed 未激活</string>
     <string name="xposed_activated">Xposed 已激活</string>
@@ -26,4 +27,5 @@
     <string name="taichi_yin_activated">太极·阴 已激活</string>
     <string name="taichi_yang_not_activated">太极·阳 未激活</string>
     <string name="taichi_yang_activated">太极·阳 已激活</string>
+    <string name="new_script">新建脚本…</string>
 </resources>

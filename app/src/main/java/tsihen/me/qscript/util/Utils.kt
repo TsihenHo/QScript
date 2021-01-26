@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import de.robv.android.xposed.XposedBridge
 import java.lang.reflect.Constructor
@@ -194,7 +195,7 @@ fun newInstance(
     val argt: Array<Class<*>?> = arrayOfNulls(argc)
     val argv = arrayOfNulls<Any>(argc)
     val m: Constructor<*>
-    var i: Int = 0
+    var i = 0
     while (i < argc) {
         argt[i] = argsAndTypes[argc + i] as Class<*>
         argv[i] = argsAndTypes[i]
@@ -264,7 +265,7 @@ fun getBuildTimestamp(context: Context? = null): Long {
     }
 }
 
-fun paramsTypesToString(vararg c: Class<*>?): String? {
+fun paramsTypesToString(vararg c: Class<*>?): String {
     if (c.isEmpty()) return "()"
     val sb = StringBuilder("(")
     for (i in c.indices) {
@@ -328,4 +329,12 @@ fun Any.invokeVirtual(
     if (method == null) throw NoSuchMethodException(methodName + paramsTypesToString(*argt) + " in " + this.javaClass.name)
     method.isAccessible = true
     return method.invoke(this, *argv)
+}
+
+inline fun <reified T : Activity> Context.startActivity() {
+    val intent = Intent(this, Initiator.load(".activity.JumpActivity", T::class.java.classLoader))
+    intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_START_ACTIVITY)
+        .putExtra(JUMP_ACTION_TARGET, T::class.java.name)
+
+    this.startActivity(intent)
 }
