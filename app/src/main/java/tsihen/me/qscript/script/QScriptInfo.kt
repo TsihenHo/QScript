@@ -14,7 +14,7 @@ class QScriptInfo(
         fun getInfo(code: String): QScriptInfo? {
             val execute = code.replace(" ", "")
             if (!execute.startsWith("//QScript.MetaData.Start") || !execute.contains("//QScript.MetaData.End")) {
-                logd("QScriptInfo : 不符合脚本特征")
+                // 不符合脚本特征
                 return null
             }
             val info = execute.substring(0, execute.indexOf("//QScript.MetaData.End")).replace(

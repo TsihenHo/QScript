@@ -93,7 +93,7 @@ public class JavaUtil {
                     activityManagerClass = Class.forName("android.app.ActivityManager");
                     gDefaultField = activityManagerClass.getDeclaredField("IActivityManagerSingleton");
                 } catch (Exception err2) {
-                    logi("WTF: Unable to get IActivityManagerSingleton");
+                    loge("JavaUtil : FATAL : Unable to get IActivityManagerSingleton");
                     log(err1);
                     log(err2);
                     return;
@@ -197,16 +197,10 @@ public class JavaUtil {
 
         //设置
         dexElementsField.set(pathListObject, newDexElements);
-        logi("JumpActivityHook : 加载 AndroidX 完成。现在 PathLoader : " + context.getClassLoader());
         try {
             dexClassLoader.loadClass("com.google.android.material.R");
         } catch (ClassNotFoundException e) {
             loge("JavaUtil : 致命 : 加载 AndroidX 失败");
-            try {
-                Initiator.class.getClassLoader().loadClass("com.google.android.material.R");
-            } catch (ClassNotFoundException t) {
-                log(t);
-            }
             throw e;
         }
     }

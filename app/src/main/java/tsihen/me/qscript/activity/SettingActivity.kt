@@ -30,7 +30,6 @@ class SettingActivity : BaseActivity(), IOnClickListener {
             log(t)
             finish()
         }
-        logi("启动设置，application is ${this.application.packageName}")
         setContentView(mViewBinding.root)
 
         mViewBinding.textViewVersion.text = QS_VERSION_NAME

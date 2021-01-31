@@ -2,7 +2,7 @@ package tsihen.me.qscript.script
 
 import tsihen.me.qscript.script.params.*
 
-object QNScriptEventBus {
+object QScriptEventSender {
     /**
      * 广播群消息事件
      *

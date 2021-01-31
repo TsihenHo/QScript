@@ -28,11 +28,8 @@ import kotlin.math.expm1
 import kotlin.math.sqrt
 
 var DEBUG_MODE: Boolean = false
-    set(value) {
-        logi("Utils : DebugMode : Change to $value(from $field)")
-        field = value
-    }
 private var mHandler: Handler? = null
+private var mAppRuntime: Any? = null
 
 fun getQQApplication(): Application? {
     val f: Field?
@@ -56,10 +53,15 @@ fun getApplicationNonNull(): Application {
 }
 
 fun getAppRuntime(): Any {
-    val application = getApplicationNonNull()
-    val fieldAppRuntime = Class.forName("mqq.app.MobileQQ").getDeclaredField("mAppRuntime")
-    fieldAppRuntime.isAccessible = true
-    return fieldAppRuntime[application]!!
+    if (mAppRuntime != null) {
+        logi("Utils : GetAppRuntime : 使用预存的 Runtime")
+        return mAppRuntime!!
+    }
+    val ctx = getApplicationNonNull()
+    val result = ctx.invokeVirtual("getRuntime")
+        ?: throw java.lang.NullPointerException("Utils : GetAppRuntime : Runtime is null.")
+    mAppRuntime = result
+    return result
 }
 
 fun getLongAccountUin(): Long = getAppRuntime().invokeVirtual("getLongAccountUin") as Long
@@ -191,6 +193,16 @@ fun logw(msg: String) {
         }
     } catch (e: Exception) {
     }
+}
+
+fun logv(msg: String) {
+    if (DEBUG_MODE) {
+        try {
+            XposedBridge.log(msg)
+        } catch (ignored: NoClassDefFoundError) {
+        }
+    }
+    Log.v(QS_LOG_TAG, msg)
 }
 
 fun getActiveModuleVersion(): String? {
@@ -368,7 +380,7 @@ fun getBuildTimestamp(context: Context? = null): Long {
         logd("Context is null.")
     }
     return try {
-        Natives.load(ctx!!)
+        Natives.load(ctx!!, true)
         ntGetBuildTimestamp()
     } catch (throwable: Throwable) {
         log(throwable)

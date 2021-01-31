@@ -11,12 +11,15 @@ object Natives {
 
     @Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("UnsafeDynamicallyLoadedCode")
+    @JvmOverloads
     @Throws(Throwable::class)
-    fun load(ctx: Context) {
-        try {
-            getpagesize()
-            return
-        } catch (ignored: UnsatisfiedLinkError) {
+    fun load(ctx: Context, must: Boolean = false) {
+        if (!must) {
+            try {
+                getpagesize()
+                return
+            } catch (ignored: UnsatisfiedLinkError) {
+            }
         }
         val abi = Build.CPU_ABI
         val soName = "libnatives_" + abi + "_" + QS_VERSION_NAME + ".so"
@@ -29,7 +32,6 @@ object Natives {
         }
         val soFile = File(dir, soName)
         if (!soFile.exists()) {
-            logi("Natives : SoFile不存在，正在复制...")
             val inputStream = Natives::class.java.classLoader!!
                 .getResourceAsStream("lib/$abi/libnative-lib.so")
                 ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")

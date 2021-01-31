@@ -69,13 +69,6 @@ public class MyInstrumentation extends Instrumentation {
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
         try {
-            if (icicle != null) {
-                String className = activity.getClass().getName();
-                if (className.startsWith("tsihen.me.qscript.")) {
-                    logd("MyIns.. : 更改 ClassLoader");
-                    icicle.setClassLoader(Initiator.class.getClassLoader());
-                }
-            }
             injectModuleResources(activity.getResources());
             mBase.callActivityOnCreate(activity, icicle);
         } catch (Exception e) {
@@ -89,13 +82,6 @@ public class MyInstrumentation extends Instrumentation {
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
         try {
-            if (icicle != null) {
-                String className = activity.getClass().getName();
-                if (className.startsWith("tsihen.me.qscript.")) {
-                    logd("MyIns.. : 更改 ClassLoader");
-                    icicle.setClassLoader(Initiator.class.getClassLoader());
-                }
-            }
             injectModuleResources(activity.getResources());
             mBase.callActivityOnCreate(activity, icicle, persistentState);
         } catch (Exception e) {

@@ -20,11 +20,11 @@ import tsihen.me.qscript.util.*
 class ScriptManageActivity : BaseActivity() {
     private lateinit var mViewBinding: ActivityScriptManageBinding
     private val codeAddScript = 100
+    private val codeEditScript = 101
 
     @SuppressLint("InflateParams", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        logi("启动脚本管理，application is ${this.application.packageName}")
         mViewBinding = ActivityScriptManageBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
         mViewBinding.topAppBar.setNavigationOnClickListener { finish() }
@@ -35,7 +35,7 @@ class ScriptManageActivity : BaseActivity() {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.type = "text/x-java"
-                    startActivity(intent)
+                    startActivityForResult(intent, codeAddScript)
                 }
                 R.id.menu_item_help -> startActivity<ScriptHelpActivity>()
                 else -> return@setOnMenuItemClickListener super.onOptionsItemSelected(it)
@@ -48,6 +48,7 @@ class ScriptManageActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
+        if (requestCode == codeEditScript) refresh()
         if (requestCode == codeAddScript) {
             if (data == null) {
                 Toasts.error(this, "错误：没有选择文件")
@@ -86,17 +87,12 @@ class ScriptManageActivity : BaseActivity() {
                         }
                     } catch (e: Throwable) {
                         log(e)
-                        Toasts.error(this, "未知错误：" + e.message)
+                        Toasts.error(this, "错误：" + e.message)
                     }
                 }
                 c.close()
             }
         }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        refresh()
     }
 
     private fun refresh() {
@@ -150,7 +146,7 @@ class ScriptManageActivity : BaseActivity() {
                                 .putExtra(JUMP_ACTION_TARGET, ScriptEditActivity::class.java.name)
                                 .putExtra("script_code", it.getCode())
 
-                            this@ScriptManageActivity.startActivity(intent)
+                            this@ScriptManageActivity.startActivityForResult(intent, codeEditScript)
                         }
                         return true
                     }
@@ -160,7 +156,6 @@ class ScriptManageActivity : BaseActivity() {
             } catch (t: Throwable) {
                 log(t)
             }
-            logd("ScriptManageActivity : DoOnCreate : Add a script.")
         }
     }
 }

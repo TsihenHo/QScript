@@ -8,6 +8,7 @@ import android.os.Environment
 import tsihen.me.qscript.R
 import tsihen.me.qscript.config.ConfigManager
 import tsihen.me.qscript.databinding.ActivityDevSettingBinding
+import tsihen.me.qscript.script.QScriptManager
 import tsihen.me.qscript.ui.IOnClickListener
 import tsihen.me.qscript.ui.IOnClickListenerFilled
 import tsihen.me.qscript.ui.ViewFilledWithTwoLinesAndImage
@@ -22,7 +23,6 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
     @SuppressLint("InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        logi("启动高级设置，application is ${this.application.packageName}")
         mViewBinding = ActivityDevSettingBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
 
@@ -68,6 +68,19 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
                         try {
                             ConfigManager.getDefaultConfig().removeAll()
                             ConfigManager.getCache().removeAll()
+                            try {
+                                QScriptManager.scriptsPath?.let {
+                                    val dir = File(it)
+                                    if (dir.isFile || !dir.exists()) return@let
+                                    dir.listFiles()?.forEach { f ->
+                                        if (!f.name.endsWith(".java")) return@forEach
+                                        f.delete()
+                                    }
+                                }
+                            } catch (e: java.lang.Exception) {
+                                log(e)
+                                Toasts.error(this, "移除脚本时出现错误")
+                            }
                             startActivity(Intent(this, Initiator.load(".activity.SplashActivity")))
                             exitProcess(0)
                         } catch (e: java.lang.Exception) {

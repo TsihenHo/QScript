@@ -16,7 +16,6 @@ open class BaseActivity : Activity() {
         super.onCreate(savedInstanceState)
         initDebugMode()
         setTheme(R.style.Theme_MyTheme)
-        logi("BaseActivity : AppId = ${android.os.Process.myPid()}")
         Initiator.init(this.classLoader)
         if (intent.getStringExtra(JUMP_ACTION_CMD) != JUMP_ACTION_CHECK_ACTIVITY) {
             logd("无效启动")

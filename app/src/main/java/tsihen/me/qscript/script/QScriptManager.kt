@@ -246,7 +246,6 @@ object QScriptManager {
                 log(e)
             }
         }
-        logd("QScriptManager : GetScriptCodes : Successful.Codes.size = ${codes.size}")
         return codes
     }
 }

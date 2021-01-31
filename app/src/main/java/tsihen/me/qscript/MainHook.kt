@@ -1,15 +1,13 @@
 package tsihen.me.qscript
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import dalvik.system.DexClassLoader
-import dalvik.system.PathClassLoader
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.XposedBridge
 import tsihen.me.qscript.hook.AbsDelayableHook
 import tsihen.me.qscript.hook.JumpActivityHook
 import tsihen.me.qscript.util.*
+import java.lang.reflect.Method
 
 class MainHook {
     private var firstInited = false
@@ -31,13 +29,24 @@ class MainHook {
         Initiator.init(classLoader)
         val splashActivity: Class<*> =
             classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
-        XposedHelpers.findAndHookMethod(
-            splashActivity,
-            "doOnCreate",
-            Bundle::class.java,
+        var onCreate: Method? = null
+        var clazz = splashActivity
+        try {
+            do {
+                try {
+                    onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
+                } catch (ignored: NoSuchMethodException) {
+                }
+                clazz = clazz.superclass!!
+            } while (onCreate == null && clazz.superclass != Any::class.java)
+        } catch (e: Exception) {
+            log(e)
+        }
+        XposedBridge.hookMethod(
+            onCreate,
             object : XC_MethodHook(51) {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val ctx = param.thisObject as Activity
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val ctx = getQQApplication()!!
                     if (secInited) return
                     if (System.getProperty(QS_FULL_TAG) == "true") {
                         loge("Error: QScript reload.Stop it.")
@@ -45,16 +54,6 @@ class MainHook {
                     }
                     System.setProperty(QS_FULL_TAG, "true")
                     try {
-                        // 注入模块
-//                        val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
-//                            ?: throw NullPointerException("ApkFile is null.")
-//                        val loader = DexClassLoader(
-//                            apkFile.absolutePath,
-//                            ctx.getDir("dex", Context.MODE_PRIVATE).absolutePath,
-//                            null,
-//                            ctx.classLoader as PathClassLoader
-//                        )
-//                        JavaUtil.loadPlugin(loader, ctx)
                         getInstance().performHook(ctx)
                     } catch (e: Exception) {
                         log(e)
@@ -65,15 +64,13 @@ class MainHook {
         firstInited = true
     }
 
-    fun performHook(ctx: Activity) {
+    fun performHook(ctx: Context) {
         var failed = false
         try {
-            logd("进入主Hook")
-            Initiator.init(ctx.classLoader)
             if (thirdInited) return
-            logi("MainHook : AppId = ${android.os.Process.myPid()}")
             JumpActivityHook.loadDex(ctx)
             initDebugMode()
+            Natives.load(ctx)
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
         } catch (e: Throwable) {
             log(e)
@@ -83,7 +80,6 @@ class MainHook {
             Toasts.error(ctx, "错误：QScript 初始化失败")
             return
         }
-        Toasts.success(ctx, "QScript 完成初始化")
         thirdInited = true
     }
 }
