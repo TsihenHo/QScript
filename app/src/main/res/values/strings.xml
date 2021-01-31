@@ -30,4 +30,5 @@
     <string name="new_script">新建脚本…</string>
     <string name="help">帮助...</string>
     <string name="script_readonly">这个脚本是只读（ReadOnly）的，您不能编辑它（即使您编辑了，您的更改也不会保存）</string>
+    <string name="reboot_qq_then_apply_script">温馨提示：您做的所有更改，都将在重启 QQ 后生效</string>
 </resources>

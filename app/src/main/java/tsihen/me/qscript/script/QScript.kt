@@ -5,8 +5,9 @@ import bsh.Interpreter
 import tsihen.me.qscript.config.ConfigManager
 import tsihen.me.qscript.script.api.ScriptApi
 import tsihen.me.qscript.script.params.*
+import tsihen.me.qscript.util.getLongAccountUin
+import tsihen.me.qscript.util.getQQApplication
 import tsihen.me.qscript.util.log
-import tsihen.me.qscript.util.qqApplication
 
 class QScript(private val instance: Interpreter, private val code: String) {
     private val info: QScriptInfo = QScriptInfo.getInfo(code) ?: throw RuntimeException("无效脚本")
@@ -41,13 +42,14 @@ class QScript(private val instance: Interpreter, private val code: String) {
                 instance.eval(code)
                 init = true
             }
-            instance.set("ctx", qqApplication)
+            instance.set("ctx", getQQApplication())
             instance.set("thisScript", this)
             instance.set("api", ScriptApi.get(this))
-            // TODO 设置 QNum
+            instance.set("mQNum", getLongAccountUin())
             instance.eval("onLoad()")
             QScriptManager.addEnable()
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -58,6 +60,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("groupMessageParam", param)
             instance.eval("onGroupMessage(groupMessageParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -68,6 +71,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("friendMessageParam", param)
             instance.eval("onFriendMessage(friendMessageParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -78,6 +82,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("friendRequestParam", param)
             instance.eval("onFriendRequest(friendRequestParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -88,6 +93,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("friendAddedParam", param)
             instance.eval("onFriendAdded(friendAddedParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -98,6 +104,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("groupRequestParam", param)
             instance.eval("onGroupRequest(groupRequestParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }
@@ -108,6 +115,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("groupJoinedParam", param)
             instance.eval("onGroupJoined(groupJoinedParam)")
         } catch (evalError: EvalError) {
+            if ((evalError.message ?: "d").contains("Command not found")) return // ignore
             log(evalError)
         }
     }

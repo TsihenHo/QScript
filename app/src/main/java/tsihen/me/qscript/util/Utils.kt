@@ -33,23 +33,36 @@ var DEBUG_MODE: Boolean = false
         field = value
     }
 private var mHandler: Handler? = null
-var qqApplication: Application? = null
-    get() {
-        if (field == null) {
-            logw("The qqApplication is null.")
-        }
-        return field
+
+fun getQQApplication(): Application? {
+    val f: Field?
+    return try {
+        val clz: Class<*> = Initiator.load("com/tencent/common/app/BaseApplicationImpl")!!
+        f = hasField(clz, "sApplication")
+        if (f == null) getStaticObject(
+            clz,
+            "a",
+            clz
+        ) as? Application? else f[null] as? Application?
+    } catch (e: java.lang.Exception) {
+        log(e)
+        throw (java.lang.RuntimeException("FATAL: Utils.getApplication() failure!")
+            .initCause(e) as java.lang.RuntimeException)
     }
-    set(value) {
-        if (value == null) {
-            logw("The qqApplication is set to null.")
-        }
-        field = value
-    }
+}
 
 fun getApplicationNonNull(): Application {
-    return qqApplication ?: throw NullPointerException("QQApplication is null.")
+    return getQQApplication() ?: throw NullPointerException("QQApplication is null.")
 }
+
+fun getAppRuntime(): Any {
+    val application = getApplicationNonNull()
+    val fieldAppRuntime = Class.forName("mqq.app.MobileQQ").getDeclaredField("mAppRuntime")
+    fieldAppRuntime.isAccessible = true
+    return fieldAppRuntime[application]!!
+}
+
+fun getLongAccountUin(): Long = getAppRuntime().invokeVirtual("getLongAccountUin") as Long
 
 fun initDebugMode() {
     val mgr = ConfigManager.tryGetDefaultConfig()
@@ -344,7 +357,7 @@ fun getBuildTimestamp(context: Context? = null): Long {
     var ctx: Context? = context
     if (ctx == null) {
         try {
-            ctx = qqApplication
+            ctx = getQQApplication()
         } catch (ignored: Throwable) {
         }
         if (ctx == null) {

@@ -29,7 +29,7 @@ public class MyIActivityManager implements InvocationHandler {
             if (index != -1) {
                 Intent raw = (Intent) args[index];
                 ComponentName component = raw.getComponent();
-                Context hostApp = Utils.getQqApplication();
+                Context hostApp = Utils.getQQApplication();
                 if (hostApp != null && component != null
                         && hostApp.getPackageName().equals(component.getPackageName())
                         && component.getClassName().startsWith("tsihen.me.qscript.activity.")) {

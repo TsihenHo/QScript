@@ -8,7 +8,6 @@ import android.provider.OpenableColumns
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
-import androidx.core.view.marginBottom
 import tsihen.me.qscript.R
 import tsihen.me.qscript.databinding.ActivityScriptManageBinding
 import tsihen.me.qscript.script.QScriptManager
@@ -21,9 +20,8 @@ import tsihen.me.qscript.util.*
 class ScriptManageActivity : BaseActivity() {
     private lateinit var mViewBinding: ActivityScriptManageBinding
     private val codeAddScript = 100
-    private val codeEditScript = 101
 
-    @SuppressLint("InflateParams")
+    @SuppressLint("InflateParams", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         logi("启动脚本管理，application is ${this.application.packageName}")
@@ -33,19 +31,11 @@ class ScriptManageActivity : BaseActivity() {
         mViewBinding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.menu_item_newScript -> {
-                    AlertDialog.Builder(this)
-                        .setNeutralButton("从现有文件导入") { d, _ ->
-                            val intent = Intent(Intent.ACTION_GET_CONTENT)
-                            intent.addCategory(Intent.CATEGORY_OPENABLE)
-                            intent.type = "text/x-java"
-                            startActivityForResult(intent, codeAddScript)
-                            d.dismiss()
-                        }
-                        .setNegativeButton("编写脚本(Beta)") { d, _ ->
-                            Toasts.info(this, "功能制作中")
-                            d.dismiss()
-                        }
-                        .show()
+                    Toasts.info(this, "请选择脚本（*.java）以导入")
+                    val intent = Intent(Intent.ACTION_GET_CONTENT)
+                    intent.addCategory(Intent.CATEGORY_OPENABLE)
+                    intent.type = "text/x-java"
+                    startActivity(intent)
                 }
                 R.id.menu_item_help -> startActivity<ScriptHelpActivity>()
                 else -> return@setOnMenuItemClickListener super.onOptionsItemSelected(it)
@@ -58,9 +48,7 @@ class ScriptManageActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
-        if (requestCode == codeEditScript) {
-            refresh()
-        } else if (requestCode == codeAddScript) {
+        if (requestCode == codeAddScript) {
             if (data == null) {
                 Toasts.error(this, "错误：没有选择文件")
             }
@@ -104,6 +92,11 @@ class ScriptManageActivity : BaseActivity() {
                 c.close()
             }
         }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        refresh()
     }
 
     private fun refresh() {

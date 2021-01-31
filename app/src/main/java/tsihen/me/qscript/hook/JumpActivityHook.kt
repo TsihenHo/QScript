@@ -48,7 +48,6 @@ class JumpActivityHook : AbsDelayableHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val thiz = param.thisObject as Activity
                 initForActivity(thiz)
-                qqApplication = thiz.application
                 val intent = thiz.intent
                 val cmd: String? = intent.getStringExtra(JUMP_ACTION_CMD)
                 if (intent == null || cmd == null) {

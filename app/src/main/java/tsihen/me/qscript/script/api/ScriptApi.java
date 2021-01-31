@@ -20,7 +20,7 @@ public class ScriptApi {
      * @param msg 日志内容
      */
     public void log(String msg) {
-        Utils.logi("Script : " + script.getName() + msg);
+        Utils.logi("Script : " + script.getName() + " : " + msg);
     }
 
     /**

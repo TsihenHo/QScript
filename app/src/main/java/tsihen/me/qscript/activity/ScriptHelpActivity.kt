@@ -14,9 +14,9 @@ class ScriptHelpActivity : BaseActivity() {
         setContentView(mViewBinding.root)
         mViewBinding.tv.text = """
             |1. 如何删除脚本？
-            |   当脚本没有开启时，长按这个脚本。
+            |    当脚本没有开启时，长按这个脚本。
             |2. 如何更改脚本？
-            |   当脚本开启时，长按这个脚本。
+            |    当脚本开启时，长按这个脚本。
             |3. 请查看“QScript 脚本示例”或“Github Wiki”
         """.trimMargin("|")
         mViewBinding.topAppBar.setNavigationOnClickListener { finish() }

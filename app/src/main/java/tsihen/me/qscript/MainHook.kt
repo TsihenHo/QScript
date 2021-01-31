@@ -44,7 +44,6 @@ class MainHook {
                         return
                     }
                     System.setProperty(QS_FULL_TAG, "true")
-                    qqApplication = ctx.application
                     try {
                         // 注入模块
 //                        val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
@@ -73,20 +72,9 @@ class MainHook {
             Initiator.init(ctx.classLoader)
             if (thirdInited) return
             logi("MainHook : AppId = ${android.os.Process.myPid()}")
-            // 注入模块
-//            val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
-//                ?: throw NullPointerException("ApkFile is null.")
-//            val loader = DexClassLoader(
-//                apkFile.absolutePath,
-//                ctx.getDir("dex", Context.MODE_PRIVATE).absolutePath,
-//                null,
-//                ctx.classLoader as PathClassLoader
-//            )
-//            JavaUtil.loadPlugin(loader, ctx)
             JumpActivityHook.loadDex(ctx)
             initDebugMode()
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
-            qqApplication = ctx.application
         } catch (e: Throwable) {
             log(e)
             failed = true

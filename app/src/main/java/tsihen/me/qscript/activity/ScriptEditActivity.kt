@@ -1,7 +1,6 @@
 package tsihen.me.qscript.activity
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
 import tsihen.me.qscript.R
 import tsihen.me.qscript.databinding.ActivityScriptEditBinding
@@ -21,6 +20,7 @@ class ScriptEditActivity : BaseActivity() {
         mViewBinding = ActivityScriptEditBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
         mViewBinding.topAppBar.setNavigationOnClickListener { finish() }
+        setResult(RESULT_OK)
         var qs: QScript? = null
         try {
             qs = QScriptManager.execute(intent.getStringExtra("script_code"))
@@ -51,9 +51,7 @@ class ScriptEditActivity : BaseActivity() {
                         val code = mViewBinding.editTextTextMultiLine.text?.toString()
                         try {
                             val finalScript = QScriptManager.execute(code)
-                            QScriptManager.replaceScript(
-                                qs, finalScript
-                            )
+                            QScriptManager.replaceScript(qs, finalScript)
                             Toasts.success(this, "成功")
                         } catch (e: RuntimeException) {
                             Toasts.error(this, e.message ?: "未知错误")
@@ -65,15 +63,5 @@ class ScriptEditActivity : BaseActivity() {
                 }
             }
         }
-    }
-
-    override fun finish() {
-        setResult(Activity.RESULT_OK)
-        super.finish()
-    }
-
-    override fun onDestroy() {
-        setResult(Activity.RESULT_OK)
-        super.onDestroy()
     }
 }
