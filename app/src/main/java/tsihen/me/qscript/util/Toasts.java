@@ -61,7 +61,7 @@ public class Toasts {
     public static void showToast(@Nullable Context context, int type, @NonNull final CharSequence text, int duration) {
         Objects.requireNonNull(text, "text");
         if (context == null) {
-            context = Utils.getApplication();
+            context = Utils.getQqApplication();
         }
         final Context ctx = context;
             if (type == TYPE_PLAIN) {

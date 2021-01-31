@@ -1,4 +1,5 @@
 @file:JvmName("Utils")
+@file:Suppress("DEPRECATION")
 
 package tsihen.me.qscript.util
 
@@ -7,23 +8,38 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.os.Process.myPid
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedBridge
+import tsihen.me.qscript.config.ConfigManager
+import java.io.*
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.text.DateFormat
+import java.text.DateFormat.getDateTimeInstance
+import java.util.*
 import kotlin.math.expm1
 import kotlin.math.sqrt
 
+var DEBUG_MODE: Boolean = false
+    set(value) {
+        logi("Utils : DebugMode : Change to $value(from $field)")
+        field = value
+    }
+private var mHandler: Handler? = null
 var qqApplication: Application? = null
-    @JvmName("getApplication")
     get() {
         if (field == null) {
             logw("The qqApplication is null.")
         }
         return field
     }
-    @JvmName("setApplication")
     set(value) {
         if (value == null) {
             logw("The qqApplication is set to null.")
@@ -35,15 +51,30 @@ fun getApplicationNonNull(): Application {
     return qqApplication ?: throw NullPointerException("QQApplication is null.")
 }
 
+fun initDebugMode() {
+    val mgr = ConfigManager.tryGetDefaultConfig()
+    DEBUG_MODE = mgr?.getOrDefault("debug_mode", false) ?: false
+}
+
 // Log
-fun log(e: Throwable) {
-    val msg = Log.getStackTraceString(e)
-    Log.e(QS_LOG_TAG, msg)
+fun appendToFile(fileName: String?, content: String?) {
+    var writer: FileWriter? = null
     try {
-        XposedBridge.log(e)
-    } catch (e: NoClassDefFoundError) {
-        Log.e(QS_LOG_TAG, msg)
+        writer = FileWriter(fileName, true)
+        writer.write(content)
+    } catch (e: IOException) {
+        e.printStackTrace()
+    } finally {
+        try {
+            writer?.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
+}
+
+fun log(e: Throwable) {
+    loge(Log.getStackTraceString(e))
 }
 
 fun loge(msg: String) {
@@ -52,6 +83,23 @@ fun loge(msg: String) {
     } catch (e: NoClassDefFoundError) {
     }
     Log.e(QS_LOG_TAG, msg)
+    try {
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/qscript.log"
+        val f = File(path)
+        try {
+            if (!f.exists()) f.createNewFile()
+            appendToFile(
+                path,
+                "[" +
+                        getDateTimeInstance(
+                            DateFormat.MEDIUM,
+                            DateFormat.MEDIUM
+                        ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]E/ " + msg + "\n"
+            )
+        } catch (e: IOException) {
+        }
+    } catch (e: Exception) {
+    }
 }
 
 fun logd(msg: String) {
@@ -63,6 +111,23 @@ fun logd(msg: String) {
     } catch (e: NoClassDefFoundError) {
     }
     Log.d(QS_LOG_TAG, msg)
+    try {
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/qscript.log"
+        val f = File(path)
+        try {
+            if (!f.exists()) f.createNewFile()
+            appendToFile(
+                path,
+                "[" +
+                        getDateTimeInstance(
+                            DateFormat.MEDIUM,
+                            DateFormat.MEDIUM
+                        ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]D/ " + msg + "\n"
+            )
+        } catch (e: IOException) {
+        }
+    } catch (e: Exception) {
+    }
 }
 
 fun logi(msg: String) {
@@ -71,6 +136,23 @@ fun logi(msg: String) {
     } catch (e: NoClassDefFoundError) {
     }
     Log.i(QS_LOG_TAG, msg)
+    try {
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/qscript.log"
+        val f = File(path)
+        try {
+            if (!f.exists()) f.createNewFile()
+            appendToFile(
+                path,
+                "[" +
+                        getDateTimeInstance(
+                            DateFormat.MEDIUM,
+                            DateFormat.MEDIUM
+                        ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]I/ " + msg + "\n"
+            )
+        } catch (e: IOException) {
+        }
+    } catch (e: Exception) {
+    }
 }
 
 fun logw(msg: String) {
@@ -79,6 +161,23 @@ fun logw(msg: String) {
     } catch (e: NoClassDefFoundError) {
     }
     Log.w(QS_LOG_TAG, msg)
+    try {
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/qscript.log"
+        val f = File(path)
+        try {
+            if (!f.exists()) f.createNewFile()
+            appendToFile(
+                path,
+                "[" +
+                        getDateTimeInstance(
+                            DateFormat.MEDIUM,
+                            DateFormat.MEDIUM
+                        ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]W/ " + msg + "\n"
+            )
+        } catch (e: IOException) {
+        }
+    } catch (e: Exception) {
+    }
 }
 
 fun getActiveModuleVersion(): String? {
@@ -87,7 +186,6 @@ fun getActiveModuleVersion(): String? {
     Math.random()
     return null
 }
-
 
 fun hasField(
     obj: Any?,
@@ -331,6 +429,33 @@ fun Any.invokeVirtual(
     return method.invoke(this, *argv)
 }
 
+fun runOnUiThread(r: Runnable) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
+        r.run()
+    } else {
+        if (mHandler == null) {
+            mHandler = Handler(Looper.getMainLooper())
+        }
+        mHandler!!.post(r)
+    }
+}
+
+@Throws(java.lang.Exception::class)
+fun copy(s: File, f: File) {
+    if (!s.exists()) throw FileNotFoundException("源文件不存在")
+    if (!f.exists()) f.createNewFile()
+    val fr = FileReader(s)
+    val fw = FileWriter(f)
+    val buff = CharArray(1024)
+    var len = 0
+    while (len != -1) {
+        fw.write(buff, 0, len)
+        len = fr.read(buff)
+    }
+    fw.close()
+    fr.close()
+}
+
 inline fun <reified T : Activity> Context.startActivity() {
     val intent = Intent(this, Initiator.load(".activity.JumpActivity", T::class.java.classLoader))
     intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_START_ACTIVITY)
@@ -338,3 +463,8 @@ inline fun <reified T : Activity> Context.startActivity() {
 
     this.startActivity(intent)
 }
+
+inline fun <reified T> Gson.fromJson(json: String): T? = this.fromJson<T>(
+    json,
+    object : TypeToken<T>() {}.type
+)

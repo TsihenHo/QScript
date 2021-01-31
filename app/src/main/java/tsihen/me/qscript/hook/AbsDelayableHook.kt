@@ -5,7 +5,8 @@ abstract class AbsDelayableHook {
         private var sAllHooks: Array<AbsDelayableHook>? = null
         fun queryDelayableHooks(): Array<AbsDelayableHook> {
             if (sAllHooks == null) {
-                sAllHooks = arrayOf(SettingEntryHook.get(), JumpActivityHook.get())
+                sAllHooks =
+                    arrayOf(SettingEntryHook.get(), JumpActivityHook.get(), ScriptEventHook.get())
             }
             return sAllHooks!!
         }

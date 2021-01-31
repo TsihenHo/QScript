@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ScriptManageActivity">
+    tools:context=".activity.ScriptHelpActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -17,9 +17,8 @@
             android:id="@+id/topAppBar"
             style="@style/Toolbar"
             android:layout_height="wrap_content"
-            app:menu="@menu/script_manage_toolbar"
             app:navigationIcon="@drawable/ic_return"
-            app:title="脚本管理" />
+            app:title="帮助" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -27,14 +26,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        
-        <LinearLayout
+
+        <TextView
+            android:id="@+id/tv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:id="@+id/script_root" />
-
+            android:layout_margin="16dp"
+            android:text="@string/nothing"
+            android:textSize="18sp" />
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

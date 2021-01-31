@@ -30,7 +30,7 @@ class MainHook {
         }
         Initiator.init(classLoader)
         val splashActivity: Class<*> =
-            Initiator.load("com.tencent.mobileqq.activity.SplashActivity")!!
+            classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
         XposedHelpers.findAndHookMethod(
             splashActivity,
             "doOnCreate",
@@ -38,14 +38,28 @@ class MainHook {
             object : XC_MethodHook(51) {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val ctx = param.thisObject as Activity
-                    qqApplication = ctx.application
                     if (secInited) return
                     if (System.getProperty(QS_FULL_TAG) == "true") {
                         loge("Error: QScript reload.Stop it.")
                         return
                     }
                     System.setProperty(QS_FULL_TAG, "true")
-                    getInstance().performHook(param.thisObject as Activity)
+                    qqApplication = ctx.application
+                    try {
+                        // 注入模块
+//                        val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
+//                            ?: throw NullPointerException("ApkFile is null.")
+//                        val loader = DexClassLoader(
+//                            apkFile.absolutePath,
+//                            ctx.getDir("dex", Context.MODE_PRIVATE).absolutePath,
+//                            null,
+//                            ctx.classLoader as PathClassLoader
+//                        )
+//                        JavaUtil.loadPlugin(loader, ctx)
+                        getInstance().performHook(ctx)
+                    } catch (e: Exception) {
+                        log(e)
+                    }
                     secInited = true
                 }
             })
@@ -53,10 +67,30 @@ class MainHook {
     }
 
     fun performHook(ctx: Activity) {
-        logd("进入主Hook")
-        if (thirdInited) return
         var failed = false
-        AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
+        try {
+            logd("进入主Hook")
+            Initiator.init(ctx.classLoader)
+            if (thirdInited) return
+            logi("MainHook : AppId = ${android.os.Process.myPid()}")
+            // 注入模块
+//            val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
+//                ?: throw NullPointerException("ApkFile is null.")
+//            val loader = DexClassLoader(
+//                apkFile.absolutePath,
+//                ctx.getDir("dex", Context.MODE_PRIVATE).absolutePath,
+//                null,
+//                ctx.classLoader as PathClassLoader
+//            )
+//            JavaUtil.loadPlugin(loader, ctx)
+            JumpActivityHook.loadDex(ctx)
+            initDebugMode()
+            AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
+            qqApplication = ctx.application
+        } catch (e: Throwable) {
+            log(e)
+            failed = true
+        }
         if (failed) {
             Toasts.error(ctx, "错误：QScript 初始化失败")
             return

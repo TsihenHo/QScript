@@ -145,4 +145,15 @@
         <attr name="image" format="reference" />
         <attr name="arrow" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="ViewFilledWithTwoLinesAndImage">
+        <attr name="viewFilled_title" format="string" />
+        <attr name="viewFilled_desc" format="string" />
+        <attr name="viewFilled_image" format="reference" />
+        <attr name="viewFilled_color" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="CodeEditView">
+        <attr name="withLineNum" format="boolean" />
+    </declare-styleable>
 </resources>

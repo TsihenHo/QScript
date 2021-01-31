@@ -28,5 +28,6 @@
     <string name="taichi_yang_not_activated">太极·阳 未激活</string>
     <string name="taichi_yang_activated">太极·阳 已激活</string>
     <string name="new_script">新建脚本…</string>
-    <string name="open_qn">打开 QN（兼容模式）</string>
+    <string name="help">帮助...</string>
+    <string name="script_readonly">这个脚本是只读（ReadOnly）的，您不能编辑它（即使您编辑了，您的更改也不会保存）</string>
 </resources>

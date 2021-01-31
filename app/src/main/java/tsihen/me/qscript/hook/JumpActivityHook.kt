@@ -7,18 +7,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
-import dalvik.system.DexClassLoader
-import dalvik.system.PathClassLoader
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import tsihen.me.qscript.MainHook
 import tsihen.me.qscript.activity.SettingActivity
 import tsihen.me.qscript.util.*
 import tsihen.me.qscript.util.Initiator.load
-import java.lang.reflect.Field
+import tsihen.me.qscript.util.JavaUtil.*
+import java.io.File
 import java.lang.reflect.Method
 
 /**
@@ -28,6 +23,18 @@ class JumpActivityHook : AbsDelayableHook() {
     companion object {
         private val self = JumpActivityHook()
         fun get(): JumpActivityHook = self
+
+        fun loadDex(ctx: Context) {
+//            val filesDir = ctx.filesDir
+//            val libraries =
+//                Initiator::class.java.classLoader!!.getResourceAsStream("assets/libraries.zip")
+//                    .reader().readText()
+//            val libFilePath = filesDir.absolutePath + "/qscript_androidx_lib.zip"
+//            val libFile = ctx.openFileOutput("qscript_androidx_lib.zip", Context.MODE_PRIVATE)
+//            libFile.write(libraries.toByteArray())
+            replaceClassLoader(Initiator::class.java.classLoader)
+//            loadPlugin(ctx, findApkFile(ctx, PACKAGE_NAME_SELF).absolutePath)
+        }
     }
 
     override fun init(): Boolean {
@@ -54,7 +61,7 @@ class JumpActivityHook : AbsDelayableHook() {
                     thiz.startActivity(realIntent)
                 } else if (JUMP_ACTION_START_ACTIVITY == cmd) {
                     val target = intent.getStringExtra(JUMP_ACTION_TARGET) ?: ""
-                    logi("JumpActivity: Target = $target")
+                    logi("JumpActivity : Target = $target")
                     if (target.isNotEmpty()) {
                         try {
                             val activityClass = Class.forName(target)
@@ -78,7 +85,7 @@ class JumpActivityHook : AbsDelayableHook() {
     @SuppressLint("PrivateApi")
     fun initForActivity(ctx: Activity) {
         // 取出 activity
-        try {
+        /*try {
             val sCurrentActivityThreadThread = XposedHelpers.findField(
                 Class.forName("android.app.ActivityThread"),
                 "sCurrentActivityThread"
@@ -180,21 +187,11 @@ class JumpActivityHook : AbsDelayableHook() {
             }
         } catch (e: java.lang.Exception) {
             log(e)
-        }
+        }*/
+        JavaUtil.initForStubActivity(ctx)
         JavaUtil.injectModuleResources(ctx.resources)
-        // 注入模块
-        val apkFile = JavaUtil.findApkFile(qqApplication, PACKAGE_NAME_SELF)
-            ?: throw NullPointerException("ApkFile is null.")
-        val loader = DexClassLoader(
-            apkFile.absolutePath,
-            ctx.getDir("dex", Context.MODE_PRIVATE).absolutePath,
-            null,
-            ctx.classLoader as PathClassLoader
-        )
-        JavaUtil.loadPlugin(loader, ctx)
         // 注入模块过后，重新 INIT
-        MainHook.getInstance().doInit(ctx.classLoader)
-
+//        MainHook.getInstance().doInit(ctx.classLoader)
         val instrumentation =
             MyInstrumentation(getObject(ctx, "mInstrumentation", Instrumentation::class.java)!!)
         setObject(ctx, "mInstrumentation", instrumentation)

@@ -76,7 +76,7 @@ Java_tsihen_me_qscript_util_Utils_ntGetBuildTimestamp(JNIEnv *env, jclass clazz)
     t.tm_isdst = date.tm_isdst;
 
     long long finalTime = ((long long) mktime(&t)) * 1000;
-    __android_log_write(ANDROID_LOG_DEBUG, "QSDump", "In JNI...");
+//    __android_log_write(ANDROID_LOG_DEBUG, "QSDump", "In JNI...");
 
     return finalTime;
 }

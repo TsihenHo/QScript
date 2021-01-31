@@ -26,6 +26,8 @@
     <color name="unusableColor">#FFFF5252</color>
     <color name="warnColor">#ffFFC107</color>
     <color name="rippleColor">#143C4043</color>
+    <color name="darkRippleColor">#303C4043</color>
+    <color name="darkDarkRippleColor">#453C4043</color>
     <color name="lineColor">#ffdddddd</color>
     <color name="nullColor">#00000000</color>
     <color name="backgroundColor">#FFFFFFFF</color>

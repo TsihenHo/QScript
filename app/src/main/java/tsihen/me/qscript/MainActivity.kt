@@ -7,13 +7,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import kotlinx.android.synthetic.main.activity_main.*
-import tsihen.me.qscript.activity.SettingActivity
-import tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+import tsihen.me.qscript.databinding.ActivityMainBinding
 import tsihen.me.qscript.util.*
 import tsihen.me.qscript.util.HookStatue.getStatue
 import tsihen.me.qscript.util.HookStatue.getStatueName
@@ -22,11 +19,13 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private var dbgInfo = ""
+    private lateinit var mViewBinding: ActivityMainBinding
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        mViewBinding  = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mViewBinding.root)
 
         var str: String? = ""
         try {
@@ -34,7 +33,6 @@ class MainActivity : AppCompatActivity() {
                 系统类加载器:${ClassLoader.getSystemClassLoader()}
                 启用的版本:${getActiveModuleVersion()}
                 安装的版本:${QS_VERSION_NAME}
-                调试模式:${DEBUG_MODE}
                 """.trimIndent()
         } catch (r: Throwable) {
             str += r
@@ -54,23 +52,23 @@ class MainActivity : AppCompatActivity() {
             dbgInfo += "\n" + e.toString()
         }
         val statue = this.getStatue(false)
-        main_activationStatusLinearLayout.background = ResourcesCompat.getDrawable(
+        mViewBinding.mainActivationStatusLinearLayout.background = ResourcesCompat.getDrawable(
             resources,
             if (statue.isActive()) R.drawable.bg_green_solid else R.drawable.bg_red_solid,
             theme
         )
-        main_activationStatusIcon.setImageDrawable(
+        mViewBinding.mainActivationStatusIcon.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
                 if (statue.isActive()) R.drawable.ic_success_white else R.drawable.ic_failure_white,
                 theme
             )
         )
-        main_activationStatusTitle.text = if (getActiveModuleVersion() != null) "已激活" else "未激活"
-        main_activationStatusDesc.text =
+        mViewBinding.mainActivationStatusTitle.text = if (getActiveModuleVersion() != null) "已激活" else "未激活"
+        mViewBinding.mainActivationStatusDesc.text =
             getString(statue.getStatueName()).split(" ".toRegex()).toTypedArray()[0]
-        main_textViewVersion.text = QS_VERSION_NAME
-        topAppBar.setOnMenuItemClickListener {
+        mViewBinding.mainTextViewVersion.text = QS_VERSION_NAME
+        mViewBinding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.menu_item_debugInfo -> {
                     AlertDialog.Builder(this@MainActivity)

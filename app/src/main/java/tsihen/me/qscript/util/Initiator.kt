@@ -1,12 +1,13 @@
 package tsihen.me.qscript.util
 
 object Initiator {
-    private var sHostClassLoader: ClassLoader? = null
-    private var sPluginParentClassLoader: ClassLoader? = null
+    @JvmStatic
+    private var sHostClassloader: ClassLoader? = null
 
+    @JvmStatic
     fun init(rtLoader: ClassLoader) {
         try {
-            sPluginParentClassLoader = rtLoader
+            sHostClassloader = rtLoader
         } catch (e: Exception) {
             log(e)
         }
@@ -14,7 +15,9 @@ object Initiator {
 
     @JvmStatic
     fun load(classPath: String, classLoader: ClassLoader? = null): Class<*>? {
-        if (classPath.isEmpty()) {
+        sHostClassloader = classLoader ?: sHostClassloader
+        if (classPath.isEmpty() || sHostClassloader == null) {
+            logw("Initiator : Didn't init.")
             return null
         }
         var className = classPath.replace('/', '.')
@@ -29,11 +32,13 @@ object Initiator {
             className = PACKAGE_NAME_QQ + className
         }
         return try {
-            sPluginParentClassLoader = classLoader ?: sPluginParentClassLoader
-            sPluginParentClassLoader!!.loadClass(className)
+            sHostClassloader!!.loadClass(className)
         } catch (e: Throwable) {
             log(e)
             null
         }
     }
+
+    @JvmStatic
+    fun getHostClassLoader() = sHostClassloader
 }

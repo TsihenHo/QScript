@@ -8,10 +8,13 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import kotlinx.android.synthetic.main.view_two_lines_and_image.view.*
 import tsihen.me.qscript.R
+import tsihen.me.qscript.databinding.ViewTwoLinesAndImageBinding
 
-class ViewWithTwoLinesAndImage(ctx: Context, attrs: AttributeSet) : FrameLayout(ctx, attrs) {
+class ViewWithTwoLinesAndImage(ctx: Context, attrs: AttributeSet?) : FrameLayout(ctx, attrs) {
+    private val mViewBinding: ViewTwoLinesAndImageBinding =
+        ViewTwoLinesAndImageBinding.inflate(LayoutInflater.from(context), this, true)
+
     var title: CharSequence? = null
         set(value) {
             field = value
@@ -57,12 +60,11 @@ class ViewWithTwoLinesAndImage(ctx: Context, attrs: AttributeSet) : FrameLayout(
                 recycle()
             }
         }
-        LayoutInflater.from(context).inflate(R.layout.view_two_lines_and_image, this, true)
-        view_with_two_lines_and_image_root.setOnClickListener { mListener?.onClick(this) } // 至关重要
-        view_with_two_lines_and_image_tvTitle.text = title
-        view_with_two_lines_and_image_tvDesc.text = desc
-        view_with_two_lines_and_image_iv.setImageDrawable(ContextCompat.getDrawable(context, image!!))
-        view_with_two_lines_and_image_ivArrow.isVisible = withArrow!!
+        mViewBinding.root.setOnClickListener { mListener?.onClick(this) } // 至关重要
+        mViewBinding.viewWithTwoLinesAndImageTvTitle.text = title
+        mViewBinding.viewWithTwoLinesAndImageTvDesc.text = desc
+        mViewBinding.viewWithTwoLinesAndImageIv.setImageDrawable(ContextCompat.getDrawable(context, image!!))
+        mViewBinding.viewWithTwoLinesAndImageIvArrow.isVisible = withArrow!!
         isClickable = true
     }
 

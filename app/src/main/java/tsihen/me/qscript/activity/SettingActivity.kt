@@ -2,17 +2,15 @@ package tsihen.me.qscript.activity
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import kotlinx.android.synthetic.main.activity_setting.*
 import tsihen.me.qscript.R
+import tsihen.me.qscript.databinding.ActivitySettingBinding
 import tsihen.me.qscript.ui.IOnClickListener
 import tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
 import tsihen.me.qscript.util.*
@@ -20,34 +18,40 @@ import java.util.*
 
 
 class SettingActivity : BaseActivity(), IOnClickListener {
+    private lateinit var mViewBinding: ActivitySettingBinding
+
     @Suppress("DEPRECATION")
     @SuppressLint("InflateParams", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            mViewBinding = ActivitySettingBinding.inflate(layoutInflater)
+        } catch (t: Throwable) {
+            log(t)
+            finish()
+        }
         logi("启动设置，application is ${this.application.packageName}")
-        setContentView(
-            LayoutInflater.from(this).inflate(R.layout.activity_setting, null, false)
-        )
+        setContentView(mViewBinding.root)
 
-        textViewVersion.text = QS_VERSION_NAME
-        statusLinearLayout.background =
+        mViewBinding.textViewVersion.text = QS_VERSION_NAME
+        mViewBinding.statusLinearLayout.background =
             ResourcesCompat.getDrawable(resources, R.drawable.bg_green_solid, theme)
-        statusIcon.setImageDrawable(
+        mViewBinding.statusIcon.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
                 R.drawable.ic_success_white,
                 theme
             )
         )
-        statusTitle.text = "一切正常"
-        statusDesc.text = "看起来什么问题也没有\n如果出现问题，请进入高级设置，点击“修复模块”——但这通常没有效果（逃"
+        mViewBinding.statusTitle.text = "一切正常"
+        mViewBinding.statusDesc.text = "看起来什么问题也没有\n如果出现问题，请进入高级设置，点击“修复模块”——但这通常没有效果（逃"
 
-        script_manage.setOnClickListener(this)
-        settings.setOnClickListener(this)
-        bug.setOnClickListener(this)
-        about_me.setOnClickListener(this)
+        mViewBinding.scriptManage.setOnClickListener(this)
+        mViewBinding.settings.setOnClickListener(this)
+        mViewBinding.bug.setOnClickListener(this)
+        mViewBinding.aboutMe.setOnClickListener(this)
 
-        topAppBar.setOnMenuItemClickListener {
+        mViewBinding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.menu_item_debugInfo -> {
                     var dbgInfo = ""
@@ -75,13 +79,13 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                     } catch (e: Throwable) {
                         dbgInfo += "\n" + e.toString()
                     }
-                    androidx.appcompat.app.AlertDialog.Builder(this)
+                    AlertDialog.Builder(this)
                         .setTitle("调试信息").setPositiveButton(android.R.string.ok, null)
                         .setMessage(dbgInfo).show()
                     return@setOnMenuItemClickListener true
                 }
                 R.id.menu_item_about -> {
-                    about_me.performClick()
+                    mViewBinding.aboutMe.performClick()
                     return@setOnMenuItemClickListener true
                 }
                 else -> {
@@ -89,19 +93,12 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
             }
         }
-        if (Initiator.load("nil.nadph.qnotified.activity.SettingsActivity") != null) {
-            logi("SettingActivity : 发现 QNotified")
-        }
     }
 
     @Suppress("DEPRECATION")
     override fun onClick(v: ViewWithTwoLinesAndImage) {
-        logd("SettingActivity : 你点击了一些东西")
         when (v.id) {
-            R.id.about_me -> AlertDialog.Builder(
-                this,
-                android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
-            )
+            R.id.about_me -> AlertDialog.Builder(this)
                 .setMessage(Html.fromHtml(this.getString(R.string.about_me)))
                 .setTitle("关于")
                 .setIcon(ContextCompat.getDrawable(this, R.drawable.ic_people))
@@ -117,12 +114,24 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
                 .show()
             R.id.script_manage -> startActivity<ScriptManageActivity>()
-            R.id.menu_item_openQN -> {
-                val realIntent = Intent()
-                realIntent.component =
-                    ComponentName(PACKAGE_NAME_QQ, "nil.nadph.qnotified.activity.SettingsActivity")
-                startActivity(realIntent)
-            }
+            R.id.settings -> startActivity<DevSettingActivity>()
+            R.id.bug -> AlertDialog.Builder(this)
+                .setTitle("问题反馈")
+                .setMessage(
+                    "这里有两种方式进行问题反馈，反馈错误时，请明确表明如何复现这个错误并且附上模块的日志。" +
+                            "当然，您也可以提出建议。\n\n反馈方式：\n1. 向我发送邮件。\n2. 前往 Github，提交反馈。"
+                )
+                .setNeutralButton("Github") { d, _ ->
+                    d.dismiss()
+                    //调用内置动作
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    //将url解析为Uri对象，再传递出去
+                    intent.data = Uri.parse("https://github.com/GoldenHuaji/QScript/issues")
+                    //启动
+                    startActivity(intent)
+                }
+                .setNegativeButton("好") { d, _ -> d.dismiss() }
+                .show()
         }
     }
 }

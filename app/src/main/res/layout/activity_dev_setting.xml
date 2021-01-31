@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.DevSettingActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:stateListAnimator="@null">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Toolbar"
+            android:layout_height="wrap_content"
+            app:navigationIcon="@drawable/ic_return"
+            app:title="高级设置" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <tsihen.me.qscript.ui.ViewFilledWithTwoLinesAndImage
+                android:id="@+id/debug_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:viewFilled_color="@drawable/bg_red_solid"
+                app:viewFilled_desc="你即使打开了，对你也没有用"
+                app:viewFilled_image="@drawable/ic_bug"
+                app:viewFilled_title="调试模式" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/show_log"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="查看模块日志"
+                app:image="@drawable/ic_script"
+                app:title="查看日志" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/remove_all_log"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="清除模块日志"
+                app:image="@drawable/ic_script"
+                app:title="清理日志" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/remove_all_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="不可逆操作！！！请谨慎！！！"
+                app:image="@drawable/ic_script"
+                app:title="重置模块设置" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/dev_setting_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="仅供调试"
+                app:image="@drawable/ic_script"
+                app:title="数据写入、读取测试" />
+
+            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/dev_setting_show_setting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:desc="仅供调试"
+                app:image="@drawable/ic_script"
+                app:title="查看模块配置文件" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
