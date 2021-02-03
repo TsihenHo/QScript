@@ -20,7 +20,6 @@ class ScriptEditActivity : BaseActivity() {
         mViewBinding = ActivityScriptEditBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
         mViewBinding.topAppBar.setNavigationOnClickListener { finish() }
-        setResult(RESULT_OK)
         var qs: QScript? = null
         try {
             qs = QScriptManager.execute(intent.getStringExtra("script_code"))

@@ -4,10 +4,10 @@ object ParamFactory {
     /**
      * 构建一个好友消息参数对象
      *
-     * @return [FriendTextMessageParam]
+     * @return [FriendMessageParam]
      */
-    fun friendMessage(): FriendTextMessageParam {
-        return FriendTextMessageParam()
+    fun friendMessage(): FriendMessageParam {
+        return FriendMessageParam()
     }
 
     /**
@@ -31,10 +31,10 @@ object ParamFactory {
     /**
      * 构建一个群消息参数对象
      *
-     * @return [GroupTextMessageParam]
+     * @return [GroupMessageParam]
      */
-    fun groupMessage(): GroupTextMessageParam {
-        return GroupTextMessageParam()
+    fun groupMessage(): GroupMessageParam {
+        return GroupMessageParam()
     }
 
     /**

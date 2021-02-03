@@ -1,6 +1,6 @@
 package tsihen.me.qscript.script.params
 
-class FriendTextMessageParam {
+class FriendMessageParam {
     /**
      * 好友id
      */
@@ -10,22 +10,22 @@ class FriendTextMessageParam {
      * 消息内容
      */
     var content: String? = null
-    fun setUin(uin: String?): FriendTextMessageParam {
+    fun setUin(uin: String?): FriendMessageParam {
         this.uin = uin
         return this
     }
 
-    fun setUin(uin: Long): FriendTextMessageParam {
+    fun setUin(uin: Long): FriendMessageParam {
         this.uin = uin.toString() + ""
         return this
     }
 
-    fun setContent(content: String?): FriendTextMessageParam {
+    fun setContent(content: String?): FriendMessageParam {
         this.content = content
         return this
     }
 
-    fun create(): FriendTextMessageParam {
+    fun create(): FriendMessageParam {
         return this
     }
 }

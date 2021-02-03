@@ -19,11 +19,11 @@ class QScript(private val instance: Interpreter, private val code: String) {
         return enable
     }
 
-    fun getName(): String = info!!.name
-    fun getLabel(): String = info!!.label
-    fun getVersion(): String = info!!.version
-    fun getAuthor(): String = info!!.author
-    fun getDesc(): String = info!!.desc
+    fun getName(): String = info.name
+    fun getLabel(): String = info.label
+    fun getVersion(): String = info.version
+    fun getAuthor(): String = info.author
+    fun getDesc(): String = info.desc
     fun getCode(): String = code
 
     fun setEnable(z: Boolean) {
@@ -54,7 +54,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
         }
     }
 
-    fun onGroupMessage(param: GroupTextMessageParam) {
+    fun onGroupMessage(param: GroupMessageParam) {
         if (!init) return
         try {
             instance.set("groupMessageParam", param)
@@ -65,7 +65,7 @@ class QScript(private val instance: Interpreter, private val code: String) {
         }
     }
 
-    fun onFriendMessage(param: FriendTextMessageParam) {
+    fun onFriendMessage(param: FriendMessageParam) {
         if (!init) return
         try {
             instance.set("friendMessageParam", param)

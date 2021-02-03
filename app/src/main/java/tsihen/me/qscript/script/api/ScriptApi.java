@@ -1,5 +1,6 @@
 package tsihen.me.qscript.script.api;
 
+import tsihen.me.qscript.hook.SendMsgHook;
 import tsihen.me.qscript.script.QScript;
 import tsihen.me.qscript.util.Utils;
 
@@ -28,10 +29,19 @@ public class ScriptApi {
      *
      * @param msg  消息内容
      * @param qNum 接受者的 QQ 号
-     * @return 是否成功
      */
-    public boolean sendTextMsg(String msg, long qNum) {
-        return true;
+    public void sendTextMsg(String msg, long qNum, long ... at) {
+        SendMsgHook.Companion.get().sendText(msg, qNum, at);
+    }
+
+    /**
+     * 给某人发送纯文本消息（如果没有添加好友，请 createTempConversation 后再发送消息）
+     *
+     * @param msg  消息内容
+     * @param qNum 接受者的 QQ 号
+     */
+    public void sendTextMsg(String msg, long qNum) {
+        SendMsgHook.Companion.get().sendText(msg, qNum);
     }
 
     /**
@@ -47,10 +57,17 @@ public class ScriptApi {
 
     /**
      * 发送群文本消息
-     *
+     * @param atAll 是否艾特全体成员（如果您没有管理员权限，将发送失败）
      * @return 是否成功
      */
-    public boolean sendGroupTextMsg(String msg, long groupNum) {
+    public boolean sendGroupTextMsg(String msg, long groupNum, boolean atAll) {
+        return true;
+    }
+
+    /**
+     * 发送群文本消息并@一些人
+     */
+    public boolean sendGroupTextMsgAndAt(String msg, long groupNum, long ... at) {
         return true;
     }
 }

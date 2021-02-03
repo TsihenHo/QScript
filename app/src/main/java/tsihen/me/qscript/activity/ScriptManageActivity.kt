@@ -47,8 +47,11 @@ class ScriptManageActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == codeEditScript) {
+            refresh()
+            return
+        }
         if (resultCode != RESULT_OK) return
-        if (requestCode == codeEditScript) refresh()
         if (requestCode == codeAddScript) {
             if (data == null) {
                 Toasts.error(this, "错误：没有选择文件")
@@ -122,7 +125,7 @@ class ScriptManageActivity : BaseActivity() {
                     override fun onLongClick(v: ViewFilledWithTwoLinesAndImage): Boolean {
                         if (!it.isEnable()) {
                             if (it.getLabel() == "qscript-demo") {
-                                Toasts.error(this@ScriptManageActivity, "您不能删除示例脚本")
+                                Toasts.error(this@ScriptManageActivity, "您不能删除自带脚本")
                             } else {
                                 AlertDialog.Builder(this@ScriptManageActivity)
                                     .setTitle("确定删除这个脚本吗？")

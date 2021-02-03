@@ -24,7 +24,7 @@ import tsihen.me.qscript.MainHook;
 import tsihen.me.qscript.R;
 
 import static de.robv.android.xposed.XposedHelpers.findField;
-import static tsihen.me.qscript.util.Utils.getObject;
+import static tsihen.me.qscript.util.ClassUtils.getObject;
 import static tsihen.me.qscript.util.Utils.log;
 import static tsihen.me.qscript.util.Utils.loge;
 import static tsihen.me.qscript.util.Utils.logi;

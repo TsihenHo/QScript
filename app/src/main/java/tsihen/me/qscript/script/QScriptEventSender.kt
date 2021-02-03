@@ -1,6 +1,7 @@
 package tsihen.me.qscript.script
 
 import tsihen.me.qscript.script.params.*
+import tsihen.me.qscript.util.logd
 
 object QScriptEventSender {
     /**
@@ -8,7 +9,7 @@ object QScriptEventSender {
      *
      * @param param 使用[ParamFactory]构建的param对象
      */
-    fun broadcastGroupMessage(param: GroupTextMessageParam) {
+    fun broadcastGroupMessage(param: GroupMessageParam) {
         for (qs in QScriptManager.getScripts()) {
             if (!qs.isEnable()) continue
             qs.onGroupMessage(param)
@@ -20,7 +21,7 @@ object QScriptEventSender {
      *
      * @param param 使用[ParamFactory]构建的param对象
      */
-    fun broadcastFriendMessage(param: FriendTextMessageParam) {
+    fun broadcastFriendMessage(param: FriendMessageParam) {
         for (qs in QScriptManager.getScripts()) {
             if (!qs.isEnable()) continue
             qs.onFriendMessage(param)
