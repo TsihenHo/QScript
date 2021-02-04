@@ -33,7 +33,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <tsihen.me.qscript.ui.ViewFilledWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
                 android:id="@+id/debug_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                 app:viewFilled_image="@drawable/ic_bug"
                 app:viewFilled_title="调试模式" />
 
-            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/show_log"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 app:image="@drawable/ic_script"
                 app:title="查看日志" />
 
-            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/remove_all_log"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
                 app:image="@drawable/ic_script"
                 app:title="清理日志" />
 
-            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/remove_all_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 app:image="@drawable/ic_script"
                 app:title="重置模块设置" />
 
-            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/dev_setting_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
                 app:image="@drawable/ic_script"
                 app:title="数据写入、读取测试" />
 
-            <tsihen.me.qscript.ui.ViewWithTwoLinesAndImage
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/dev_setting_show_setting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

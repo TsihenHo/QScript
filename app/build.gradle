@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "tsihen.me.qscript"
+        applicationId "me.tsihen.me.tsihen.qscript"
         minSdkVersion 22
         targetSdkVersion 29
         versionCode 1

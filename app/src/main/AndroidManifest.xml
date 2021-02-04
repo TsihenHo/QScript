@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="tsihen.me.qscript">
+    package="me.tsihen.qscript">
 
     <application
         android:allowBackup="false"
@@ -9,7 +9,7 @@
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="me.tsihen.qscript.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <tsihen.me.qscript.ui.CodeEditView
+                <me.tsihen.qscript.ui.CodeEditView
                     android:id="@+id/editTextTextMultiLine"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

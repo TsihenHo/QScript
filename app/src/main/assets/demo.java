@@ -22,17 +22,21 @@
  * 在脚本加载的时候调用
  */
 public void onLoad(){
-        api.log("onLoad() : User's QNum is "+mQNum.toString());
-        // 发消息的时候，QQ号末尾必须加 L 表示长整形
-        api.sendTextMsg("QScript 脚本发消息测试：表情：/xyx [斜眼笑] [奸笑]",3340792396L);
-        }
+    api.log("onLoad() : User's QNum is "+mQNum.toString());
+    // 发消息的时候，QQ号末尾必须加 L 表示长整形
+    api.sendTextMsg("QScript 脚本发消息测试：表情：/xyx [斜眼笑] [奸笑]",3340792396L);
+}
 
 /**
  * 好友文本消息
  */
-public void onFriendMessage(Object param){
-        api.log("on friend msg");
-        String l=param.uin; // 发送者
-        String s=param.content; // 文本内容
-        api.sendTextMsg("QScript：自动回复\n消息内容："+s+"\n消息发送人："+l,3318448676L);
-        }
+public void onMsg(Object param){
+    api.log("on friend msg");
+    String l=param.senderUin; // 发送者
+    String s=param.content; // 文本内容
+    String name=param.nickname; // 名字
+    if(param.isGroupMsg() || l == mQNum){
+        return;
+    }
+    api.sendTextMsg("QScript：自动回复\n消息内容："+s+"\n消息发送人："+name,api.str2long(l));
+}
