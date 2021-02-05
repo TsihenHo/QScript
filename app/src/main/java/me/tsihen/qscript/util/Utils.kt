@@ -267,7 +267,7 @@ fun getBuildTimestamp(context: Context? = null): Long {
         logd("Context is null.")
     }
     return try {
-        Natives.load(ctx!!, true)
+        Natives.load(ctx!!)
         ntGetBuildTimestamp()
     } catch (throwable: Throwable) {
         log(throwable)

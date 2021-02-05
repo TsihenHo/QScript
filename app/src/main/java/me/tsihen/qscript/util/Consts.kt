@@ -54,10 +54,13 @@ const val FILE_DEFAULT_CONFIG = 1
 const val FILE_CACHE = 2
 const val FILE_UIN_DATA = 3
 
-// ClassFinder
+/**
+ * For [ClassFinder]
+ */
 const val C_BASE_CHAT_PIE = 1
 const val C_CHAT_ACTIVITY_FACADE = 2
 const val C_APP_INTERFACE_FACTORY = 4
 const val C_QQ_APP_INTERFACE = 8
 const val C_SESSION_INFO = 16
 const val C_MESSAGE_FOR_ARK_APP = 32
+const val C_TROOP_MEMBER_INFO = 64

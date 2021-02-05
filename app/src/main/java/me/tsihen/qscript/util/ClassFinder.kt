@@ -34,6 +34,9 @@ object ClassFinder {
                 Initiator.load(".activity.aio.SessionInfo")
             C_MESSAGE_FOR_ARK_APP ->
                 Initiator.load(".data.MessageForArkApp")
+            C_TROOP_MEMBER_INFO ->
+                Initiator.load(".data.troop.TroopMemberInfo")
+                    ?: Initiator.load(".data.TroopMemberInfo")
             else -> null
         }
     }

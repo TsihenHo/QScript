@@ -25,7 +25,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 object Natives {
-    external fun getpagesize(): Int
+    external fun ntGetPageSize(): Int
 
     @Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("UnsafeDynamicallyLoadedCode")
@@ -34,43 +34,49 @@ object Natives {
     fun load(ctx: Context, must: Boolean = false) {
         if (!must) {
             try {
-                getpagesize()
+                ntGetPageSize()
                 return
             } catch (ignored: UnsatisfiedLinkError) {
             }
         }
-        val abi = Build.CPU_ABI
-        val soName = "libnatives_" + abi + "_" + QS_VERSION_NAME + ".so"
-        val dir = File(ctx.filesDir, "qs_dyn_lib")
-        if (!dir.isDirectory) {
-            if (dir.isFile) {
-                dir.delete()
-            }
-            dir.mkdir()
-        }
-        val soFile = File(dir, soName)
-        if (!soFile.exists()) {
-            val inputStream = Natives::class.java.classLoader!!
-                .getResourceAsStream("lib/$abi/libnative-lib.so")
-                ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")
-            //clean up old files
-            for (name in dir.list()) {
-                if (name.startsWith("libnatives_")) {
-                    File(dir, name).delete()
+        try {
+            val abi = Build.CPU_ABI
+            val soName = "libnatives_" + abi + "_" + QS_VERSION_NAME + ".so"
+            val dir = File(ctx.filesDir, "qscript_dyn_libs")
+            if (!dir.isDirectory) {
+                if (dir.isFile) {
+                    dir.delete()
                 }
+                dir.mkdir()
             }
-            //extract so file
-            soFile.createNewFile()
-            val fileOutputStream = FileOutputStream(soFile)
-            val buf = ByteArray(1024)
-            var i: Int
-            while (inputStream.read(buf).also { i = it } > 0) {
-                fileOutputStream.write(buf, 0, i)
+            val soFile = File(dir, soName)
+            if (!soFile.exists() || must) {
+                soFile.delete()
+                val inputStream = Natives::class.java.classLoader!!
+                    .getResourceAsStream("lib/$abi/libnative-lib.so")
+                    ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")
+                //clean up old files
+                for (name in dir.list()) {
+                    if (name.startsWith("libnatives_")) {
+                        File(dir, name).delete()
+                    }
+                }
+                //extract so file
+                soFile.createNewFile()
+                val fileOutputStream = FileOutputStream(soFile)
+                val buf = ByteArray(1024)
+                var i: Int
+                while (inputStream.read(buf).also { i = it } > 0) {
+                    fileOutputStream.write(buf, 0, i)
+                }
+                inputStream.close()
+                fileOutputStream.flush()
+                fileOutputStream.close()
             }
-            inputStream.close()
-            fileOutputStream.flush()
-            fileOutputStream.close()
+            System.load(soFile.absolutePath)
+            ntGetPageSize()
+        } catch (e: Exception) {
+            log(e)
         }
-        System.load(soFile.absolutePath)
     }
 }

@@ -92,7 +92,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                                 "δ(delta)=" + delta + "ms\n" +
                                 "被支持的 ABI(S):" + Arrays.toString(Build.SUPPORTED_ABIS) +
                                 "\n当前 ABI: ${Build.CPU_ABI}" + "\n是否支持？：${Build.CPU_ABI in Build.SUPPORTED_ABIS}" +
-                                "\n页大小:" + Natives.getpagesize()
+                                "\n页大小:" + Natives.ntGetPageSize()
                     } catch (e: Throwable) {
                         dbgInfo += "\n" + e.toString()
                     }

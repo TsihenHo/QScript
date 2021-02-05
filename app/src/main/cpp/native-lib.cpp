@@ -20,20 +20,22 @@
 #include <string>
 #include <unistd.h>
 #include <android/log.h>
-extern "C"
-JNIEXPORT jstring JNICALL
-Java_tsihen_me_qscript_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-    std::string hello = "QScript: 一个 Xposed 模块";
-    return env->NewStringUTF(hello.c_str());
-}
 
-extern "C"
-JNIEXPORT jint JNICALL
-Java_tsihen_me_qscript_util_Natives_getpagesize(JNIEnv *env, jobject thiz) {
-    return getpagesize();
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
+//JNIEXPORT jstring JNICALL
+//Java_me_tsihen_qscript_MainActivity_stringFromJNI(
+//        JNIEnv *env,
+//        jobject /* this */) {
+//    std::string hello = "QScript: 一个 Xposed 模块";
+//    return env->NewStringUTF(hello.c_str());
+//}
+
+//JNIEXPORT jint JNICALL
+//Java_me_tsihen_qscript_util_Natives_ntGetPageSize(JNIEnv *env, jobject thiz) {
+//    return getpagesize();
+//}
 
 typedef struct tm timeStruct;
 
@@ -78,9 +80,7 @@ static timeStruct getTimeFromMacro(char const *time) {
     return t;
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_tsihen_me_qscript_util_Utils_ntGetBuildTimestamp(JNIEnv *env, jclass clazz) {
+jlong getBuildTimestamp(JNIEnv *env, jclass clazz) {
     timeStruct date = getDateFromMacro(__DATE__);
     timeStruct time = getTimeFromMacro(__TIME__);
     timeStruct t = {0};
@@ -97,3 +97,44 @@ Java_tsihen_me_qscript_util_Utils_ntGetBuildTimestamp(JNIEnv *env, jclass clazz)
 
     return finalTime;
 }
+
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+    JNIEnv *env = nullptr;
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
+        __android_log_print(ANDROID_LOG_ERROR, "QSDump",
+                            "cannot find env");
+        return -1;
+    }
+    jclass utilsClazz = env->FindClass("me/tsihen/qscript/util/Utils");
+    jclass nativesClazz = env->FindClass("me/tsihen/qscript/util/Natives");
+    if (!utilsClazz || !nativesClazz) {
+        __android_log_print(ANDROID_LOG_ERROR, "QSDump",
+                            "cannot get class: Utils or Natives");
+        return -1;
+    }
+
+    JNINativeMethod lMethods[1];
+    lMethods[0].name = "ntGetBuildTimestamp";
+    lMethods[0].signature = "()J";
+    lMethods[0].fnPtr = (void *) &getBuildTimestamp;
+    if (env->RegisterNatives(utilsClazz, lMethods, 1)) {
+        __android_log_print(ANDROID_LOG_INFO, "QSDump", "register native method[0] failed!\n");
+        return -1;
+    }
+
+    lMethods[0].name = "ntGetPageSize";
+    lMethods[0].signature = "()I";
+    lMethods[0].fnPtr = (void *) &getpagesize;
+    if (env->RegisterNatives(nativesClazz, lMethods, 1)) {
+        __android_log_print(ANDROID_LOG_INFO, "QSDump", "register native method[0] failed!\n");
+        return -1;
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, "QSDump",
+                        "Natives inited.");
+    return JNI_VERSION_1_4;
+}
+
+#ifdef __cplusplus
+}
+#endif

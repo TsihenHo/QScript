@@ -86,9 +86,9 @@ class MainHook {
         var failed = false
         try {
             if (thirdInited) return
-            JumpActivityHook.loadDex(ctx)
+            JumpActivityHook.loadDex()
             initDebugMode()
-            Natives.load(ctx)
+            Natives.load(ctx, true)
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
         } catch (e: Throwable) {
             log(e)

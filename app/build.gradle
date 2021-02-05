@@ -8,26 +8,28 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "me.tsihen.me.tsihen.qscript"
+        applicationId 'me.tsihen.qscript'
         minSdkVersion 22
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
+        multiDexEnabled false
         ndk {
-            setAbiFilters(['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'])
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            //drop "mips" , 'armeabi',
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -50,6 +52,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    ndkVersion '21.1.6352462'
 }
 
 repositories {

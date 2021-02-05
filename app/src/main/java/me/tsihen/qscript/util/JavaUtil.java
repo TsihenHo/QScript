@@ -142,7 +142,7 @@ public class JavaUtil {
                         file = (File) getObject(element, "file", null);
                     if (file != null && !file.isDirectory()) {
                         String path = file.getPath();
-                        if (modulePath == null || !modulePath.contains("tsihen.me.me.tsihen.qscript")) {
+                        if (modulePath == null || !modulePath.contains("me.tsihen.qscript")) {
                             modulePath = path;
                         }
                     }

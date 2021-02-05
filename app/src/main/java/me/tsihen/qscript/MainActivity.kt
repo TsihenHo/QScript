@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewBinding  = ActivityMainBinding.inflate(layoutInflater)
+        mViewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
 
         var str: String? = ""
@@ -58,14 +58,13 @@ class MainActivity : AppCompatActivity() {
         dbgInfo += str
         try {
             var delta = System.currentTimeMillis()
-            Natives.load(this)
             val ts: Long = getBuildTimestamp(this)
             delta = System.currentTimeMillis() - delta
             dbgInfo += "\n构建时间:" + (if (ts > 0) Date(ts).toString() else "unknown") + ", " +
                     "δ(delta)=" + delta + "ms\n" +
                     "被支持的 ABI(S):" + Arrays.toString(Build.SUPPORTED_ABIS) +
                     "\n当前 ABI: ${Build.CPU_ABI}" + "\n是否支持？：${Build.CPU_ABI in Build.SUPPORTED_ABIS}" +
-                    "\n页大小:" + Natives.getpagesize()
+                    "\n页大小:" + Natives.ntGetPageSize()
         } catch (e: Throwable) {
             dbgInfo += "\n" + e.toString()
         }
@@ -82,7 +81,8 @@ class MainActivity : AppCompatActivity() {
                 theme
             )
         )
-        mViewBinding.mainActivationStatusTitle.text = if (getActiveModuleVersion() != null) "已激活" else "未激活"
+        mViewBinding.mainActivationStatusTitle.text =
+            if (getActiveModuleVersion() != null) "已激活" else "未激活"
         mViewBinding.mainActivationStatusDesc.text =
             getString(statue.getStatueName()).split(" ".toRegex()).toTypedArray()[0]
         mViewBinding.mainTextViewVersion.text = QS_VERSION_NAME
@@ -113,12 +113,12 @@ class MainActivity : AppCompatActivity() {
      */
 //    private external fun stringFromJNI(): String
 
-//    companion object {
-//        // Used to load the 'native-lib' library on application startup.
-//        init {
-//            System.loadLibrary("native-lib")
-//        }
-//    }
+    companion object {
+        // Used to load the 'native-lib' library on application startup.
+        init {
+            System.loadLibrary("native-lib")
+        }
+    }
 
     fun openModuleSettingForHost(view: View) {
         val pkg: String = when (view.id) {

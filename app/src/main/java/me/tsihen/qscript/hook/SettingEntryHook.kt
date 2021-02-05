@@ -83,9 +83,6 @@ class SettingEntryHook : AbsDelayableHook() {
                         }
                         item.setOnClickListener {
                             (param.thisObject as Activity).startActivity<SettingActivity>()
-//                            val intent = Intent(param.thisObject as Activity, Initiator.load(".activity.JumpActivity"))
-//                            intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_SETTING_ACTIVITY)
-//                            (param.thisObject as Activity).startActivity(intent)
                         }
                         (itemRef.parent as ViewGroup).addView(
                             item,

@@ -73,7 +73,7 @@ public class MyInstrumentation extends Instrumentation {
 
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if (className.startsWith("tsihen.me.me.tsihen.qscript.")) {
+        if (className.startsWith("me.tsihen.qscript.")) {
             return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
         }
         return mBase.newActivity(cl, className, intent);
@@ -85,7 +85,7 @@ public class MyInstrumentation extends Instrumentation {
             injectModuleResources(activity.getResources());
             mBase.callActivityOnCreate(activity, icicle);
         } catch (Exception e) {
-            if (Pattern.matches("[\\W]tsihen\\.|me\\.qscript", Log.getStackTraceString(e).replace("tsihen.me.me.tsihen.qscript.util.MyInstrumentation.callActivityOnStart", ""))) {
+            if (Pattern.matches("[\\W]me\\.|tsihen\\.qscript", Log.getStackTraceString(e).replace("me.tsihen.qscript.util.MyInstrumentation.callActivityOnStart", ""))) {
                 throw e;
             }
             //else ignore

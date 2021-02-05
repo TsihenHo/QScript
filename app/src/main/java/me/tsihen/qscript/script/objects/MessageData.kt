@@ -35,17 +35,45 @@ class MessageData {
 
     var nickname: String = ""
 
+    var sessionInfo: Any? = null
+
+    var selfUin = ""
+
+    var id = -1L
+
     fun isGroupMsg() = isGroup
 
     companion object {
         fun getMessage(qqAppInterface: Any, messageRecord: Any): MessageData {
             val data = MessageData()
+            /*
+            All Types:
+            ForText,
+            ForMixedMsg,
+            ForArkApp,
+            ForAutoReply,
+            ForFile,
+            ForPic,
+            and so on
+             */
             try {
-                data.senderUin = getObject<String>(messageRecord, "senderuin") ?: ""
+                val isTroop = getObject<Int>(messageRecord, "istroop")
+                val senderUin = getObject<String>(messageRecord, "senderuin") ?: ""
+                val session = ClassFinder.findClass(C_SESSION_INFO)!!.newInstance()
+                setObject(session, "a", isTroop, Int::class.java)
+                setObject(session, "a", senderUin, String::class.java)
+
+                data.sessionInfo = session
+                data.senderUin = senderUin
+                data.selfUin = getObject<String>(messageRecord, "selfuin") ?: ""
                 data.friendUin = getObject<String>(messageRecord, "frienduin") ?: ""
                 data.time = getObject<Long>(messageRecord, "time") ?: -1L
-                data.isGroup = getObject<Int>(messageRecord, "istroop") == 1
+                data.isGroup = isTroop == 1
                 data.content = getObject<String>(messageRecord, "msg") ?: ""
+                data.id = getObject<Long>(messageRecord, "msgUid") ?: {
+                    logw("MessageData : GetMessage : 找不到 MsgId")
+                    -1L
+                }.invoke()
                 data.nickname = Initiator.load(".utils.ContactUtils")?.callStaticMethod(
                     "a",
                     qqAppInterface,
@@ -62,7 +90,6 @@ class MessageData {
             } catch (e: Exception) {
                 log(e)
             }
-            logd("MessageData : GetMessage :  msg = ${data.content}, nickname = ${data.nickname}, senderUin = ${data.senderUin}")
             return data
         }
     }

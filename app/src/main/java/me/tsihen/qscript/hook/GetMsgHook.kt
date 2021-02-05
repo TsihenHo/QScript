@@ -22,10 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.tsihen.qscript.script.QScriptEventSender
 import me.tsihen.qscript.script.objects.MessageData.Companion.getMessage
-import me.tsihen.qscript.util.C_QQ_APP_INTERFACE
-import me.tsihen.qscript.util.ClassFinder
-import me.tsihen.qscript.util.Initiator
-import me.tsihen.qscript.util.log
+import me.tsihen.qscript.util.*
 
 class GetMsgHook : AbsDelayableHook() {
     companion object {
@@ -34,6 +31,7 @@ class GetMsgHook : AbsDelayableHook() {
     }
 
     private var inited = false
+    private val msgDone = mutableListOf<Long>()
 
     override fun init(): Boolean {
         if (inited) return true
@@ -46,8 +44,32 @@ class GetMsgHook : AbsDelayableHook() {
             )
             XposedBridge.hookMethod(getMsgMethod, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    val p = getMessage(param.args[0], param.args[1])
-                    QScriptEventSender.doOnMsg(p)
+                    try {
+                        val p = getMessage(param.args[0], param.args[1])
+                        val type = param.args[1].javaClass.simpleName
+                        logd("GetMsgHook : type is $type.")
+                        // 仅仅接受用户发送的部分类型消息
+                        if (!type.endsWith("ArkApp") && // XML 消息
+                            !type.endsWith("Structing") && // JSON 消息
+                            !type.endsWith("Text") && // 纯文本消息
+                            !type.endsWith("MixedMsg") && // 文本图片消息
+                            !type.endsWith("Pic") && // 纯图片消息
+                            !type.endsWith("Ptt") && // 语音消息
+                            !type.endsWith("ShakeWindow") // 窗口抖动
+                        ) {
+                            return
+                        }
+
+                        // 防止重复
+                        if (msgDone.contains(p.id)) return
+                        msgDone.add(p.id)
+                        // 控制内存
+                        if (msgDone.size > 10) msgDone.removeAt(0)
+
+                        QScriptEventSender.doOnMsg(p)
+                    } catch (e: Exception) {
+                        log(e)
+                    }
                 }
             })
         } catch (e: Exception) {

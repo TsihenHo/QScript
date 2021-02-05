@@ -21,6 +21,7 @@ package me.tsihen.qscript.hook
 import android.content.Context
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import me.tsihen.qscript.script.objects.MessageData
 import me.tsihen.qscript.util.*
 import java.lang.reflect.Method
 
@@ -31,10 +32,12 @@ class SendMsgHook : AbsDelayableHook() {
     }
 
     var inited = false
-    private var sendMsgMethod: Method? = null
-    private lateinit var sessionInfo: Class<*>
-    private lateinit var qqAppInterface: Class<*>
-    private lateinit var sendMsgParams: Class<*>
+    private var sendTextMethod: Method? = null
+    private var sendArkAppMethod: Method? = null
+    private var sendAbsStructMethod: Method? = null
+    private lateinit var sessionInfoClass: Class<*>
+    private lateinit var qqAppInterfaceClass: Class<*>
+    private lateinit var sendMsgParamsClass: Class<*>
 
     private var qqAppInterfaceObject: Any? = null
     private var qqContextObject: Any? = null
@@ -42,9 +45,9 @@ class SendMsgHook : AbsDelayableHook() {
     override fun init(): Boolean {
         if (inited) return true
         try {
-            sessionInfo = Initiator.load(".activity.aio.SessionInfo")!!
-            qqAppInterface = Initiator.load(".app.QQAppInterface")!!
-            sendMsgParams = Initiator.load(".activity.ChatActivityFacade\$SendMsgParams")!!
+            sessionInfoClass = ClassFinder.findClass(C_SESSION_INFO)!!
+            qqAppInterfaceClass = ClassFinder.findClass(C_QQ_APP_INTERFACE)!!
+            sendMsgParamsClass = Initiator.load(".activity.ChatActivityFacade\$SendMsgParams")!!
         } catch (e: KotlinNullPointerException) {
             loge("SendMsgHook : FATAL : Didn't find SessionInfo or QQAppInterface or SendMsgParams.")
             log(e)
@@ -56,21 +59,37 @@ class SendMsgHook : AbsDelayableHook() {
             return false
         }
         try {
-            sendMsgMethod = chatActivityFacade.getDeclaredMethod(
+            sendTextMethod = chatActivityFacade.getDeclaredMethod(
                 "a",
-                qqAppInterface,
+                qqAppInterfaceClass,
                 Context::class.java,
-                sessionInfo,
+                sessionInfoClass,
                 String::class.java,
                 ArrayList::class.java,
-                sendMsgParams
+                sendMsgParamsClass
             )
+            val absStructMsgClass = Initiator.load(".structmsg.AbsStructMsg")!!
+            val arkAppMessageClass = Initiator.load(".data.ArkAppMessage")!!
+            for (m in ClassFinder.findClass(C_CHAT_ACTIVITY_FACADE)!!.methods) {
+                val clz = m.parameterTypes
+                if (clz.size != 3) continue
+                if (clz[0].name == qqAppInterfaceClass.name &&
+                    clz[1].name == sessionInfoClass.name
+                ) {
+                    if (clz[2].name == arkAppMessageClass.name && m.returnType == Boolean::class.java)
+                        sendArkAppMethod = m
+                    else if (clz[2].name == absStructMsgClass.name && m.returnType == Void.TYPE)
+                        sendAbsStructMethod = m
+                    if (sendAbsStructMethod != null && sendArkAppMethod != null)
+                        break
+                }
+            }
         } catch (e: NoSuchMethodException) {
             loge("SendMsgHook : FATAL : Didn't find the method which can send msg.")
             log(e)
             return false
         }
-        XposedBridge.hookMethod(sendMsgMethod, object : XC_MethodHook() {
+        XposedBridge.hookMethod(sendTextMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 qqAppInterfaceObject = param.args[0]
                 qqContextObject = param.args[1]
@@ -86,8 +105,8 @@ class SendMsgHook : AbsDelayableHook() {
     }
 
     private fun getSendMsgMethod(): Method? {
-        return if (sendMsgMethod != null) {
-            sendMsgMethod
+        return if (sendTextMethod != null) {
+            sendTextMethod
         } else {
             logw("SendMsgHook : Get method before init.")
             null
@@ -97,7 +116,24 @@ class SendMsgHook : AbsDelayableHook() {
     /**
      * @param qNum 消息接受者
      */
-    fun sendText(msg: String, qNum: Long, vararg at: Long) {
+    fun sendText(msg: String, qNum: Long) {
+        val method = getSendMsgMethod() ?: return
+        val ctx = getApplicationNonNull()
+        method.invoke(
+            null,
+            getAppRuntime(),
+            ctx,
+            buildSessionInfo(qNum.toString()),
+            msg,
+            arrayListOf<Any?>(),
+            sendMsgParamsClass.newInstance()
+        )
+    }
+
+    /**
+     * 这个是通过 data 发送消息
+     */
+    fun sendText(data: MessageData, msg: String, at: Array<Long>) {
         val method = getSendMsgMethod() ?: return
         val ctx = getApplicationNonNull()
         val arrayList = arrayListOf<Any?>()
@@ -105,27 +141,97 @@ class SendMsgHook : AbsDelayableHook() {
         at.forEach {
             val obj = atTroopMemberInfo.newInstance()
             setObject(obj, "uin", it)
-            setObject(obj, "textLen", msg.length)
-            setObject(obj, "wExtBufLen", 0)
-            setObject(obj, "startPos", 1)
+            setObject(obj, "textLen", msg.length.toShort())
+            setObject(obj, "wExtBufLen", 1.toShort())
+            setObject(obj, "startPos", 0.toShort())
             arrayList.add(obj)
         }
         method.invoke(
             null,
             getAppRuntime(),
             ctx,
-            buildSessionInfo(qNum.toString()),
+            data.sessionInfo,
             msg,
             arrayList,
-            sendMsgParams.newInstance()
+            sendMsgParamsClass.newInstance()
         )
     }
 
-    private fun buildSessionInfo(qNum: String): Any? {
-        val s = sessionInfo.newInstance()
+    /**
+     * 这个是发送群聊消息
+     *
+     * @param qNum 消息接受者
+     */
+    fun sendText(msg: String, qNum: Long, at: Array<Long>) {
+        val method = getSendMsgMethod() ?: return
+        val ctx = getApplicationNonNull()
+        val arrayList = arrayListOf<Any?>()
+        val atTroopMemberInfo = Initiator.load(".data.AtTroopMemberInfo")!!
+        at.forEach {
+            val obj = atTroopMemberInfo.newInstance()
+            setObject(obj, "uin", it)
+            setObject(obj, "textLen", msg.length.toShort())
+            setObject(obj, "wExtBufLen", 1.toShort())
+            setObject(obj, "startPos", 0.toShort())
+            arrayList.add(obj)
+        }
+        method.invoke(
+            null,
+            getAppRuntime(),
+            ctx,
+            buildSessionInfo(qNum.toString(), true),
+            msg,
+            arrayList,
+            sendMsgParamsClass.newInstance()
+        )
+    }
+
+    /**
+     * 发送 JSON 消息
+     */
+    fun sendArkApp(msg: String, qNum: Long, isGroup: Boolean) {
+        if (sendArkAppMethod == null) return
+        try {
+            val session = buildSessionInfo(qNum.toString(), isGroup)
+            val arkAppMsg = Initiator.load(".data.ArkAppMessage")!!.newInstance()
+            if (!(arkAppMsg.callVisualMethod(
+                    "fromAppXml",
+                    msg,
+                    String::class.java,
+                    Boolean::class.java
+                ) as Boolean)
+            ) return
+            sendArkAppMethod?.invoke(null, getAppRuntime(), session, arkAppMsg)
+        } catch (e: Exception) {
+            log(e)
+        }
+    }
+
+    /**
+     * 发送 XML 消息
+     */
+    fun sendAbsStruct(msg: String, qNum: Long, isGroup: Boolean) {
+        if (sendAbsStructMethod == null) return
+        try {
+            val session = buildSessionInfo(qNum.toString(), isGroup)
+            val absStructMsg = Initiator.load(".structmsg.TestStructMsg")
+                ?.callStaticMethod(
+                    "a",
+                    msg,
+                    String::class.java,
+                    Initiator.load(".structmsg.AbsStructMsg")
+                )
+            sendAbsStructMethod?.invoke(null, getAppRuntime(), session, absStructMsg)
+        } catch (e: Exception) {
+            log(e)
+        }
+    }
+
+    private fun buildSessionInfo(qNum: String, isGroup: Boolean = false): Any? {
+        val s = sessionInfoClass.newInstance()
         setObject(s, "a", qNum, String::class.java)
         setObject(s, "a", System.currentTimeMillis(), Long::class.java)
-        setObject(s, "a", 0, Int::class.java)
+        setObject(s, "a", if (isGroup) 1 else 0, Int::class.java)
         setObject(s, "b", 32, Int::class.java)
         setObject(s, "c", 1, Int::class.java)
         setObject(s, "d", 10004, Int::class.java)
