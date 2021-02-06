@@ -28,8 +28,11 @@ import android.text.Html
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import me.tsihen.qscript.R
+import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.databinding.ActivitySettingBinding
 import me.tsihen.qscript.ui.IOnClickListener
+import me.tsihen.qscript.ui.IOnClickListenerFilled
+import me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
 import me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
 import me.tsihen.qscript.util.*
 import java.util.*
@@ -51,17 +54,6 @@ class SettingActivity : BaseActivity(), IOnClickListener {
         setContentView(mViewBinding.root)
 
         mViewBinding.textViewVersion.text = QS_VERSION_NAME
-        mViewBinding.statusLinearLayout.background =
-            ResourcesCompat.getDrawable(resources, R.drawable.bg_green_solid, theme)
-        mViewBinding.statusIcon.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.ic_success_white,
-                theme
-            )
-        )
-        mViewBinding.statusTitle.text = "一切正常"
-        mViewBinding.statusDesc.text = "看起来什么问题也没有\n如果出现问题，请进入高级设置，点击“修复模块”——但这通常没有效果（逃"
 
         mViewBinding.scriptManage.setOnClickListener(this)
         mViewBinding.settings.setOnClickListener(this)
@@ -78,7 +70,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                             系统类加载器:${ClassLoader.getSystemClassLoader()}
                             启用的版本:${getActiveModuleVersion()}
                             安装的版本:${QS_VERSION_NAME}
-                            调试模式:$DEBUG_MODE
+                            调试模式:$debugMode
                         """.trimIndent()
                     } catch (r: Throwable) {
                         str += r
@@ -112,6 +104,45 @@ class SettingActivity : BaseActivity(), IOnClickListener {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        refresh()
+    }
+
+    private fun refresh() {
+        val mgr = ConfigManager.getDefaultConfig()
+        if (!mgr.getOrDefault("has_error", false)) {
+            mViewBinding.statusLinearLayout.color =
+                ResourcesCompat.getDrawable(resources, R.drawable.bg_green_solid, theme)
+            mViewBinding.statusLinearLayout.image = R.drawable.ic_success_white
+            mViewBinding.statusLinearLayout.title = "一切正常"
+            mViewBinding.statusLinearLayout.desc = "看起来什么问题也没有\n如果出现问题，请进入高级设置，点击“修复模块”——但这通常没有效果（逃"
+            mViewBinding.statusLinearLayout.setOnClickListener(null)
+        } else {
+            mViewBinding.statusLinearLayout.color =
+                ResourcesCompat.getDrawable(resources, R.drawable.bg_yellow_solid, theme)
+            mViewBinding.statusLinearLayout.image = R.drawable.ic_check_circle
+            mViewBinding.statusLinearLayout.title = "有未处理的错误"
+            mViewBinding.statusLinearLayout.desc = "请点击此处查看"
+            mViewBinding.statusLinearLayout.setOnClickListener(object : IOnClickListenerFilled {
+                override fun onClick(v: ViewFilledWithTwoLinesAndImage) {
+                    AlertDialog.Builder(this@SettingActivity)
+                        .setPositiveButton("好") { d, _ -> d.dismiss() }
+                        .setNegativeButton("反馈") { _, _ -> mViewBinding.bug.performClick() }
+                        .setNeutralButton("清空错误警告") { _, _ ->
+                            mgr["has_error"] = false
+                            mgr["error_message"] = ""
+                            refresh()
+                            Toasts.success(this@SettingActivity, "成功")
+                        }
+                        .setTitle("错误：")
+                        .setMessage(mgr["error_message"] as? String? ?: "无法读取错误")
+                        .show()
+                }
+            })
+        }
+    }
+
     @Suppress("DEPRECATION")
     override fun onClick(v: ViewWithTwoLinesAndImage) {
         when (v.id) {
@@ -122,11 +153,8 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 .setPositiveButton("关闭") { d, _ -> d.dismiss() }
                 .setNeutralButton("开源地址") { d, _ ->
                     d.dismiss()
-                    //调用内置动作
                     val intent = Intent(Intent.ACTION_VIEW)
-                    //将url解析为Uri对象，再传递出去
                     intent.data = Uri.parse("https://github.com/GoldenHuaji/QScript")
-                    //启动
                     startActivity(intent)
                 }
                 .show()

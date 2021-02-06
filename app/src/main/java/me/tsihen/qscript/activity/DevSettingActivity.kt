@@ -21,6 +21,7 @@ package me.tsihen.qscript.activity
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import me.tsihen.qscript.R
@@ -44,9 +45,10 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
         mViewBinding = ActivityDevSettingBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
 
-        mViewBinding.debugMode.changeColor(DEBUG_MODE)
+        mViewBinding.debugMode.changeColor(debugMode)
 
         mViewBinding.debugMode.setOnClickListener(this)
+        mViewBinding.takeExam.setOnClickListener(this)
         mViewBinding.showLog.setOnClickListener(this)
         mViewBinding.removeAllLog.setOnClickListener(this)
         mViewBinding.removeAllData.setOnClickListener(this)
@@ -59,6 +61,13 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
     @SuppressLint("SetTextI18n")
     override fun onClick(v: ViewWithTwoLinesAndImage) {
         when (v.id) {
+            R.id.take_exam -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    Toasts.success(this, "您的设备不支持高级验证")
+                    return
+                }
+                startActivity<ExamActivity>()
+            }
             R.id.show_log -> {
                 val file =
                     File(Environment.getExternalStorageDirectory().absolutePath + "/me.tsihen.qscript.log")
@@ -169,10 +178,10 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
     override fun onClick(v: ViewFilledWithTwoLinesAndImage) {
         when (v.id) {
             R.id.debug_mode -> {
-                DEBUG_MODE = !DEBUG_MODE
+                debugMode = !debugMode
                 ConfigManager.getDefaultConfig()["debug_mode"] =
                     !((ConfigManager.getDefaultConfig()["debug_mode"] ?: false) as Boolean)
-                v.changeColor(DEBUG_MODE)
+                v.changeColor(debugMode)
             }
         }
     }

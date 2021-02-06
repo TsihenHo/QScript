@@ -18,10 +18,13 @@
  */
 package me.tsihen.qscript.script.api;
 
+import me.tsihen.qscript.config.ConfigManager;
 import me.tsihen.qscript.hook.SendMsgHook;
 import me.tsihen.qscript.script.QScript;
 import me.tsihen.qscript.script.objects.MessageData;
 import me.tsihen.qscript.util.Utils;
+
+import static me.tsihen.qscript.util.Utils.loge;
 
 @SuppressWarnings("unused")
 public class ScriptApi {
@@ -105,6 +108,10 @@ public class ScriptApi {
      * @param isGroup 是否群聊
      */
     public void sendCardMsg(String msg, long qNum, boolean isGroup) {
+        if (!((Boolean) ConfigManager.Companion.getDefaultConfig().get("pass_by_exam"))) {
+            loge("ScriptApi : SendCardMsg : 未通过高级验证，禁止发送卡片");
+            return;
+        }
         if (msg.startsWith("{"))
             SendMsgHook.Companion.get().sendArkApp(msg, qNum, isGroup);
         else if (msg.startsWith("<?xml"))

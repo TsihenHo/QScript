@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -34,55 +33,66 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <LinearLayout
+            <!--            <LinearLayout-->
+            <!--                android:id="@+id/statusLinearLayout"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_marginBottom="16dp"-->
+            <!--                android:background="@drawable/bg_yellow_solid"-->
+            <!--                android:clickable="true"-->
+            <!--                android:focusable="true"-->
+            <!--                android:orientation="horizontal"-->
+            <!--                android:paddingLeft="0dp"-->
+            <!--                android:paddingTop="18dp"-->
+            <!--                android:paddingRight="0dp"-->
+            <!--                android:paddingBottom="18dp">-->
+
+            <!--                <ImageView-->
+            <!--                    android:id="@+id/statusIcon"-->
+            <!--                    android:layout_width="26dp"-->
+            <!--                    android:layout_height="26dp"-->
+            <!--                    android:layout_marginLeft="16dp"-->
+            <!--                    android:layout_marginTop="10dp"-->
+            <!--                    android:layout_marginRight="16dp"-->
+            <!--                    android:contentDescription="@string/nothing"-->
+            <!--                    android:scaleType="fitXY"-->
+            <!--                    android:src="@drawable/ic_check_circle" />-->
+
+            <!--                <LinearLayout-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:orientation="vertical">-->
+
+            <!--                    <TextView-->
+            <!--                        android:id="@+id/statusTitle"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:layout_margin="0dp"-->
+            <!--                        android:text="@string/n_a"-->
+            <!--                        android:textColor="@color/whiteTextColor"-->
+            <!--                        android:textSize="18sp" />-->
+
+            <!--                    <TextView-->
+            <!--                        android:id="@+id/statusDesc"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:paddingTop="2dp"-->
+            <!--                        android:text="@string/internal_error"-->
+            <!--                        android:textColor="@color/whiteTextColor"-->
+            <!--                        android:textSize="14sp" />-->
+
+            <!--                </LinearLayout>-->
+
+            <!--            </LinearLayout>-->
+
+            <me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
                 android:id="@+id/statusLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_yellow_solid"
-                android:orientation="horizontal"
-                android:paddingLeft="0dp"
-                android:paddingTop="18dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="18dp">
-
-                <ImageView
-                    android:id="@+id/statusIcon"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="16dp"
-                    android:contentDescription="@string/nothing"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_check_circle" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/statusTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="0dp"
-                        android:text="@string/n_a"
-                        android:textColor="@color/whiteTextColor"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/statusDesc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="2dp"
-                        android:text="@string/internal_error"
-                        android:textColor="@color/whiteTextColor"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+                app:viewFilled_desc="@string/internal_error"
+                app:viewFilled_image="@drawable/ic_check_circle"
+                app:viewFilled_title="@string/n_a" />
 
             <LinearLayout
                 android:layout_width="match_parent"

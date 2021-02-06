@@ -49,13 +49,13 @@ class GetMsgHook : AbsDelayableHook() {
                         val type = param.args[1].javaClass.simpleName
                         logd("GetMsgHook : type is $type.")
                         // 仅仅接受用户发送的部分类型消息
-                        if (!type.endsWith("ArkApp") && // XML 消息
-                            !type.endsWith("Structing") && // JSON 消息
-                            !type.endsWith("Text") && // 纯文本消息
-                            !type.endsWith("MixedMsg") && // 文本图片消息
-                            !type.endsWith("Pic") && // 纯图片消息
-                            !type.endsWith("Ptt") && // 语音消息
-                            !type.endsWith("ShakeWindow") // 窗口抖动
+                        if (!type.endsWith("ForArkApp") && // XML 消息
+                            !type.endsWith("ForStructing") && // JSON 消息
+                            !type.endsWith("ForText") && // 纯文本消息
+                            !type.endsWith("ForMixedMsg") && // 文本图片消息
+                            !type.endsWith("ForPic") && // 纯图片消息
+                            !type.endsWith("ForPtt") && // 语音消息
+                            !type.endsWith("ForShakeWindow") // 窗口抖动
                         ) {
                             return
                         }

@@ -43,7 +43,7 @@ import java.util.*
 import kotlin.math.expm1
 import kotlin.math.sqrt
 
-var DEBUG_MODE: Boolean = false
+var debugMode: Boolean = false
 private var mHandler: Handler? = null
 
 fun getQQApplication(): Application? {
@@ -77,7 +77,7 @@ fun getLongAccountUin(): Long = getAppRuntime().callVisualMethod("getLongAccount
 
 fun initDebugMode() {
     val mgr = ConfigManager.tryGetDefaultConfig()
-    DEBUG_MODE = mgr?.getOrDefault("debug_mode", false) ?: false
+    debugMode = mgr?.getOrDefault("debug_mode", false) ?: false
 }
 
 // Log
@@ -124,10 +124,19 @@ fun loge(msg: String) {
         }
     } catch (e: Exception) {
     }
+
+    // 错误日志需要保存
+    val mgr = ConfigManager.tryGetDefaultConfig() ?: return
+    mgr["has_error"] = true
+    mgr["error_message"] = (mgr["error_message"]?.toString() ?: "") + "[" +
+            getDateTimeInstance(
+                DateFormat.MEDIUM,
+                DateFormat.MEDIUM
+            ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]E/ " + msg + "\n"
 }
 
 fun logd(msg: String) {
-    if (!DEBUG_MODE) {
+    if (!debugMode) {
         return
     }
     try {
@@ -205,7 +214,7 @@ fun logw(msg: String) {
 }
 
 fun logv(msg: String) {
-    if (DEBUG_MODE) {
+    if (debugMode) {
         try {
             XposedBridge.log(msg)
         } catch (ignored: NoClassDefFoundError) {
