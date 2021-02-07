@@ -132,6 +132,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                         .setNeutralButton("清空错误警告") { _, _ ->
                             mgr["has_error"] = false
                             mgr["error_message"] = ""
+                            mViewBinding.statusLinearLayout.setOnClickListener(null)
                             refresh()
                             Toasts.success(this@SettingActivity, "成功")
                         }

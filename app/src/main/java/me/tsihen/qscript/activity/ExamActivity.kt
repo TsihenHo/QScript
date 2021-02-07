@@ -1,3 +1,21 @@
+/* QScript - An Xposed module to run scripts on QQ
+ * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * https://github.com/GoldenHuaji/QScript
+ *
+ * This software is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
 package me.tsihen.qscript.activity
 
 import android.app.ProgressDialog
@@ -13,23 +31,25 @@ import me.tsihen.qscript.databinding.ActivityExamBinding
 import me.tsihen.qscript.util.Toasts
 import me.tsihen.qscript.util.log
 import me.tsihen.qscript.util.logd
-import org.apache.commons.jexl3.JexlBuilder
-import org.apache.commons.jexl3.MapContext
 import org.jsoup.Jsoup
+import org.mariuszgromada.math.mxparser.Argument
+import org.mariuszgromada.math.mxparser.Expression
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+
 
 class ExamActivity : BaseActivity() {
     private lateinit var mViewBinding: ActivityExamBinding
     private var trueResult: String? = null
     private val handler = Handler {
-        mViewBinding.showExam.text =
-            mViewBinding.showExam.text.toString()
-                .replace("%function%", it.data.getString("function") ?: "读取失败")
-                .replace("%order%", it.data.getString("order") ?: "读取失败")
+        when (it.what) {
+            0 -> {
+                mViewBinding.showExam.text =
+                    mViewBinding.showExam.text.toString()
+                        .replace("%function%", it.data.getString("function") ?: "读取失败")
+                        .replace("%order%", it.data.getString("order") ?: "读取失败")
+            }
+        }
         false
     }
 
@@ -39,6 +59,7 @@ class ExamActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         mViewBinding = ActivityExamBinding.inflate(layoutInflater)
         setContentView(mViewBinding.root)
+        mViewBinding.topAppBar.setNavigationOnClickListener { finish() }
         refresh()
     }
 
@@ -54,33 +75,11 @@ class ExamActivity : BaseActivity() {
             mViewBinding.showExam.text = getString(R.string.derived_function)
             val function = StringBuilder()
             val random = Random()
-            val order = arrayOf(1, 2, 2, 3, 3, 3, 4, 4, 4, 5)[random.nextInt(10)]
+            val order = arrayOf(1, 2, 2, 2, 3, 3, 4, 4, 4, 5)[random.nextInt(10)]
             for (i: Int in 1..30) {
                 // 控制难度，每次循环有 2/9 的概率新增一项
                 if (random.nextBoolean() || random.nextBoolean() || random.nextInt(9) == 0) continue
-                when (random.nextInt(6)) {
-                    0 -> function.append("${random.nextInt(50)}*x^2")
-                    1 -> function.append("${random.nextInt(50)}*x")
-                    2 -> function.append("${random.nextInt(50)}")
-                    3 -> function.append(
-                        "${random.nextInt(5)}*sqrt(x${
-                            if (random.nextBoolean() || random.nextBoolean()) "" // 每次有 1/4 的概率在括号里面增加一次项
-                            else "-${random.nextInt(20)}"
-                        })"
-                    )
-                    4 -> function.append(
-                        "${random.nextInt(5)}*cos(x${
-                            if (random.nextBoolean() || random.nextBoolean()) ""
-                            else "-${random.nextInt(20)}"
-                        })"
-                    )
-                    5 -> function.append(
-                        "${random.nextInt(5)}*sin(x${
-                            if (random.nextBoolean() || random.nextBoolean()) ""
-                            else "-${random.nextInt(20)}"
-                        })"
-                    )
-                }
+                function.append(build(random))
                 function.append(if (random.nextBoolean()) "+" else "-")
             }
             function.deleteCharAt(function.length - 1)
@@ -107,6 +106,7 @@ class ExamActivity : BaseActivity() {
                 val data = Bundle()
                 data.putString("function", function.toString())
                 data.putString("order", order.toString())
+                msg.what = 0
                 msg.data = data
                 handler.sendMessage(msg)
                 logd("ExamActivity : TrueResult is $trueResult")
@@ -127,13 +127,39 @@ class ExamActivity : BaseActivity() {
                 var x = Random().nextInt(5000)
                 if (x == 0) x = 501
                 val userInput = mViewBinding.et.text.toString()
+                val copy = userInput.replace("sqrt", "")
+                    .replace("sin", "")
+                    .replace("cos", "")
+                    .replace("sqrt", "")
+                    .replace("ln", "")
+                    .replace("x", "")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace(".", "")
+                    .replace("+", "")
+                    .replace("-", "")
+                    .replace("*", "")
+                    .replace("/", "")
+                    .replace("^", "")
+                val matcher = Pattern.compile("[^\\d]+").matcher(copy)
+                if (matcher.find()) {
+                    Toasts.error(this, "表达式不合法")
+                    return
+                }
 
-                // 当两者计算结果相同，就一定是对的
-                if (eval(trueResult!!, x) == eval(userInput, x)) {
-                    Toasts.success(this, "成功")
-                    ConfigManager.getDefaultConfig()["pass_by_exam"] = true
-                } else {
-                    Toasts.error(this, "失败")
+                try {
+                    val trueResultNum = eval(trueResult!!, x)
+                    val userResultNum = eval(userInput, x)
+
+                    if (trueResultNum + 0.0001 > userResultNum && trueResultNum - 0.001 < userResultNum) {
+                        Toasts.success(this, "成功")
+                        ConfigManager.getDefaultConfig()["pass_by_exam"] = true
+                    } else {
+                        Toasts.error(this, "失败：结果错误")
+                    }
+                } catch (e: java.lang.Exception) {
+                    log(e)
+                    Toasts.error(this, "失败：表达式不合法")
                 }
             }
             else -> {
@@ -141,53 +167,62 @@ class ExamActivity : BaseActivity() {
         }
     }
 
-    private fun eval(str: String, x: Int): Any {
-        try {
-            val jc = MapContext()
-            jc.set("x", x)
-            val jexl = JexlBuilder().create()
-            var function = str
-            // 计算 jexl 无法计算的，如 sqrt, sin, cos
-            val reSqrt = Pattern.compile("sqrt\\(([x0-9-]*)\\)")
-            val reCos = Pattern.compile("cos\\(([x0-9-]*)\\)")
-            val reSin = Pattern.compile("sin\\(([x0-9-]*)\\)")
+    private fun eval(str: String, x: Int): Double {
+        val func = str.replace("ln", "log")
+        val valueOfX = Argument("x = $x")
+        val e = Expression(func, valueOfX)
+        return e.calculate()
+    }
 
-            val mTrueSqrt = reSqrt.matcher(function)
-            val mTrueCos = reCos.matcher(function)
-            val mTrueSin = reSin.matcher(function)
+    private fun build(random: Random): StringBuilder {
+        val function = StringBuilder()
 
-            while (mTrueSqrt.find()) {
-                function = function.replace(
-                    mTrueSqrt.group(0)!!,
-                    sqrt(
-                        jexl.createExpression(mTrueSqrt.group(1)).evaluate(jc)
-                            .toString().toInt().toDouble()
-                    ).toString()
-                )
-            }
-            while (mTrueCos.find()) {
-                function = function.replace(
-                    mTrueCos.group(0)!!,
-                    cos(
-                        jexl.createExpression(mTrueCos.group(1)).evaluate(jc)
-                            .toString().toInt().toDouble()
-                    ).toString()
-                )
-            }
-            while (mTrueSin.find()) {
-                function = function.replace(
-                    mTrueSin.group(0)!!,
-                    sin(
-                        jexl.createExpression(mTrueSin.group(1)).evaluate(jc)
-                            .toString().toInt().toDouble()
-                    ).toString()
-                )
-            }
-            //            logd("ExamActivity : 经过处理后, function = $function , x = $x, result = $myTrueResultNum")
-            return jexl.createExpression(function).evaluate(jc)
-        } catch (e: java.lang.Exception) {
-            log(e)
-            return "error"
+        when (random.nextInt(7)) {
+            0 -> function.append("${random.nextInt(50)}*x^2")
+            1 -> function.append("${random.nextInt(50)}*x")
+            2 -> function.append("${random.nextInt(50)}")
+            3 -> function.append(
+                "${random.nextInt(5)}*sqrt(${
+                    if (random.nextBoolean() || random.nextBoolean()) "x" // 每次有 1/4 的概率在括号里面增加非x项
+                    else if (random.nextBoolean()) "${build(random)}"
+                    else "-${build(random)}"
+                }${
+                    if (random.nextBoolean() || random.nextBoolean()) "" // 小概率增加
+                    else if (random.nextBoolean()) "+${build(random)}" else "-${build(random)}"
+                })"
+            )
+            4 -> function.append(
+                "${random.nextInt(5)}*cos(${
+                    if (random.nextBoolean() || random.nextBoolean()) "x" // 每次有 1/4 的概率在括号里面增加项
+                    else if (random.nextBoolean()) "${build(random)}"
+                    else "-${build(random)}"
+                }${
+                    if (random.nextBoolean() || random.nextBoolean()) "" // 小概率增加
+                    else if (random.nextBoolean()) "+${build(random)}" else "-${build(random)}"
+                })"
+            )
+            5 -> function.append(
+                "${random.nextInt(5)}*sin(${
+                    if (random.nextBoolean() || random.nextBoolean()) "x" // 每次有 1/4 的概率在括号里面增加项
+                    else if (random.nextBoolean()) "${build(random)}"
+                    else "-${build(random)}"
+                }${
+                    if (random.nextBoolean() || random.nextBoolean()) "" // 小概率增加
+                    else if (random.nextBoolean()) "+${build(random)}" else "-${build(random)}"
+                })"
+            )
+            6 -> function.append(
+                "${random.nextInt(5)}*ln(${
+                    if (random.nextBoolean() || random.nextBoolean()) "x" // 每次有 1/4 的概率在括号里面增加项
+                    else if (random.nextBoolean()) "${build(random)}"
+                    else "-${build(random)}"
+                }${
+                    if (random.nextBoolean() || random.nextBoolean()) "" // 小概率增加
+                    else if (random.nextBoolean()) "+${build(random)}" else "-${build(random)}"
+                })"
+            )
         }
+
+        return function
     }
 }

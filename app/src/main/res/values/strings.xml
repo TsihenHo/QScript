@@ -31,7 +31,7 @@
     <string name="help">帮助...</string>
     <string name="script_readonly">这个脚本是只读（ReadOnly）的，您不能编辑它（即使您编辑了，您的更改也不会保存）</string>
     <string name="reboot_qq_then_apply_script">温馨提示：您做的所有更改，都将在重启 QQ 后生效</string>
-    <string name="derived_function">请对 %function% 求 %order% 阶导数（字母数字间乘号不能省略）。温馨提示：如果您确定您的计算结果无误，但验证失败，请尝试再次点击“确认”按钮，因为程序的算法有很小的概率导致分母为0或者sqrt(0)</string>
+    <string name="derived_function">请对 %function% 求 %order% 阶导数（字母数字间乘号不能省略）。温馨提示：如果您确定您的计算结果无误，但验证失败，请尝试再次点击“确认”按钮，因为程序的算法有很小的概率导致分母为0或者sqrt(-n)。题目有误？请重新生成题目</string>
     <string name="input_result_here">求导结果输入在此处</string>
     <string name="change_exam">更换题目</string>
     <string name="apply">确认</string>
