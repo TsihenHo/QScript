@@ -141,7 +141,7 @@ public class ScriptApi {
      */
     public void shutAllUp(long group, boolean time) {
         Object mgr = getGagManager();
-        ClassUtils.callVisualMethod(mgr, "a", group, time ? 268435455 : 0, String.class, Long.TYPE);
+        ClassUtils.callVisualMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
     }
 
     private Object getGagManager() {
