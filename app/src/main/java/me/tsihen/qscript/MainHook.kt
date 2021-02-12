@@ -45,42 +45,47 @@ class MainHook {
         if (firstInited) {
             return
         }
-        Initiator.init(classLoader)
-        val splashActivity: Class<*> =
-            classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
-        var onCreate: Method? = null
-        var clazz = splashActivity
         try {
-            do {
-                try {
-                    onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
-                } catch (ignored: NoSuchMethodException) {
-                }
-                clazz = clazz.superclass!!
-            } while (onCreate == null && clazz.superclass != Any::class.java)
+            Initiator.init(classLoader)
+            val splashActivity: Class<*> =
+                classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
+            var onCreate: Method? = null
+            var clazz = splashActivity
+            try {
+                do {
+                    try {
+                        onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
+                    } catch (ignored: NoSuchMethodException) {
+                    }
+                    clazz = clazz.superclass!!
+                } while (onCreate == null && clazz.superclass != Any::class.java)
+            } catch (e: Exception) {
+                log(e)
+            }
+            XposedBridge.hookMethod(
+                onCreate,
+                object : XC_MethodHook(51) {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val ctx = getQQApplication()!!
+                            if (secInited) return
+                            if (System.getProperty(QS_FULL_TAG) == "true") {
+                                loge("Error: QScript reload.Stop it.")
+                                return
+                            }
+                            System.setProperty(QS_FULL_TAG, "true")
+                            getInstance().performHook(ctx)
+                        } catch (e: Exception) {
+                            log(e)
+                        }
+                        secInited = true
+                    }
+                })
+            firstInited = true
         } catch (e: Exception) {
             log(e)
+            firstInited = false
         }
-        XposedBridge.hookMethod(
-            onCreate,
-            object : XC_MethodHook(51) {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val ctx = getQQApplication()!!
-                    if (secInited) return
-                    if (System.getProperty(QS_FULL_TAG) == "true") {
-                        loge("Error: QScript reload.Stop it.")
-                        return
-                    }
-                    System.setProperty(QS_FULL_TAG, "true")
-                    try {
-                        getInstance().performHook(ctx)
-                    } catch (e: Exception) {
-                        log(e)
-                    }
-                    secInited = true
-                }
-            })
-        firstInited = true
     }
 
     fun performHook(ctx: Context) {

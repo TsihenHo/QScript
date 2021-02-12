@@ -56,7 +56,7 @@ class ConfigManager private constructor(private val file: File, private val type
         fun getCache(): ConfigManager {
             if (sCache == null) {
                 sCache = ConfigManager(
-                    File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json"),
+                    File(getApplicationNonNull().filesDir.absolutePath + "/qscript_cache.json"),
                     FILE_DEFAULT_CONFIG
                 )
             }

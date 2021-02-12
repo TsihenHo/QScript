@@ -49,7 +49,7 @@ class ScriptEditActivity : BaseActivity() {
         qs!!
         val label = qs.getLabel()
         mViewBinding.editTextTextMultiLine.setText(qs.getCode())
-        if (label == "me.tsihen.qscript-demo") {
+        if (label == "qscript-demo") {
             mViewBinding.editTextTextMultiLine.keyListener = null
             mViewBinding.topAppBar.setOnMenuItemClickListener {
                 when (it.itemId) {

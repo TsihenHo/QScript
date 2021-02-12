@@ -33,6 +33,7 @@ class SendMsgHook : AbsDelayableHook() {
     private var sendTextMethod: Method? = null
     private var sendArkAppMethod: Method? = null
     private var sendAbsStructMethod: Method? = null
+    private var sendPicMethod: Method? = null
     private lateinit var sessionInfoClass: Class<*>
     private lateinit var qqAppInterfaceClass: Class<*>
     private lateinit var sendMsgParamsClass: Class<*>
@@ -67,17 +68,30 @@ class SendMsgHook : AbsDelayableHook() {
             val arkAppMessageClass = Initiator.load(".data.ArkAppMessage")!!
             for (m in ClassFinder.findClass(C_CHAT_ACTIVITY_FACADE)!!.methods) {
                 val clz = m.parameterTypes
-                if (clz.size != 3) continue
-                if (clz[0].name == qqAppInterfaceClass.name &&
-                    clz[1].name == sessionInfoClass.name
-                ) {
-                    if (clz[2].name == arkAppMessageClass.name && m.returnType == Boolean::class.java)
-                        sendArkAppMethod = m
-                    else if (clz[2].name == absStructMsgClass.name && m.returnType == Void.TYPE)
-                        sendAbsStructMethod = m
-                    if (sendAbsStructMethod != null && sendArkAppMethod != null)
-                        break
+
+                if (clz.size == 3) {
+                    if (clz[0].name == qqAppInterfaceClass.name &&
+                        clz[1].name == sessionInfoClass.name
+                    ) {
+                        if (clz[2].name == arkAppMessageClass.name && m.returnType == Boolean::class.java)
+                            sendArkAppMethod = m
+                        else if (clz[2].name == absStructMsgClass.name && m.returnType == Void.TYPE)
+                            sendAbsStructMethod = m
+                    }
+                } else if (clz.size == 4) {
+                    if (clz[0].name == qqAppInterfaceClass.name &&
+                        clz[1].name == sessionInfoClass.name &&
+                        clz[2].name == Initiator.load(".data.MessageForPic")!!.name &&
+                        clz[3] == Int::class.java &&
+                        m.returnType == Void.TYPE
+                    ) {
+                        logd("find photo sender")
+                        sendPicMethod = m
+                    }
                 }
+
+                if (sendAbsStructMethod != null && sendArkAppMethod != null && sendPicMethod != null)
+                    break
             }
         } catch (e: NoSuchMethodException) {
             loge("SendMsgHook : FATAL : Didn't find the method which can send msg.")
@@ -193,7 +207,7 @@ class SendMsgHook : AbsDelayableHook() {
                     Boolean::class.java
                 ) as Boolean)
             ) return
-            sendArkAppMethod?.invoke(null, getAppRuntime(), session, arkAppMsg)
+            sendArkAppMethod?.invoke(null, qqAppInterface, session, arkAppMsg)
         } catch (e: Exception) {
             log(e)
         }
@@ -213,8 +227,33 @@ class SendMsgHook : AbsDelayableHook() {
                     String::class.java,
                     Initiator.load(".structmsg.AbsStructMsg")
                 )
-            sendAbsStructMethod?.invoke(null, getAppRuntime(), session, absStructMsg)
+            sendAbsStructMethod?.invoke(null, qqAppInterface, session, absStructMsg)
         } catch (e: Exception) {
+            log(e)
+        }
+    }
+
+    /**
+     * 发送图片消息
+     */
+    fun sendPic(path: String, qNum: Long, isGroup: Boolean) {
+        if (sendPicMethod == null) return
+        try {
+            val session = buildSessionInfo(qNum.toString(), isGroup)
+            val chatMessage =
+                ClassFinder.findClass(C_CHAT_ACTIVITY_FACADE)!!
+                    .callStaticMethod(
+                        "a",
+                        qqAppInterface,
+                        session,
+                        path,
+                        qqAppInterfaceClass,
+                        sessionInfoClass,
+                        String::class.java,
+                        Initiator.load(".data.ChatMessage")
+                    )
+            sendPicMethod?.invoke(null, qqAppInterface, session, chatMessage, 0)
+        } catch (e: java.lang.Exception) {
             log(e)
         }
     }

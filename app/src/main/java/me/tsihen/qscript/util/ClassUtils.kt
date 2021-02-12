@@ -131,7 +131,6 @@ fun Class<*>.callStaticMethod(
     return method.invoke(null, *argv)
 }
 
-
 fun getStaticObject(
     clazz: Class<*>,
     name: String,

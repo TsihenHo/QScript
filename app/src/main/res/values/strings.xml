@@ -36,4 +36,5 @@
     <string name="change_exam">更换题目</string>
     <string name="apply">确认</string>
     <string name="especial_thanks">特别鸣谢</string>
+    <string name="edit_data">仅供调试 - 编辑数据文件</string>
 </resources>

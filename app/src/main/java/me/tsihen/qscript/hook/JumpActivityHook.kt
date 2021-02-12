@@ -41,7 +41,7 @@ class JumpActivityHook : AbsDelayableHook() {
         fun get(): JumpActivityHook = self
 
         fun loadDex() {
-            replaceClassLoader(Initiator::class.java.classLoader)
+            replaceClassLoader(Initiator::class.java.classLoader, Initiator.getHostClassLoader())
         }
     }
 

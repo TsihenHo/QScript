@@ -4,8 +4,10 @@
 // QScript.MetaData.Version = 1.0.0
 // QScript.MetaData.Author = Tsihen-Ho
 // QScript.MetaData.Label = qscript-demo
+// QScript.MetaData.Permission.Network
 // QScript.MetaData.End
 // 注：上面的 Label 标签是分辨脚本的唯一属性，如果两个脚本 Label 相同，就会被判别为同一个脚本
+// 注：如果需要网络，请添加 QScript.MetaData.Permission.Network
 // 每个脚本必须以 QScript.MetaData.Start 开头
 
 // 这仅仅是一个演示脚本，我们不建议您启用这个脚本
@@ -23,11 +25,10 @@
  * 在脚本加载的时候调用
  */
 public void onLoad(){
-    api.log("onLoad() : User's QNum is "+mQNum.toString());
+    api.log("onLoad() : User's QNum is " + mQNum.toString());
     // 发消息的时候，QQ号末尾必须加 L 表示长整形
     // 第一个 String 代表文本内容
     api.sendTextMsg("QScript 脚本发消息测试：表情：/xyx [斜眼笑] [奸笑]",3340792396L);
-    // 发表情使用 反斜杠uxxxx
 
     // api.sendCardMsg(String 卡片代码, long 消息接受者, boolean 是否群聊)
     // 发送卡片需要完成高级验证，否则报错
@@ -41,6 +42,30 @@ public void onLoad(){
         "t83jce822lfg\" w=\"0\" h=\"0\" /><title>QScript XML 消息测试</titl" +
         "e><summary>XML 消息</summary></ite" +
         "m><source name=\"\" icon=\"\" action=\"\" appid=\"-1\" /></msg>",818333976L,true);
+
+    // api.sendPicMsg(String 图片路径, long 消息接受者, boolean 是否群聊)
+    api.sendPicMsg("/sdcard/QQColor2/vip/fullBackground/chat/imgs_touch.jpeg",818333976L,true);
+
+    // 下面演示网络连接，注意申请网络权限
+    Object network = api.getNetwork();
+    Object doc = network.fromUrl("https://zh.numberempire.com/simplifyexpression.php")
+        .header(
+            "Accept",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"
+        )
+        .header("Accept-Encoding", "gzip, deflate")
+        .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+        .header("Cache-Control", "no-cache")
+        .header("Pragma", "no-cache")
+        .header("Proxy-Connection", "keep-alive")
+        .header(
+            "User-Agent",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)"
+        )
+        .data("function", "1+2+3")
+        .post();
+    Object result = doc.getElementById("result1").text();
+    api.log("网络连接结果：" + result.toString());
 }
 
 /**
@@ -74,8 +99,10 @@ public void onJoin(Object data) {
     String member = data.uin;
     api.log("新成员" + member + "加入群聊" + group);
 
+    if (!group.equals("818333976")) return;
     // shutUp(long 群号码, long 成员号码, long 时间) 禁言某人，单位秒
     api.shutUp(api.str2long(group), api.str2long(member), 20L);
+    api.sendTextMsg("嘿！" + member + "，别忙着说话！", group, new long[]{api.str2long(member)});
     // shutAllUp(long 群号码, boolean 是否启动) 全体禁言，最后的 boolean ，true = 开启禁言，false反之
     api.shutAllUp(api.str2long(group), true);
     Thread.sleep(10000);

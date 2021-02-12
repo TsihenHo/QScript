@@ -42,7 +42,8 @@ class QScript(private val instance: Interpreter, private val code: String) {
     fun getLabel(): String = info.label
     fun getVersion(): String = info.version
     fun getAuthor(): String = info.author
-    fun getDesc(): String = info.desc
+    fun getDesc(): String = info.desc + if (getPermissionNetwork()) "\n警告：该脚本可以使用网络" else ""
+    fun getPermissionNetwork(): Boolean = info.permissionNetwork
     fun getCode(): String = code
 
     fun setEnable(z: Boolean) {

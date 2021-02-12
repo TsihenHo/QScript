@@ -34,6 +34,7 @@ import dalvik.system.BaseDexClassLoader;
 import me.tsihen.qscript.MainHook;
 import me.tsihen.qscript.R;
 
+import static me.tsihen.qscript.util.ClassUtils.callVisualMethod;
 import static me.tsihen.qscript.util.ClassUtils.getObject;
 import static me.tsihen.qscript.util.Utils.log;
 import static me.tsihen.qscript.util.Utils.loge;
@@ -182,7 +183,7 @@ public class JavaUtil {
         }
     }
 
-    public static void replaceClassLoader(ClassLoader classLoader) throws Exception {
+    public static void replaceClassLoader(ClassLoader selfLoader, ClassLoader hostLoader) throws Exception {
         // 1. 获取ActivityThread类对象
         // android.app.ActivityThread
         // 1.1 获取类类型
@@ -213,7 +214,38 @@ public class JavaUtil {
         // 4.2 获取成员变量 mClassLoader
         Field field2 = clzLoadedApk.getDeclaredField("mClassLoader");
         field2.setAccessible(true);
-        field2.set(info, classLoader);
+        field2.set(info, new MyClassLoader(hostLoader, selfLoader));
+    }
+
+    /**
+     * 使用这个类来解决一些莫名其妙的问题
+     */
+    private static class MyClassLoader extends ClassLoader {
+        private final ClassLoader hostLoader;
+        private final ClassLoader selfLoader;
+
+        public MyClassLoader(ClassLoader hostLoader, ClassLoader selfLoader) {
+            this.hostLoader = hostLoader;
+            this.selfLoader = selfLoader;
+        }
+
+        @Override
+        public Class<?> loadClass(String name) throws ClassNotFoundException {
+            try {
+                return selfLoader.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                return hostLoader.loadClass(name);
+            }
+        }
+
+        @Override
+        protected Class<?> findClass(String name) {
+            try {
+                return (Class<?>) callVisualMethod(selfLoader, "findClass", name, String.class, Class.class);
+            } catch (Exception e) {
+                return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class, Class.class);
+            }
+        }
     }
 }
 

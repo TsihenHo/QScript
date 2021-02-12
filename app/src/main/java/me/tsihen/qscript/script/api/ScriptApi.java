@@ -42,6 +42,14 @@ public class ScriptApi {
     }
 
     /**
+     * 获取网络
+     */
+    public ScriptNetwork getNetwork() {
+        if (!script.getPermissionNetwork()) return null;
+        return new ScriptNetwork(script);
+    }
+
+    /**
      * String2Long
      */
     public long str2long(String str) {
@@ -142,6 +150,15 @@ public class ScriptApi {
     public void shutAllUp(long group, boolean time) {
         Object mgr = getGagManager();
         ClassUtils.callVisualMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
+    }
+
+    /**
+     * 发送图片
+     *
+     * @param path 路径
+     */
+    public void sendPicMsg(String path, long qNum, boolean isGroup) {
+        SendMsgHook.Companion.get().sendPic(path, qNum, isGroup);
     }
 
     private Object getGagManager() {

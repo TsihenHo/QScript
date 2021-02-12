@@ -142,7 +142,7 @@ class ScriptManageActivity : BaseActivity() {
                 view.setOnLongClickListener(object : IOnLongClickListenerFilled {
                     override fun onLongClick(v: ViewFilledWithTwoLinesAndImage): Boolean {
                         if (!it.isEnable()) {
-                            if (it.getLabel() == "me.tsihen.qscript-demo") {
+                            if (it.getLabel() == "qscript-demo") {
                                 Toasts.error(this@ScriptManageActivity, "您不能删除自带脚本")
                             } else {
                                 AlertDialog.Builder(this@ScriptManageActivity)

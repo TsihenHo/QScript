@@ -25,7 +25,8 @@ class QScriptInfo(
     val label: String,
     val author: String,
     val version: String,
-    val desc: String
+    val desc: String,
+    val permissionNetwork: Boolean
 ) {
     companion object {
         fun getInfo(code: String): QScriptInfo? {
@@ -61,6 +62,9 @@ class QScriptInfo(
                     }
                 }
             }
+            if (info.contains("//QScript.MetaData.Permission.Network")) builder.setNetworkPermission(
+                true
+            )
             return builder.build()
         }
     }
@@ -72,6 +76,7 @@ class Builder {
     private var label: String? = null
     private var version: String? = null
     private var desc: String? = null
+    private var permissionNetwork = false
     fun setAuthor(value: String): Builder {
         author = value
         return this
@@ -97,8 +102,19 @@ class Builder {
         return this
     }
 
+    fun setNetworkPermission(z: Boolean) {
+        permissionNetwork = z
+    }
+
     fun build(): QScriptInfo {
-        return QScriptInfo(name ?: "", label ?: "", author ?: "", version ?: "", desc ?: "")
+        return QScriptInfo(
+            name ?: "",
+            label ?: "",
+            author ?: "",
+            version ?: "",
+            desc ?: "",
+            permissionNetwork
+        )
     }
 
     companion object {
