@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -22,6 +22,7 @@ import bsh.EvalError
 import bsh.Interpreter
 import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.script.api.ScriptApi
+import me.tsihen.qscript.script.objects.MemberJoinData
 import me.tsihen.qscript.script.objects.MessageData
 import me.tsihen.qscript.util.getLongAccountUin
 import me.tsihen.qscript.util.getQQApplication
@@ -64,7 +65,9 @@ class QScript(private val instance: Interpreter, private val code: String) {
             instance.set("thisScript", this)
             instance.set("api", ScriptApi.get(this))
             instance.set("mQNum", getLongAccountUin())
-            instance.eval("onLoad()")
+            Thread {
+                instance.eval("onLoad()")
+            }.start()
             QScriptManager.addEnable()
         } catch (evalError: EvalError) {
             if ((evalError.message ?: "d").contains("Command not found")) return // ignore
@@ -76,7 +79,21 @@ class QScript(private val instance: Interpreter, private val code: String) {
         if (!init) return
         try {
             val m = instance.nameSpace.getMethod("onMsg", arrayOf(Any::class.java))
-            m.invoke(arrayOf(data), instance)
+            Thread {
+                m.invoke(arrayOf(data), instance)
+            }.start()
+        } catch (e: Exception) {
+            log(e)
+        }
+    }
+
+    fun onJoin(data: MemberJoinData) {
+        if (!init) return
+        try {
+            val m = instance.nameSpace.getMethod("onJoin", arrayOf(Any::class.java))
+            Thread {
+                m.invoke(arrayOf(data), instance)
+            }.start()
         } catch (e: Exception) {
             log(e)
         }

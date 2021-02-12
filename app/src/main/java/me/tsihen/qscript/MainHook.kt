@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Bundle
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import me.tsihen.qscript.hook.AbsDelayableHook
 import me.tsihen.qscript.hook.JumpActivityHook
 import me.tsihen.qscript.util.*
@@ -89,6 +90,16 @@ class MainHook {
             JumpActivityHook.loadDex()
             initDebugMode()
             Natives.load(ctx, true)
+            XposedHelpers.findAndHookMethod(
+                Initiator.load(".app.QQAppInterface"),
+                "onCreate",
+                Bundle::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        super.afterHookedMethod(param)
+                        qqAppInterface = param.thisObject
+                    }
+                })
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
         } catch (e: Throwable) {
             log(e)

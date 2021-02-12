@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -55,7 +55,8 @@ class GetMsgHook : AbsDelayableHook() {
                             !type.endsWith("ForMixedMsg") && // 文本图片消息
                             !type.endsWith("ForPic") && // 纯图片消息
                             !type.endsWith("ForPtt") && // 语音消息
-                            !type.endsWith("ForShakeWindow") // 窗口抖动
+                            !type.endsWith("ForShakeWindow") && // 窗口抖动
+                            !type.endsWith("ForReplyText") // 回复消息
                         ) {
                             return
                         }

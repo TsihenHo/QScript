@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -32,6 +32,7 @@ object Initiator {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun load(classPath: String, classLoader: ClassLoader? = null): Class<*>? {
         sHostClassloader = classLoader ?: sHostClassloader
         if (classPath.isEmpty() || sHostClassloader == null) {

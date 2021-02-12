@@ -1,3 +1,4 @@
+package me.tsihen.qscript.util;
 /* QNotified - An Xposed module for QQ/TIM
  * Copyright (C) 2019-2020 xenonhydride@gmail.com
  * https://github.com/ferredoxin/QNotified
@@ -16,7 +17,6 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.util;
 // This file is copy from QNotified.
 
 import android.content.Context;
@@ -62,68 +62,68 @@ public class Toasts {
     public static void showToast(@Nullable Context context, int type, @NonNull final CharSequence text, int duration) {
         Objects.requireNonNull(text, "text");
         if (context == null) {
-            context = Utils.getQQApplication();
+            context = QQFields.getQQApplication();
         }
         final Context ctx = context;
-            if (type == TYPE_PLAIN) {
-                Toast.makeText(ctx, text, duration).show();
-            } else {
-                try {
-                    if (clazz_QQToast == null) {
-                        clazz_QQToast = load("com/tencent/mobileqq/widget/QQToast", null);
-                    }
-                    if (clazz_QQToast == null) {
-                        Class<?> clz = load("com/tencent/mobileqq/activity/aio/doodle/DoodleLayout", null);
-                        assert clz != null;
-                        Field[] fs = clz.getDeclaredFields();
-                        for (Field f : fs) {
-                            if (View.class.isAssignableFrom(f.getType())) {
-                                continue;
-                            }
-                            if (f.getType().isPrimitive()) {
-                                continue;
-                            }
-                            if (f.getType().isInterface()) {
-                                continue;
-                            }
-                            clazz_QQToast = f.getType();
-                        }
-                    }
-                    if (method_Toast_show == null) {
-                        Method[] ms = clazz_QQToast.getMethods();
-                        for (Method m : ms) {
-                            if (Toast.class.equals(m.getReturnType()) && m.getParameterTypes().length == 0) {
-                                method_Toast_show = m;
-                                break;
-                            }
-                        }
-                    }
-                    if (method_Toast_makeText == null) {
-                        try {
-                            method_Toast_makeText = clazz_QQToast.getMethod("a", Context.class, int.class, CharSequence.class, int.class);
-                        } catch (NoSuchMethodException e) {
-                            try {
-                                method_Toast_makeText = clazz_QQToast.getMethod("b", Context.class, int.class, CharSequence.class, int.class);
-                            } catch (NoSuchMethodException e2) {
-                                try {
-                                    method_Toast_makeText = clazz_QQToast.getMethod("makeText",
-                                            Context.class,
-                                            int.class, CharSequence.class, int.class);
-                                } catch (NoSuchMethodException e3) {
-                                    throw e;
-                                }
-                            }
-                        }
-                    }
-                    Object this_QQToast_does_NOT_extend_a_standard_Toast_so_please_do_NOT_cast_it_to_Toast
-                            = method_Toast_makeText.invoke(null, ctx, type, text, duration);
-                    method_Toast_show.invoke(this_QQToast_does_NOT_extend_a_standard_Toast_so_please_do_NOT_cast_it_to_Toast);
-                    // However, the return value of QQToast.show() is a standard Toast
-                } catch (Exception e) {
-                    log(e);
-                    Toast.makeText(ctx, text, duration).show();
+        if (type == TYPE_PLAIN) {
+            Toast.makeText(ctx, text, duration).show();
+        } else {
+            try {
+                if (clazz_QQToast == null) {
+                    clazz_QQToast = load("com/tencent/mobileqq/widget/QQToast", null);
                 }
+                if (clazz_QQToast == null) {
+                    Class<?> clz = load("com/tencent/mobileqq/activity/aio/doodle/DoodleLayout", null);
+                    assert clz != null;
+                    Field[] fs = clz.getDeclaredFields();
+                    for (Field f : fs) {
+                        if (View.class.isAssignableFrom(f.getType())) {
+                            continue;
+                        }
+                        if (f.getType().isPrimitive()) {
+                            continue;
+                        }
+                        if (f.getType().isInterface()) {
+                            continue;
+                        }
+                        clazz_QQToast = f.getType();
+                    }
+                }
+                if (method_Toast_show == null) {
+                    Method[] ms = clazz_QQToast.getMethods();
+                    for (Method m : ms) {
+                        if (Toast.class.equals(m.getReturnType()) && m.getParameterTypes().length == 0) {
+                            method_Toast_show = m;
+                            break;
+                        }
+                    }
+                }
+                if (method_Toast_makeText == null) {
+                    try {
+                        method_Toast_makeText = clazz_QQToast.getMethod("a", Context.class, int.class, CharSequence.class, int.class);
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            method_Toast_makeText = clazz_QQToast.getMethod("b", Context.class, int.class, CharSequence.class, int.class);
+                        } catch (NoSuchMethodException e2) {
+                            try {
+                                method_Toast_makeText = clazz_QQToast.getMethod("makeText",
+                                        Context.class,
+                                        int.class, CharSequence.class, int.class);
+                            } catch (NoSuchMethodException e3) {
+                                throw e;
+                            }
+                        }
+                    }
+                }
+                Object this_QQToast_does_NOT_extend_a_standard_Toast_so_please_do_NOT_cast_it_to_Toast
+                        = method_Toast_makeText.invoke(null, ctx, type, text, duration);
+                method_Toast_show.invoke(this_QQToast_does_NOT_extend_a_standard_Toast_so_please_do_NOT_cast_it_to_Toast);
+                // However, the return value of QQToast.show() is a standard Toast
+            } catch (Exception e) {
+                log(e);
+                Toast.makeText(ctx, text, duration).show();
             }
+        }
     }
 
     public static void info(Context ctx, @NonNull CharSequence text, int duration) {

@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -22,6 +22,9 @@ import me.tsihen.qscript.config.ConfigManager;
 import me.tsihen.qscript.hook.SendMsgHook;
 import me.tsihen.qscript.script.QScript;
 import me.tsihen.qscript.script.objects.MessageData;
+import me.tsihen.qscript.util.ClassUtils;
+import me.tsihen.qscript.util.Initiator;
+import me.tsihen.qscript.util.QQFields;
 import me.tsihen.qscript.util.Utils;
 
 import static me.tsihen.qscript.util.Utils.loge;
@@ -108,7 +111,8 @@ public class ScriptApi {
      * @param isGroup 是否群聊
      */
     public void sendCardMsg(String msg, long qNum, boolean isGroup) {
-        if (!((Boolean) ConfigManager.Companion.getDefaultConfig().get("pass_by_exam"))) {
+        Boolean b = (Boolean) ConfigManager.Companion.getDefaultConfig().get("pass_by_exam");
+        if (b == null || !b) {
             loge("ScriptApi : SendCardMsg : 未通过高级验证，禁止发送卡片");
             return;
         }
@@ -119,14 +123,34 @@ public class ScriptApi {
     }
 
     /**
-     * 从群聊中创建临时会话
+     * 禁言某人
      *
-     * @param qNum     对方的 QQ 号
-     * @param groupNum 群聊的 QQ 号
-     * @return 创建是否成功
+     * @param group 群号
+     * @param qNum  QQ号
+     * @param time  时间，0=解除禁言
      */
-    public boolean createTempConversation(long qNum, long groupNum) {
-        // todo
-        return true;
+    public void shutUp(long group, long qNum, long time) {
+        ClassUtils.callVisualMethod(getGagManager(), "a", String.valueOf(group), String.valueOf(qNum), time, String.class, String.class, Long.TYPE);
+    }
+
+    /**
+     * 全体禁言
+     *
+     * @param group 群号
+     * @param time  状态，false=解除禁言，true反之
+     */
+    public void shutAllUp(long group, boolean time) {
+        Object mgr = getGagManager();
+        ClassUtils.callVisualMethod(mgr, "a", group, time ? 268435455 : 0, String.class, Long.TYPE);
+    }
+
+    private Object getGagManager() {
+        int i;
+        try {
+            i = (int) ClassUtils.getStaticObject(Initiator.load(".app.QQManagerFactory"), "TROOP_GAG_MANAGER", Integer.TYPE);
+        } catch (Exception ignored) {
+            i = 48;
+        }
+        return ClassUtils.callVisualMethod(QQFields.getQQAppInterface(), "getManager", i, Integer.TYPE);
     }
 }

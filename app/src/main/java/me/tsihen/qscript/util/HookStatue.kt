@@ -1,3 +1,4 @@
+package me.tsihen.qscript.util
 /* QNotified - An Xposed module for QQ/TIM
  * Copyright (C) 2019-2020 xenonhydride@gmail.com
  * https://github.com/ferredoxin/QNotified
@@ -16,7 +17,6 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.util
 // This file is copy from QNotified
 
 import android.content.Context

@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -23,12 +23,9 @@ package me.tsihen.qscript.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.os.Process.myPid
 import android.util.Log
 import com.google.gson.Gson
@@ -36,7 +33,6 @@ import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedBridge
 import me.tsihen.qscript.config.ConfigManager
 import java.io.*
-import java.lang.reflect.Field
 import java.text.DateFormat
 import java.text.DateFormat.getDateTimeInstance
 import java.util.*
@@ -44,36 +40,6 @@ import kotlin.math.expm1
 import kotlin.math.sqrt
 
 var debugMode: Boolean = false
-private var mHandler: Handler? = null
-
-fun getQQApplication(): Application? {
-    val f: Field?
-    return try {
-        val clz: Class<*> = Initiator.load("com/tencent/common/app/BaseApplicationImpl")!!
-        f = hasField(clz, "sApplication")
-        if (f == null) getStaticObject(
-            clz,
-            "a",
-            clz
-        ) as? Application? else f[null] as? Application?
-    } catch (e: java.lang.Exception) {
-        log(e)
-        throw (java.lang.RuntimeException("FATAL: Utils.getApplication() failure!")
-            .initCause(e) as java.lang.RuntimeException)
-    }
-}
-
-fun getApplicationNonNull(): Application {
-    return getQQApplication() ?: throw NullPointerException("QQApplication is null.")
-}
-
-fun getAppRuntime(): Any {
-    val ctx = getApplicationNonNull()
-    return ctx.callVisualMethod("getRuntime")
-        ?: throw java.lang.NullPointerException("Utils : GetAppRuntime : Runtime is null.")
-}
-
-fun getLongAccountUin(): Long = getAppRuntime().callVisualMethod("getLongAccountUin") as Long
 
 fun initDebugMode() {
     val mgr = ConfigManager.tryGetDefaultConfig()
@@ -295,17 +261,6 @@ fun paramsTypesToString(vararg c: Class<*>?): String {
     }
     sb.append(")")
     return sb.toString()
-}
-
-fun runOnUiThread(r: Runnable) {
-    if (Looper.myLooper() == Looper.getMainLooper()) {
-        r.run()
-    } else {
-        if (mHandler == null) {
-            mHandler = Handler(Looper.getMainLooper())
-        }
-        mHandler!!.post(r)
-    }
 }
 
 @Throws(java.lang.Exception::class)

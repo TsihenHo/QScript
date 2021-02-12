@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -196,10 +196,7 @@ fun setStaticObject(
 }
 
 /**
- * @param argsAndTypes 参数+参数类型，如：
- * <code>
- *     val i = newInstance(Intent::class.java, thisObject, MainActivity::class.java, Context::class.java, Class<*>::class.java)
- * </code>
+ * @param argsAndTypes 参数+参数类型，如：`val i = newInstance(Intent::class.java, thisObject, MainActivity::class.java, Context::class.java, Class<*>::class.java)`
  */
 fun newInstance(
     clazz: Class<*>,

@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -18,6 +18,7 @@
  */
 package me.tsihen.qscript.script
 
+import me.tsihen.qscript.script.objects.MemberJoinData
 import me.tsihen.qscript.script.objects.MessageData
 
 object QScriptEventSender {
@@ -28,6 +29,16 @@ object QScriptEventSender {
         QScriptManager.getScripts().forEach {
             if (!it.isEnable()) return@forEach
             it.onMsg(data)
+        }
+    }
+
+    /**
+     * 广播新成员入群事件
+     */
+    fun doOnJoin(data: MemberJoinData) {
+        QScriptManager.getScripts().forEach {
+            if (!it.isEnable()) return@forEach
+            it.onJoin(data)
         }
     }
 }

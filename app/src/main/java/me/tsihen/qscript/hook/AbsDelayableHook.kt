@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -29,6 +29,7 @@ abstract class AbsDelayableHook {
                         JumpActivityHook.get(),
                         SendMsgHook.get(),
                         GetMsgHook.get(),
+                        OnJoinHook.get(),
                         ScriptEventHook.get()
                     )
             }

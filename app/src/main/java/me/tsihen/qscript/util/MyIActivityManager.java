@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -47,7 +47,7 @@ public class MyIActivityManager implements InvocationHandler {
             if (index != -1) {
                 Intent raw = (Intent) args[index];
                 ComponentName component = raw.getComponent();
-                Context hostApp = Utils.getQQApplication();
+                Context hostApp = QQFields.getQQApplication();
                 if (hostApp != null && component != null
                         && hostApp.getPackageName().equals(component.getPackageName())
                         && component.getClassName().startsWith("me.tsihen.qscript.activity.")) {

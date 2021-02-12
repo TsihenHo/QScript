@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -19,8 +19,6 @@
 package me.tsihen.qscript.hook
 
 import android.content.Context
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import me.tsihen.qscript.script.objects.MessageData
 import me.tsihen.qscript.util.*
 import java.lang.reflect.Method
@@ -38,9 +36,6 @@ class SendMsgHook : AbsDelayableHook() {
     private lateinit var sessionInfoClass: Class<*>
     private lateinit var qqAppInterfaceClass: Class<*>
     private lateinit var sendMsgParamsClass: Class<*>
-
-    private var qqAppInterfaceObject: Any? = null
-    private var qqContextObject: Any? = null
 
     override fun init(): Boolean {
         if (inited) return true
@@ -89,12 +84,6 @@ class SendMsgHook : AbsDelayableHook() {
             log(e)
             return false
         }
-        XposedBridge.hookMethod(sendTextMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                qqAppInterfaceObject = param.args[0]
-                qqContextObject = param.args[1]
-            }
-        })
         inited = true
         return true
     }
@@ -121,7 +110,8 @@ class SendMsgHook : AbsDelayableHook() {
         val ctx = getApplicationNonNull()
         method.invoke(
             null,
-            getAppRuntime(),
+            qqAppInterface,
+//            getAppRuntime(),
             ctx,
             buildSessionInfo(qNum.toString()),
             msg,
@@ -148,7 +138,8 @@ class SendMsgHook : AbsDelayableHook() {
         }
         method.invoke(
             null,
-            getAppRuntime(),
+            qqAppInterface,
+//            getAppRuntime(),
             ctx,
             data.sessionInfo,
             msg,
@@ -177,7 +168,8 @@ class SendMsgHook : AbsDelayableHook() {
         }
         method.invoke(
             null,
-            getAppRuntime(),
+            qqAppInterface,
+//            getAppRuntime(),
             ctx,
             buildSessionInfo(qNum.toString(), true),
             msg,

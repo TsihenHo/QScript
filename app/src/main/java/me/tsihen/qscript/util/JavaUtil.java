@@ -1,5 +1,5 @@
 /* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-20222 chinese.he.amber@gmail.com
+ * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
  * https://github.com/GoldenHuaji/QScript
  *
  * This software is free software: you can redistribute it and/or
@@ -132,14 +132,14 @@ public class JavaUtil {
                 BaseDexClassLoader pcl = (BaseDexClassLoader) MainHook.class.getClassLoader();
                 Object pathList = getObject(pcl, "pathList", null);
                 assert pathList != null;
-                Object[] dexElements = (Object[]) getObject(pathList, "dexElements", null);
+                Object[] dexElements = getObject(pathList, "dexElements", null);
                 assert dexElements != null;
                 for (Object element : dexElements) {
-                    File file = (File) getObject(element, "path", null);
+                    File file = getObject(element, "path", null);
                     if (file == null || file.isDirectory())
-                        file = (File) getObject(element, "zip", null);
+                        file = getObject(element, "zip", null);
                     if (file == null || file.isDirectory())
-                        file = (File) getObject(element, "file", null);
+                        file = getObject(element, "file", null);
                     if (file != null && !file.isDirectory()) {
                         String path = file.getPath();
                         if (modulePath == null || !modulePath.contains("me.tsihen.qscript")) {
