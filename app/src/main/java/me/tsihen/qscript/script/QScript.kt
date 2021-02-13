@@ -28,7 +28,7 @@ import me.tsihen.qscript.util.getLongAccountUin
 import me.tsihen.qscript.util.getQQApplication
 import me.tsihen.qscript.util.log
 
-class QScript(private val instance: Interpreter, private val code: String) {
+class QScript private constructor(private val instance: Interpreter, private val code: String) {
     private val info: QScriptInfo = QScriptInfo.getInfo(code) ?: throw RuntimeException("无效脚本")
     private var enable = false
     private var init = false
@@ -49,10 +49,6 @@ class QScript(private val instance: Interpreter, private val code: String) {
     fun setEnable(z: Boolean) {
         ConfigManager.getDefaultConfig()["script_enable_${getLabel()}"] = z
         enable = z
-    }
-
-    fun setInitToFalse() {
-        init = false
     }
 
     // 事件处理器：

@@ -77,7 +77,7 @@ dependencies {
     // 脚本解析
     implementation 'org.apache-extras.beanshell:bsh:2.0b6'
     // JSON
-    compileOnly 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.8.6'
     // Html 解析
     implementation 'org.jsoup:jsoup:1.11.3'
 }
