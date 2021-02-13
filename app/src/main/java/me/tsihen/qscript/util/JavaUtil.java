@@ -19,10 +19,13 @@
 package me.tsihen.qscript.util;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Handler;
 
 import java.io.File;
@@ -31,11 +34,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import dalvik.system.BaseDexClassLoader;
+import dalvik.system.PathClassLoader;
 import me.tsihen.qscript.MainHook;
 import me.tsihen.qscript.R;
 
 import static me.tsihen.qscript.util.ClassUtils.callVisualMethod;
 import static me.tsihen.qscript.util.ClassUtils.getObject;
+import static me.tsihen.qscript.util.ConstsKt.PACKAGE_NAME_SELF;
 import static me.tsihen.qscript.util.Utils.log;
 import static me.tsihen.qscript.util.Utils.loge;
 
@@ -44,6 +49,7 @@ public class JavaUtil {
     private static boolean __stub_hooked = false;
     private static String sModulePath = null;
 
+    // From QNotified
     @SuppressLint("PrivateApi")
     public static void initForStubActivity(Context ctx) {
         if (__stub_hooked) return;
@@ -118,6 +124,7 @@ public class JavaUtil {
         }
     }
 
+    // From QNotified
     @SuppressLint("PrivateApi")
     public static void injectModuleResources(Resources res) {
         if (res == null) return;
@@ -183,7 +190,7 @@ public class JavaUtil {
         }
     }
 
-    public static void replaceClassLoader(ClassLoader selfLoader, ClassLoader hostLoader) throws Exception {
+    public static void replaceClassLoader(ClassLoader selfLoader, ClassLoader hostLoader, Context ctx) throws Exception {
         // 1. 获取ActivityThread类对象
         // android.app.ActivityThread
         // 1.1 获取类类型
@@ -214,7 +221,31 @@ public class JavaUtil {
         // 4.2 获取成员变量 mClassLoader
         Field field2 = clzLoadedApk.getDeclaredField("mClassLoader");
         field2.setAccessible(true);
-        field2.set(info, new MyClassLoader(hostLoader, selfLoader));
+        field2.set(info, new PathClassLoader(findApkFile(ctx, PACKAGE_NAME_SELF).getAbsolutePath(), new MyClassLoader(hostLoader, selfLoader)));
+    }
+
+    // From QNotified
+
+    /**
+     * 根据包名构建目标Context,并调用getPackageCodePath()来定位apk
+     *
+     * @param context           context参数
+     * @param modulePackageName 当前模块包名
+     * @return return apk file
+     */
+    @TargetApi(Build.VERSION_CODES.FROYO)
+    private static File findApkFile(Context context, String modulePackageName) {
+        if (context == null) {
+            return null;
+        }
+        try {
+            Context moudleContext = context.createPackageContext(modulePackageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+            String apkPath = moudleContext.getPackageCodePath();
+            return new File(apkPath);
+        } catch (PackageManager.NameNotFoundException e) {
+            log(e);
+        }
+        return null;
     }
 
     /**
@@ -239,11 +270,15 @@ public class JavaUtil {
         }
 
         @Override
-        protected Class<?> findClass(String name) {
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
             try {
                 return (Class<?>) callVisualMethod(selfLoader, "findClass", name, String.class, Class.class);
             } catch (Exception e) {
-                return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class, Class.class);
+                try {
+                    return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class, Class.class);
+                } catch (Exception e2) {
+                    throw new ClassNotFoundException("Didn't find class " + name);
+                }
             }
         }
     }

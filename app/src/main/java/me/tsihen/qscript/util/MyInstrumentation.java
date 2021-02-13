@@ -1,6 +1,8 @@
-/* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
- * https://github.com/GoldenHuaji/QScript
+package me.tsihen.qscript.util;
+
+/* QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2020 xenonhydride@gmail.com
+ * https://github.com/ferredoxin/QNotified
  *
  * This software is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,7 +18,7 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.util;
+// This file is copy from QNotified.
 
 import android.app.Activity;
 import android.app.Application;
@@ -39,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 import static me.tsihen.qscript.util.JavaUtil.injectModuleResources;
-import static me.tsihen.qscript.util.Utils.log;
 
 public class MyInstrumentation extends Instrumentation {
     private final Instrumentation mBase;
@@ -98,10 +99,9 @@ public class MyInstrumentation extends Instrumentation {
             injectModuleResources(activity.getResources());
             mBase.callActivityOnCreate(activity, icicle, persistentState);
         } catch (Exception e) {
-            if (Pattern.matches("[\\W]me\\.|nil\\.nadph", Log.getStackTraceString(e).replace("nil.nadph.qnotified.MainHook$MyInstrumentation.callActivityOnStart",""))) {
+            if (Pattern.matches("[\\W]me\\.|tsihen\\.qscript", Log.getStackTraceString(e).replace("me.tsihen.qscript.util.MyInstrumentation.callActivityOnStart", ""))) {
                 throw e;
             }
-            log(e);
             //else ignore
         }
     }

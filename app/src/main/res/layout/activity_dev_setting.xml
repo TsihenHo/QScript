@@ -44,6 +44,15 @@
                 app:viewFilled_title="调试模式" />
 
             <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/repair_module"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="或许有用...吧？"
+                app:image="@drawable/ic_script"
+                app:title="修复模块" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/take_exam"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

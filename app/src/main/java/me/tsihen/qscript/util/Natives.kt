@@ -26,6 +26,7 @@ import java.io.FileOutputStream
 
 object Natives {
     external fun ntGetPageSize(): Int
+    lateinit var soFilePath: String
 
     @Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("UnsafeDynamicallyLoadedCode")
@@ -74,7 +75,8 @@ object Natives {
                 fileOutputStream.close()
             }
             System.load(soFile.absolutePath)
-            ntGetPageSize()
+            soFilePath = soFile.absolutePath
+            ntGetPageSize() // Just test
         } catch (e: Exception) {
             log(e)
         }

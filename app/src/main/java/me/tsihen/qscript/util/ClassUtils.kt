@@ -25,6 +25,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
 
+// From QNotified
 fun Any.callVisualMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
@@ -78,6 +79,7 @@ fun Any.callVisualMethod(
     return method.invoke(this, *argv)
 }
 
+// From QNotified
 fun Class<*>.callStaticMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
@@ -131,6 +133,7 @@ fun Class<*>.callStaticMethod(
     return method.invoke(null, *argv)
 }
 
+// From QNotified
 fun getStaticObject(
     clazz: Class<*>,
     name: String,
@@ -147,6 +150,7 @@ fun getStaticObject(
     return null
 }
 
+// From QNotified
 @Suppress("UNCHECKED_CAST")
 fun <T> getObject(
     obj: Any,
@@ -163,6 +167,7 @@ fun <T> getObject(
     return null
 }
 
+// From QNotified
 fun setObject(
     obj: Any,
     name: String,
@@ -179,6 +184,7 @@ fun setObject(
     }
 }
 
+// From QNotified
 fun setStaticObject(
     clazz: Class<*>,
     name: String,
@@ -194,6 +200,7 @@ fun setStaticObject(
     }
 }
 
+// From QNotified
 /**
  * @param argsAndTypes 参数+参数类型，如：`val i = newInstance(Intent::class.java, thisObject, MainActivity::class.java, Context::class.java, Class<*>::class.java)`
  */
@@ -221,6 +228,7 @@ fun newInstance(
     }
 }
 
+// From QNotified
 @JvmOverloads
 fun hasField(
     obj: Any?,
@@ -232,6 +240,7 @@ fun hasField(
     return findField(clazz, type, name)
 }
 
+// From QNotified
 fun findField(
     clazz: Class<*>?,
     type: Class<*>?,

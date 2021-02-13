@@ -92,7 +92,7 @@ class MainHook {
         var failed = false
         try {
             if (thirdInited) return
-            JumpActivityHook.loadDex()
+            JumpActivityHook.loadDex(ctx)
             initDebugMode()
             Natives.load(ctx, true)
             XposedHelpers.findAndHookMethod(

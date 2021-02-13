@@ -8,6 +8,8 @@
 // QScript.MetaData.End
 // 注：上面的 Label 标签是分辨脚本的唯一属性，如果两个脚本 Label 相同，就会被判别为同一个脚本
 // 注：如果需要网络，请添加 QScript.MetaData.Permission.Network
+// 任何脚本只能 import java.* 下的内容，其他东西，如 com.tencent.mobileqq.activity.BaseChatpie、
+// android.app.Activity、me.tsihen.qscript.util.Utils 都不能导入
 // 每个脚本必须以 QScript.MetaData.Start 开头
 
 // 这仅仅是一个演示脚本，我们不建议您启用这个脚本
@@ -46,7 +48,7 @@ public void onLoad(){
     // api.sendPicMsg(String 图片路径, long 消息接受者, boolean 是否群聊)
     api.sendPicMsg("/sdcard/QQColor2/vip/fullBackground/chat/imgs_touch.jpeg",818333976L,true);
 
-    // 下面演示网络连接，注意申请网络权限
+    // 下面演示网络连接，注意申请网络权限(QScript.MetaData.Permission.Network)
     Object network = api.getNetwork();
     Object doc = network.fromUrl("https://zh.numberempire.com/simplifyexpression.php")
         .header(
@@ -61,15 +63,15 @@ public void onLoad(){
         .header(
             "User-Agent",
             "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)"
-        )
-        .data("function", "1+2+3")
-        .post();
+        ) // 设置HEADER
+        .data("function", "1+2+3") // 这是表单数据
+        .post(); // 这里演示POST，GET同理
     Object result = doc.getElementById("result1").text();
     api.log("网络连接结果：" + result.toString());
 }
 
 /**
- * 好友文本消息
+ * 文本消息
  */
 public void onMsg(Object param){
     String l = param.senderUin; // 发送者

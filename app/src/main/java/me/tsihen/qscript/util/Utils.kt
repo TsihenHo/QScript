@@ -99,6 +99,9 @@ fun loge(msg: String) {
                 DateFormat.MEDIUM,
                 DateFormat.MEDIUM
             ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]E/ " + msg + "\n"
+    if (getQQApplication() != null) {
+        Toasts.error(getQQApplication(), "QScript遇到错误，详见错误日志")
+    }
 }
 
 fun logd(msg: String) {

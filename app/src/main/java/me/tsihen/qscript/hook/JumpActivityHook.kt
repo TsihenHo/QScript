@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import de.robv.android.xposed.XC_MethodHook
@@ -40,8 +41,12 @@ class JumpActivityHook : AbsDelayableHook() {
         private val self = JumpActivityHook()
         fun get(): JumpActivityHook = self
 
-        fun loadDex() {
-            replaceClassLoader(Initiator::class.java.classLoader, Initiator.getHostClassLoader())
+        fun loadDex(ctx: Context) {
+            replaceClassLoader(
+                Initiator::class.java.classLoader,
+                Initiator.getHostClassLoader(),
+                ctx
+            )
         }
     }
 

@@ -54,6 +54,7 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
         mViewBinding.removeAllData.setOnClickListener(this)
         mViewBinding.devSettingData.setOnClickListener(this)
         mViewBinding.devSettingShowSetting.setOnClickListener(this)
+        mViewBinding.repairModule.setOnClickListener(this)
         mViewBinding.topAppBar.setNavigationOnClickListener { finish() }
     }
 
@@ -61,6 +62,51 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
     @SuppressLint("SetTextI18n")
     override fun onClick(v: ViewWithTwoLinesAndImage) {
         when (v.id) {
+            R.id.repair_module -> {
+                val builder = AlertDialog.Builder(this)
+                    .setNegativeButton("我反悔了") { dialog, _ -> dialog.dismiss() }
+                    .setPositiveButton("继续") { _, _ ->
+                        try {
+                            ConfigManager.getCache().removeAll()
+                            try {
+                                QScriptManager.getScripts().forEach {
+                                    it.setEnable(false)
+                                    QScriptManager.delEnable()
+                                }
+                            } catch (e: java.lang.Exception) {
+                                log(e)
+                                Toasts.error(this, "停用脚本时出现错误")
+                            }
+                            startActivity(Intent(this, Initiator.load(".activity.SplashActivity")))
+                            exitProcess(0)
+                        } catch (e: java.lang.Exception) {
+                            log(e)
+                        }
+                    }
+                    .setTitle("您真的要继续吗？")
+                    .setMessage("这将在尝试保留所有数据的情况下修复模块\n\n注：本选项不会移除任何模块数据")
+                val dialog = builder.create()
+                dialog.show()
+                val btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                btn.isEnabled = false
+                Thread {
+                    var time = 3
+                    do {
+                        runOnUiThread { btn.text = "继续 ($time)" }
+                        try {
+                            Thread.sleep(1000)
+                        } catch (e: Exception) {
+                            log(e)
+                            btn.isEnabled = true
+                        }
+                        time -= 1
+                    } while (time > 0)
+                    runOnUiThread {
+                        btn.isEnabled = true
+                        btn.text = "继续"
+                    }
+                }.start()
+            }
             R.id.take_exam -> {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                     Toasts.success(this, "您的设备不支持高级验证")
