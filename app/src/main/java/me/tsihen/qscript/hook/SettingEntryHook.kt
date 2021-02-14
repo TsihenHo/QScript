@@ -19,6 +19,7 @@
 package me.tsihen.qscript.hook
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -28,6 +29,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.tsihen.qscript.activity.SettingActivity
+import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.util.*
 
 class SettingEntryHook : AbsDelayableHook() {
@@ -74,11 +76,26 @@ class SettingEntryHook : AbsDelayableHook() {
                             CharSequence::class.java
                         )
                         item.setOnLongClickListener {
-                            Toasts.info(
-                                param.thisObject as Activity,
-                                "Nothing is here :)",
-                                Toasts.LENGTH_SHORT
-                            )
+                            AlertDialog.Builder(it.context)
+                                .setPositiveButton("打开调试模式") { _, _ ->
+                                    ConfigManager.getDefaultConfig()["debug_mode"] = true
+                                    debugMode = true
+                                    Toasts.info(
+                                        param.thisObject as Activity,
+                                        "已开启调试模式",
+                                        Toasts.LENGTH_SHORT
+                                    )
+                                }
+                                .setNeutralButton("清除日志缓存") { _, _ ->
+                                    ConfigManager.getDefaultConfig()["error_message"] = ""
+                                    ConfigManager.getDefaultConfig()["has_error"] = false
+                                    Toasts.info(
+                                        param.thisObject as Activity,
+                                        "已清除",
+                                        Toasts.LENGTH_SHORT
+                                    )
+                                }
+                                .show()
                             true
                         }
                         item.setOnClickListener {

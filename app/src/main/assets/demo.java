@@ -78,12 +78,17 @@ public void onMsg(Object param){
     String s = param.content; // 文本内容
     String name = param.nickname; // 名字
     String f = param.friendUin; // 如果是群消息，这个就是群聊号码，否则就是发送者
+    api.log("atMe : " + param.atMe.toString()); // boolean atMe : 是否艾特自己
+    LinkedList atList = param.atList; // 被艾特的列表 LinckedList<String>；注意：千万不要用泛型，直接取出来就可以了
     if(s.equals("群消息测试") && param.isGroupMsg()){
         api.log("尝试群消息测试");
         // 最后一个参数表示被艾特的人
         // 如果要发送群消息但不艾特，请 api.sendTextMsg(String 消息内容, long 接受者即群号码, new long[]{});
         // 发送私聊消息，请 api.sendTextMsg(String 消息内容, long 接受者)
-        api.sendTextMsg("群测试A", f, new long[]{3318448676L,3340792396L});
+        // api.getNickname(String 人, String 群) 获取 人 在 群 里面的昵称
+        // api.getNickname(String 人, String 人) 获取 人 的名称
+        // api.getNickname(Object data) 根据 data 获取发送者的昵称，如 api.getNickname(param);
+        api.sendTextMsg("@" + api.getNickname(3318448676L, 818333976L) + " @" + api.getNickname(3340792396L, 818333976L) + "群测试A", f, new long[]{3318448676L,3340792396L});
         api.sendTextMsg("测试完成", api.str2long(l));
         return;
     }

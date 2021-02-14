@@ -22,11 +22,14 @@ import me.tsihen.qscript.config.ConfigManager;
 import me.tsihen.qscript.hook.SendMsgHook;
 import me.tsihen.qscript.script.QScript;
 import me.tsihen.qscript.script.objects.MessageData;
-import me.tsihen.qscript.util.ClassUtils;
+import me.tsihen.qscript.util.ClassFinder;
 import me.tsihen.qscript.util.Initiator;
 import me.tsihen.qscript.util.QQFields;
+import me.tsihen.qscript.util.ReflexUtils;
 import me.tsihen.qscript.util.Utils;
 
+import static me.tsihen.qscript.util.ConstsKt.C_QQ_APP_INTERFACE;
+import static me.tsihen.qscript.util.Utils.logd;
 import static me.tsihen.qscript.util.Utils.loge;
 
 @SuppressWarnings("unused")
@@ -81,24 +84,25 @@ public class ScriptApi {
     }
 
     /**
-     * 给发送群聊文本消息（如果没有添加好友，请 createTempConversation 后再发送消息）
-     * <br />
-     * 如果不艾特但需要发送群消息，请 <code>
-     * api.sendTextMsg("Something", 123456789L, new long[0]);
-     * </code>
-     * <br />
-     * 如果艾特全体成员，请 <code>
-     * api.sendTextMsg("Something", 123456789L, new long[1]{-1L});
-     * </code>
+     * 获取昵称
      *
-     * @param msg 消息内容
+     * @return 昵称
      */
-    public void sendTextMsg(String msg, long qNum, long[] at) {
-        Long[] l = new Long[at.length];
-        for (int i = 0; i < at.length; i++) {
-            l[i] = at[i];
-        }
-        SendMsgHook.Companion.get().sendText(msg, qNum, l);
+    public static String getName(String senderUin, String friendUin) {
+        return (String) ReflexUtils.callStaticMethod(
+                Initiator.load(".utils.ContactUtils"),
+                "a",
+                QQFields.getQQAppInterface(),
+                senderUin,
+                friendUin,
+                1,
+                0,
+                ClassFinder.INSTANCE.findClass(C_QQ_APP_INTERFACE),
+                String.class,
+                String.class,
+                int.class,
+                int.class
+        );
     }
 
     /**
@@ -131,6 +135,28 @@ public class ScriptApi {
     }
 
     /**
+     * 给发送群聊文本消息（如果没有添加好友，请 createTempConversation 后再发送消息）
+     * <br />
+     * 如果不艾特但需要发送群消息，请 <code>
+     * api.sendTextMsg("Something", 123456789L, new long[0]);
+     * </code>
+     * <br />
+     * 如果艾特全体成员，请 <code>
+     * api.sendTextMsg("Something", 123456789L, new long[1]{-1L});
+     * </code>
+     *
+     * @param msg 消息内容
+     */
+    public void sendTextMsg(String msg, long qNum, long[] at) {
+        Long[] l = new Long[at.length];
+        for (int i = 0; i < at.length; i++) {
+            l[i] = at[i];
+        }
+        logd("测试");
+        SendMsgHook.Companion.get().sendText(msg, qNum, l);
+    }
+
+    /**
      * 禁言某人
      *
      * @param group 群号
@@ -138,18 +164,7 @@ public class ScriptApi {
      * @param time  时间，0=解除禁言
      */
     public void shutUp(long group, long qNum, long time) {
-        ClassUtils.callVisualMethod(getGagManager(), "a", String.valueOf(group), String.valueOf(qNum), time, String.class, String.class, Long.TYPE);
-    }
-
-    /**
-     * 全体禁言
-     *
-     * @param group 群号
-     * @param time  状态，false=解除禁言，true反之
-     */
-    public void shutAllUp(long group, boolean time) {
-        Object mgr = getGagManager();
-        ClassUtils.callVisualMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
+        ReflexUtils.callVisualMethod(getGagManager(), "a", String.valueOf(group), String.valueOf(qNum), time, String.class, String.class, Long.TYPE);
     }
 
     /**
@@ -161,13 +176,33 @@ public class ScriptApi {
         SendMsgHook.Companion.get().sendPic(path, qNum, isGroup);
     }
 
+    /**
+     * 全体禁言
+     *
+     * @param group 群号
+     * @param time  状态，false=解除禁言，true反之
+     */
+    public void shutAllUp(long group, boolean time) {
+        Object mgr = getGagManager();
+        ReflexUtils.callVisualMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
+    }
+
+    public String getNickname(Object data) {
+        if (!(data instanceof MessageData)) return "";
+        return ScriptApi.getName(((MessageData) data).getSenderUin(), ((MessageData) data).getFriendUin());
+    }
+
+    public String getNickname(String senderUin, String friendUin) {
+        return ScriptApi.getName(senderUin, friendUin);
+    }
+
     private Object getGagManager() {
         int i;
         try {
-            i = (int) ClassUtils.getStaticObject(Initiator.load(".app.QQManagerFactory"), "TROOP_GAG_MANAGER", Integer.TYPE);
+            i = (int) ReflexUtils.getStaticObject(Initiator.load(".app.QQManagerFactory"), "TROOP_GAG_MANAGER", Integer.TYPE);
         } catch (Exception ignored) {
             i = 48;
         }
-        return ClassUtils.callVisualMethod(QQFields.getQQAppInterface(), "getManager", i, Integer.TYPE);
+        return ReflexUtils.callVisualMethod(QQFields.getQQAppInterface(), "getManager", i, Integer.TYPE);
     }
 }

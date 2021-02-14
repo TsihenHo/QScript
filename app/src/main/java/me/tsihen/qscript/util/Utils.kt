@@ -31,6 +31,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedBridge
+import me.tsihen.qscript.BuildConfig
 import me.tsihen.qscript.config.ConfigManager
 import java.io.*
 import java.text.DateFormat
@@ -99,13 +100,13 @@ fun loge(msg: String) {
                 DateFormat.MEDIUM,
                 DateFormat.MEDIUM
             ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]E/ " + msg + "\n"
-    if (getQQApplication() != null) {
-        Toasts.error(getQQApplication(), "QScript遇到错误，详见错误日志")
-    }
+//    if (getQQApplication() != null) {
+//        Toasts.show(getQQApplication(), "QScript遇到错误，详见错误日志")
+//    }
 }
 
 fun logd(msg: String) {
-    if (!debugMode) {
+    if (!debugMode && !BuildConfig.DEBUG) {
         return
     }
     try {
@@ -283,7 +284,7 @@ fun copy(s: File, f: File) {
 }
 
 inline fun <reified T : Activity> Context.startActivity() {
-    val intent = Intent(this, Initiator.load(".activity.JumpActivity", T::class.java.classLoader))
+    val intent = Intent(this, Initiator.load(".activity.JumpActivity"))
     intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_START_ACTIVITY)
         .putExtra(JUMP_ACTION_TARGET, T::class.java.name)
 

@@ -19,9 +19,11 @@
 package me.tsihen.qscript.config
 
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import me.tsihen.qscript.util.FILE_DEFAULT_CONFIG
 import me.tsihen.qscript.util.fromJson
 import me.tsihen.qscript.util.getApplicationNonNull
+import me.tsihen.qscript.util.log
 import java.io.File
 
 class ConfigManager private constructor(private val file: File, private val type: Int) {
@@ -32,9 +34,17 @@ class ConfigManager private constructor(private val file: File, private val type
             file.createNewFile()
         }
         val fileContent = file.readText()
-        config = if (fileContent.isNotEmpty()) {
-            Gson().fromJson(fileContent)!!
-        } else {
+        config = try {
+            if (fileContent.isNotEmpty()) {
+                Gson().fromJson(fileContent)!!
+            } else {
+                HashMap()
+            }
+        } catch (e: JsonSyntaxException) {
+            log(e)
+            // 读取失败，清空 file
+            file.delete()
+            file.createNewFile()
             HashMap()
         }
     }
@@ -44,13 +54,18 @@ class ConfigManager private constructor(private val file: File, private val type
         private var sCache: ConfigManager? = null
 
         fun getDefaultConfig(): ConfigManager {
-            if (sDefaultConfig == null) {
-                sDefaultConfig = ConfigManager(
-                    File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json"),
-                    FILE_DEFAULT_CONFIG
-                )
+            try {
+                if (sDefaultConfig == null) {
+                    sDefaultConfig = ConfigManager(
+                        File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json"),
+                        FILE_DEFAULT_CONFIG
+                    )
+                }
+                return sDefaultConfig!!
+            } catch (e: java.lang.Exception) {
+                log(e)
+                throw e
             }
-            return sDefaultConfig!!
         }
 
         fun getCache(): ConfigManager {

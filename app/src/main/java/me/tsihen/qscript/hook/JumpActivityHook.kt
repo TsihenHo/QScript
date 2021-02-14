@@ -33,6 +33,7 @@ import me.tsihen.qscript.util.Initiator.load
 import me.tsihen.qscript.util.JavaUtil.replaceClassLoader
 import java.lang.reflect.Method
 
+
 /**
  * 这个类写的太糟糕了，我想我再也不会打开这个类了
  */
@@ -42,6 +43,8 @@ class JumpActivityHook : AbsDelayableHook() {
         fun get(): JumpActivityHook = self
 
         fun loadDex(ctx: Context) {
+//            loadPlugin(ctx, findApkFile(ctx, PACKAGE_NAME_SELF).absolutePath)
+//            return
             replaceClassLoader(
                 Initiator::class.java.classLoader,
                 Initiator.getHostClassLoader(),
@@ -51,14 +54,25 @@ class JumpActivityHook : AbsDelayableHook() {
     }
 
     override fun init(): Boolean {
-        val jumpActivity = load(".activity.JumpActivity")
+        var jumpActivity = load(".activity.JumpActivity")
         if (jumpActivity == null) {
             loge("JumpActivity not found.")
             return false
         }
-        val doOnCreate: Method = jumpActivity.getDeclaredMethod("doOnCreate", Bundle::class.java)
+        var doOnCreate: Method? = null
+        try {
+            do {
+                try {
+                    doOnCreate = jumpActivity!!.getDeclaredMethod("onCreate", Bundle::class.java)
+                } catch (ignored: NoSuchMethodException) {
+                }
+                jumpActivity = jumpActivity!!.superclass!!
+            } while (doOnCreate == null && jumpActivity!!.superclass != Any::class.java)
+        } catch (e: Exception) {
+            log(e)
+        }
         XposedBridge.hookMethod(doOnCreate, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
+            override fun beforeHookedMethod(param: MethodHookParam) {
                 val thiz = param.thisObject as Activity
                 initForActivity(thiz)
                 val intent = thiz.intent
@@ -101,6 +115,20 @@ class JumpActivityHook : AbsDelayableHook() {
         val instrumentation =
             MyInstrumentation(getObject(ctx, "mInstrumentation", Instrumentation::class.java)!!)
         setObject(ctx, "mInstrumentation", instrumentation)
+
+        // Hook handler
+//        val sCurrentActivityThreadThread: Field = hasField(
+//            Class.forName("android.app.ActivityThread"),
+//            "sCurrentActivityThread"
+//        )!!
+//        val activityThread: Any = sCurrentActivityThreadThread.get(null)!!
+//
+//        val mHField: Field = hasField(Class.forName("android.app.ActivityThread"), "mH")!!
+//        val mH: Any = mHField.get(activityThread)!!
+//
+//        val mCallbackField: Field =
+//            hasField(Class.forName("android.os.Handler"), "mCallback")!!
+//        mCallbackField.set(mH, MyH())
     }
 
     override fun getEnabled(): Boolean = true

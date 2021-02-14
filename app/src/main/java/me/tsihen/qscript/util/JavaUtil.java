@@ -28,19 +28,29 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.util.Enumeration;
 
 import dalvik.system.BaseDexClassLoader;
+import dalvik.system.DexClassLoader;
 import dalvik.system.PathClassLoader;
 import me.tsihen.qscript.MainHook;
 import me.tsihen.qscript.R;
 
-import static me.tsihen.qscript.util.ClassUtils.callVisualMethod;
-import static me.tsihen.qscript.util.ClassUtils.getObject;
-import static me.tsihen.qscript.util.ConstsKt.PACKAGE_NAME_SELF;
+import static me.tsihen.qscript.util.ReflexUtils.callVisualMethod;
+import static me.tsihen.qscript.util.ReflexUtils.getObject;
+import static me.tsihen.qscript.util.ReflexUtils.hasField;
 import static me.tsihen.qscript.util.Utils.log;
 import static me.tsihen.qscript.util.Utils.loge;
 
@@ -70,7 +80,7 @@ public class JavaUtil {
             field_mCallback.setAccessible(true);
             Handler.Callback current = (Handler.Callback) field_mCallback.get(oriHandler);
             if (current == null || !current.getClass().getName().equals(MyH.class.getName())) {
-                field_mCallback.set(oriHandler, new MyH(current));
+                field_mCallback.set(oriHandler, new MyH());
             }
             //End of Handler
             Class activityManagerClass;
@@ -192,7 +202,7 @@ public class JavaUtil {
 
     public static void replaceClassLoader(ClassLoader selfLoader, ClassLoader hostLoader, Context ctx) throws Exception {
         // 1. 获取ActivityThread类对象
-        // android.app.ActivityThread
+//         android.app.ActivityThread
         // 1.1 获取类类型
         Class<?> clzActivityThread = Class.forName("android.app.ActivityThread");
         // 1.2 获取类方法
@@ -221,7 +231,47 @@ public class JavaUtil {
         // 4.2 获取成员变量 mClassLoader
         Field field2 = clzLoadedApk.getDeclaredField("mClassLoader");
         field2.setAccessible(true);
-        field2.set(info, new PathClassLoader(findApkFile(ctx, PACKAGE_NAME_SELF).getAbsolutePath(), new MyClassLoader(hostLoader, selfLoader)));
+        field2.set(info, new androidxLoader(hostLoader));
+    }
+
+    public static void loadPlugin(Context context, String dexPath) {
+
+        //判断dex是否存在
+        File dex = new File(dexPath);
+        if (!dex.exists()) {
+            return;
+        }
+
+        try {
+            //获取自己的dexElements
+            PathClassLoader pathClassLoader = (PathClassLoader) context.getClassLoader();
+
+            Field pathListField = hasField(pathClassLoader.getClass(), "pathList");
+            Object pathListObject = pathListField.get(pathClassLoader);
+
+            Field dexElementsField = hasField(pathListObject.getClass(), "dexElements");
+            Object[] dexElementsObject = (Object[]) dexElementsField.get(pathListObject);
+
+            //获取dex中的dexElements
+            File odex = context.getDir("odex", Context.MODE_PRIVATE);
+            DexClassLoader dexClassLoader = new DexClassLoader(dexPath, odex.getAbsolutePath(), null, pathClassLoader);
+
+            Field pluginPathListField = hasField(dexClassLoader.getClass(), "pathList");
+            Object pluginPathListObject = pluginPathListField.get(dexClassLoader);
+
+            Field pluginDexElementsField = hasField(pluginPathListObject.getClass(), "dexElements");
+            Object[] pluginDexElementsObject = (Object[]) pluginDexElementsField.get(pluginPathListObject);
+
+            Class<?> elementClazz = dexElementsObject.getClass().getComponentType();
+            Object newDexElements = Array.newInstance(elementClazz, pluginDexElementsObject.length + dexElementsObject.length);
+            System.arraycopy(pluginDexElementsObject, 0, newDexElements, 0, pluginDexElementsObject.length);
+            System.arraycopy(dexElementsObject, 0, newDexElements, pluginDexElementsObject.length, dexElementsObject.length);
+
+            //设置
+            dexElementsField.set(pathListObject, newDexElements);
+        } catch (Exception e) {
+            log(e);
+        }
     }
 
     // From QNotified
@@ -234,7 +284,7 @@ public class JavaUtil {
      * @return return apk file
      */
     @TargetApi(Build.VERSION_CODES.FROYO)
-    private static File findApkFile(Context context, String modulePackageName) {
+    public static File findApkFile(Context context, String modulePackageName) {
         if (context == null) {
             return null;
         }
@@ -251,35 +301,128 @@ public class JavaUtil {
     /**
      * 使用这个类来解决一些莫名其妙的问题
      */
-    private static class MyClassLoader extends ClassLoader {
+    private static class androidxLoader extends ClassLoader {
         private final ClassLoader hostLoader;
-        private final ClassLoader selfLoader;
 
-        public MyClassLoader(ClassLoader hostLoader, ClassLoader selfLoader) {
+        public androidxLoader(ClassLoader hostLoader) {
             this.hostLoader = hostLoader;
-            this.selfLoader = selfLoader;
         }
 
         @Override
         public Class<?> loadClass(String name) throws ClassNotFoundException {
+            // 优先使用本模块的 CL 加载
             try {
-                return selfLoader.loadClass(name);
-            } catch (ClassNotFoundException e) {
-                return hostLoader.loadClass(name);
+                if (name.startsWith("androidx") || name.startsWith("com.google.android.material.") || name.startsWith("me.tsihen.qscript.ui."))
+                    return Initiator.class.getClassLoader().loadClass(name);
+            } catch (Exception ignored) {
+            }
+            return hostLoader.loadClass(name);
+        }
+
+        protected Class<?> findClass(String name) {
+            return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class);
+        }
+
+        @Override
+        public URL getResource(String name) {
+            return hostLoader.getResource(name);
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            return hostLoader.getResources(name);
+        }
+
+        @Override
+        protected URL findResource(String name) {
+            return (URL) callVisualMethod(hostLoader, "findResource", name, String.class);
+        }
+
+        @Override
+        protected Enumeration<URL> findResources(String name) throws IOException {
+            return (Enumeration<URL>) callVisualMethod(hostLoader, "findResources", name, String.class);
+        }
+
+        @Override
+        public InputStream getResourceAsStream(String name) {
+            return hostLoader.getResourceAsStream(name);
+        }
+
+        @Override
+        protected Package definePackage(String name, String specTitle, String specVersion, String specVendor, String implTitle, String implVersion, String implVendor, URL sealBase) throws IllegalArgumentException {
+            try {
+                Method m = ClassLoader.class.getDeclaredMethod("definePackage", String.class, String.class, String.class, String.class, String.class, String.class, String.class, URL.class);
+                m.setAccessible(true);
+                try {
+                    return (Package) m.invoke(hostLoader, name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(e);
             }
         }
 
         @Override
-        protected Class<?> findClass(String name) throws ClassNotFoundException {
-            try {
-                return (Class<?>) callVisualMethod(selfLoader, "findClass", name, String.class, Class.class);
-            } catch (Exception e) {
-                try {
-                    return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class, Class.class);
-                } catch (Exception e2) {
-                    throw new ClassNotFoundException("Didn't find class " + name);
-                }
-            }
+        protected Package getPackage(String name) {
+            return (Package) callVisualMethod(hostLoader, "getPackage", name, String.class);
+        }
+
+        @Override
+        protected Package[] getPackages() {
+            return (Package[]) callVisualMethod(hostLoader, "getPackages");
+        }
+
+        @Override
+        protected String findLibrary(String libname) {
+            return (String) callVisualMethod(hostLoader, "findLibrary", libname, String.class);
+        }
+
+        @Override
+        public void setDefaultAssertionStatus(boolean enabled) {
+            hostLoader.setDefaultAssertionStatus(enabled);
+        }
+
+        @Override
+        public void setPackageAssertionStatus(String packageName, boolean enabled) {
+            hostLoader.setPackageAssertionStatus(packageName, enabled);
+        }
+
+        @Override
+        public void setClassAssertionStatus(String className, boolean enabled) {
+            hostLoader.setClassAssertionStatus(className, enabled);
+        }
+
+        @Override
+        public void clearAssertionStatus() {
+            hostLoader.clearAssertionStatus();
+        }
+
+        @Override
+        public int hashCode() {
+            return hostLoader.hashCode();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            return hostLoader.equals(obj);
+        }
+
+        @NonNull
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            return callVisualMethod(hostLoader, "clone");
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return hostLoader.toString();
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            callVisualMethod(hostLoader, "finalize");
         }
     }
 }

@@ -19,6 +19,7 @@
 package me.tsihen.qscript.hook
 
 import android.content.Context
+import me.tsihen.qscript.script.api.ScriptApi.getName
 import me.tsihen.qscript.script.objects.MessageData
 import me.tsihen.qscript.util.*
 import java.lang.reflect.Method
@@ -175,9 +176,9 @@ class SendMsgHook : AbsDelayableHook() {
         at.forEach {
             val obj = atTroopMemberInfo.newInstance()
             setObject(obj, "uin", it)
-            setObject(obj, "textLen", msg.length.toShort())
+            setObject(obj, "textLen", getName(it.toString(), qNum.toString()).length.toShort() + 1)
             setObject(obj, "wExtBufLen", 1.toShort())
-            setObject(obj, "startPos", 0.toShort())
+            setObject(obj, "startPos", msg.indexOf(it.toString()).toShort() - 1)
             arrayList.add(obj)
         }
         method.invoke(

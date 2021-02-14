@@ -47,23 +47,34 @@ class MainHook {
         }
         try {
             Initiator.init(classLoader)
-            val splashActivity: Class<*> =
-                classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
-            var onCreate: Method? = null
-            var clazz = splashActivity
-            try {
-                do {
-                    try {
-                        onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
-                    } catch (ignored: NoSuchMethodException) {
-                    }
-                    clazz = clazz.superclass!!
-                } while (onCreate == null && clazz.superclass != Any::class.java)
-            } catch (e: Exception) {
-                log(e)
+//            val splashActivity: Class<*> =
+//                classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
+//            var onCreate: Method? = null
+//            var clazz = splashActivity
+//            try {
+//                do {
+//                    try {
+//                        onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
+//                    } catch (ignored: NoSuchMethodException) {
+//                    }
+//                    clazz = clazz.superclass!!
+//                } while (onCreate == null && clazz.superclass != Any::class.java)
+//            } catch (e: Exception) {
+//                log(e)
+//            }
+
+            val loadDex: Class<*> =
+                classLoader.loadClass("com.tencent.mobileqq.startup.step.LoadDex")
+            val ms = loadDex.declaredMethods
+            var m: Method? = null
+            for (method in ms) {
+                if (method.returnType == Boolean::class.javaPrimitiveType && method.parameterTypes.isEmpty()) {
+                    m = method
+                    break
+                }
             }
             XposedBridge.hookMethod(
-                onCreate,
+                m,
                 object : XC_MethodHook(51) {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
@@ -106,6 +117,25 @@ class MainHook {
                     }
                 })
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
+            var m: Method? = null
+            ctx.classLoader.loadClass("com.google.android.material.internal.ThemeEnforcement").declaredMethods.forEach {
+                if (it.name == "checkTheme") m = it
+            }
+            XposedBridge.hookMethod(m, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam?) {
+                    super.beforeHookedMethod(param)
+                    logd("hook check theme")
+                    param?.result = null
+                }
+            })
+
+            // Test block
+            try {
+                Initiator.load("androidx.lifecycle.ProcessLifecycleOwnerInitializer")
+            } catch (e: Exception) {
+                log(e)
+                Toasts.error(ctx, "错误：未通过测试")
+            }
         } catch (e: Throwable) {
             log(e)
             failed = true

@@ -19,6 +19,9 @@
 package me.tsihen.qscript.script.objects
 
 import me.tsihen.qscript.util.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.*
 
 class MessageData {
     var senderUin: String = ""
@@ -41,6 +44,8 @@ class MessageData {
 
     var id = -1L
 
+    var atList: LinkedList<String>? = null
+
     fun isGroupMsg() = isGroup
 
     companion object {
@@ -62,7 +67,25 @@ class MessageData {
                 val session = ClassFinder.findClass(C_SESSION_INFO)!!.newInstance()
                 setObject(session, "a", isTroop, Int::class.java)
                 setObject(session, "a", senderUin, String::class.java)
+                val atList = LinkedList<String>()
+                try {
+                    val jsonObject: JSONObject = getObject(messageRecord, "mExJsonObject")
+                        ?: throw NoSuchFieldException("ignored")
+                    if (jsonObject.has("troop_at_info_list")) {
+                        val atMemberString = jsonObject.getString("troop_at_info_list")
+                        val atMemberArray: JSONArray? = JSONArray(atMemberString)
+                        if (atMemberArray != null) {
+                            for (i: Int in 0..atMemberArray.length()) {
+                                atList.add(atMemberArray.getJSONObject(i).getLong("uin").toString())
+                            }
+                        }
+                    }
+                    logd("JSONObject : $jsonObject")
+                } catch (ignored: Throwable) {
+                }
 
+                data.atMe = atList.contains(getLongAccountUin().toString())
+                data.atList = atList
                 data.sessionInfo = session
                 data.senderUin = senderUin
                 data.selfUin = getObject<String>(messageRecord, "selfuin") ?: ""

@@ -38,7 +38,7 @@ const val PACKAGE_NAME_SELF = "me.tsihen.qscript"
 const val PACKAGE_NAME_XPOSED_INSTALLER = "de.robv.android.xposed.installer"
 
 // Commands
-const val STUB_DEFAULT_ACTIVITY = "com.tencent.mobileqq.activity.photo.CameraPreviewActivity"
+const val STUB_DEFAULT_ACTIVITY = "com.tencent.mobileqq.activity.SplashActivity"
 const val STUB_TRANSLUCENT_ACTIVITY = "cooperation.qlink.QlinkStandardDialogActivity"
 const val ACTIVITY_PROXY_INTENT = "qs_act_proxy_intent"
 const val JUMP_ACTION_CMD = "qs_jump_action_cmd"

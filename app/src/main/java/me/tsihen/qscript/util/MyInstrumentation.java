@@ -21,26 +21,8 @@ package me.tsihen.qscript.util;
 // This file is copy from QNotified.
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.Instrumentation;
-import android.app.UiAutomation;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.PersistableBundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-
-import org.jetbrains.annotations.Nullable;
-
-import java.util.regex.Pattern;
-
-import static me.tsihen.qscript.util.JavaUtil.injectModuleResources;
 
 public class MyInstrumentation extends Instrumentation {
     private final Instrumentation mBase;
@@ -53,32 +35,33 @@ public class MyInstrumentation extends Instrumentation {
 //    public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 //        Intent newIntent = new Intent(intent);
 //        String stubPackage = "com.tencent.mobileqq";
-//        newIntent.setComponent(new ComponentName(stubPackage, "com.tencent.mobileqq.activity.SplashActivity"));
-//        newIntent.putExtra(JavaUtil.KEY_EXTRA_TARGET_INTENT, intent);
-//        logi("JumpActivity : ExecStartActivity : newIntent is to " + Utils.getObject(intent.getComponent(), "mClass", String.class));
+//        newIntent.setComponent(new ComponentName(stubPackage, ConstsKt.STUB_DEFAULT_ACTIVITY));
+//        newIntent.putExtra(ConstsKt.ACTIVITY_PROXY_INTENT, intent);
+//        Utils.logi("JumpActivity : ExecStartActivity : newIntent is to " + ClassUtils.getObject(intent.getComponent(), "mClass", String.class));
 //        Class<?>[] classes = {Context.class, IBinder.class, IBinder.class, Activity.class, Intent.class, int.class, Bundle.class};
 //        Object[] objects = {who, contextThread, token, target, newIntent, requestCode, options};
 //        Method m;
 //        try {
-//            m = instrumentation.getClass().getDeclaredMethod("execStartActivity", classes);
+//            m = mBase.getClass().getDeclaredMethod("execStartActivity", classes);
 //        } catch (NoSuchMethodException e) {
-//            // 兼容 QN
-//            m = instrumentation.getClass().getSuperclass().getDeclaredMethod("execStartActivity", classes);
+//             兼容 QN
+//            m = mBase.getClass().getSuperclass().getDeclaredMethod("execStartActivity", classes);
 //        } catch (Exception e) {
-//            log(e);
+//            Utils.log(e);
 //            return null;
 //        }
 //        m.setAccessible(true);
-//        return (ActivityResult) m.invoke(instrumentation, objects);
+//        return (ActivityResult) m.invoke(mBase, objects);
 //    }
-
-    @Override
-    public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if (className.startsWith("me.tsihen.qscript.")) {
-            return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
-        }
+//
+@Override
+public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    if (className.startsWith("me.tsihen.qscript.activity.")) {
+        return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
+    }
         return mBase.newActivity(cl, className, intent);
     }
+/*
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
@@ -401,4 +384,6 @@ public class MyInstrumentation extends Instrumentation {
     public UiAutomation getUiAutomation() {
         return mBase.getUiAutomation();
     }
+
+ */
 }

@@ -34,12 +34,6 @@ import static me.tsihen.qscript.util.ConstsKt.JUMP_ACTION_CMD;
 import static me.tsihen.qscript.util.Utils.log;
 
 public class MyH implements Handler.Callback {
-    private final Handler.Callback mDefault;
-
-    public MyH(Handler.Callback def) {
-        mDefault = def;
-    }
-
     @Override
     public boolean handleMessage(Message msg) {
         if (msg.what == 100) { // LAUNCH_ACTIVITY
@@ -103,13 +97,12 @@ public class MyH implements Handler.Callback {
                             }
                         }
                     }
+                } else {
+                    Utils.logd("msg.obj == null");
                 }
             } catch (Exception e) {
                 log(e);
             }
-        }
-        if (mDefault != null) {
-            return mDefault.handleMessage(msg);
         }
         return false;
     }

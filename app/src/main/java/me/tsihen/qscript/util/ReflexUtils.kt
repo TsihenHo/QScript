@@ -16,7 +16,7 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-@file:JvmName("ClassUtils")
+@file:JvmName("ReflexUtils")
 
 package me.tsihen.qscript.util
 
