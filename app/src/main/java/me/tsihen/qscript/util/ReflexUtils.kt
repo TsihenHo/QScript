@@ -31,7 +31,6 @@ private fun findMethod(
     argsTypes: Array<Class<*>>,
     returnType: Class<*>? = null
 ): Method {
-    val types = argsTypes.toMutableList()
     var clazz = clz
     if (clz.superclass != null) {
         do {
@@ -97,7 +96,7 @@ fun Class<*>.callStaticMethod(
         if (argsTypesAndReturnType.size % 2 == 1) argsTypesAndReturnType.last() else null
     val args = argsTypesAndReturnType.slice(0 until (argsTypesAndReturnType.size / 2))
     val types =
-        argsTypesAndReturnType.slice((argsTypesAndReturnType.size / 2 + 1) until argsTypesAndReturnType.size)
+        argsTypesAndReturnType.slice((argsTypesAndReturnType.size / 2) until argsTypesAndReturnType.size)
             .toMutableList()
     if (returnType != null) types.removeAt(types.size - 1)
     val t = mutableListOf<Class<*>>()
