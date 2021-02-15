@@ -1,6 +1,6 @@
-/* QScript - An Xposed module to run scripts on QQ
- * Copyright (C) 2021-2022 chinese.he.amber@gmail.com
- * https://github.com/GoldenHuaji/QScript
+/* QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2020 xenonhydride@gmail.com
+ * https://github.com/ferredoxin/QNotified
  *
  * This software is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

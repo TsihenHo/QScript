@@ -92,7 +92,7 @@ fun Class<*>.callStaticMethod(
     vararg argsTypesAndReturnType: Any?
 ): Any? {
     val clazz: Class<*> = this
-    val returnType =
+    var returnType =
         if (argsTypesAndReturnType.size % 2 == 1) argsTypesAndReturnType.last() else null
     val args = argsTypesAndReturnType.slice(0 until (argsTypesAndReturnType.size / 2))
     val types =
@@ -104,7 +104,11 @@ fun Class<*>.callStaticMethod(
         if (e !is Class<*>) throw IllegalArgumentException("参数类型不是 Class<?>")
         t.add(e)
     }
-    if (returnType !is Class<*>) throw IllegalArgumentException("返回值类型不是 Class<?>")
+    try {
+        returnType = returnType as? Class<*>?
+    } catch (e: Exception) {
+        throw IllegalArgumentException("返回值类型不是 Class<?>")
+    }
     return findMethod(methodName, clazz, t.toTypedArray(), returnType).invoke(
         null,
         *args.toTypedArray()
@@ -119,7 +123,7 @@ fun <T> getStaticObject(
 ): Any? {
     try {
         val f = findField(clazz, type, name)
-            ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
+            ?: throw NoSuchFieldException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
         return f[null] as? T?
     } catch (e: Exception) {
@@ -137,10 +141,11 @@ fun <T> getObject(
     val clazz: Class<*> = obj.javaClass
     try {
         val f: Field = findField(clazz, type, name)
-            ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
+            ?: throw NoSuchFieldException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
         return f[obj] as? T?
     } catch (e: Exception) {
+        log(e)
     }
     return null
 }
@@ -154,7 +159,7 @@ fun setObject(
     val clazz: Class<*> = obj.javaClass
     try {
         val f: Field = findField(clazz, type, name)
-            ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
+            ?: throw NoSuchFieldException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
         f[obj] = value
     } catch (e: Exception) {
@@ -214,13 +219,19 @@ fun hasField(
 
 
 fun findField(
-    clazz: Class<*>,
+    clz: Class<*>,
     type: Class<*>?,
     name: String
 ): Field? {
-    clazz.declaredFields.forEach {
-        if (it.name != name) return@forEach
-        if (it.type == type || type == null) return it
+    var clazz = clz
+    if (clz.superclass != null) {
+        do {
+            clazz.declaredFields.forEach {
+                if (it.name != name) return@forEach
+                if (it.type == type || type == null) return it
+            }
+            clazz = clazz.superclass!!
+        } while (clazz.superclass != Any::class.java)
     }
     return null
 }
