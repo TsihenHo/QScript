@@ -37,8 +37,6 @@ import java.io.*
 import java.text.DateFormat
 import java.text.DateFormat.getDateTimeInstance
 import java.util.*
-import kotlin.math.expm1
-import kotlin.math.sqrt
 
 var debugMode: Boolean = false
 
@@ -48,20 +46,9 @@ fun initDebugMode() {
 }
 
 // Log
-fun appendToFile(fileName: String?, content: String?) {
-    var writer: FileWriter? = null
-    try {
-        writer = FileWriter(fileName, true)
-        writer.write(content)
-    } catch (e: IOException) {
-        e.printStackTrace()
-    } finally {
-        try {
-            writer?.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
+fun appendToFile(fileName: String, content: String?) {
+    val f = File(fileName)
+    f.writeText(f.readText() + content)
 }
 
 fun log(e: Throwable) {
@@ -75,6 +62,7 @@ fun loge(msg: String) {
     }
     Log.e(QS_LOG_TAG, msg)
     try {
+        @FromQNotified
         val path = Environment.getExternalStorageDirectory().absolutePath + "/me.tsihen.qscript.log"
         val f = File(path)
         try {
@@ -194,12 +182,30 @@ fun logv(msg: String) {
 }
 
 fun getActiveModuleVersion(): String? {
-    sqrt(1.0)
-    expm1(0.001)
-    Math.random()
+    Log.v("FAKE", "FAKE")
     return null
 }
 
+
+/* QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2020 xenonhydride@gmail.com
+ * https://github.com/ferredoxin/QNotified
+ *
+ * This software is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+@FromQNotified
 @SuppressLint("PrivateApi")
 fun getCurrentActivity(): Activity? {
     try {
@@ -231,6 +237,26 @@ fun getCurrentActivity(): Activity? {
 }
 
 private external fun ntGetBuildTimestamp(): Long
+
+/* QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2020 xenonhydride@gmail.com
+ * https://github.com/ferredoxin/QNotified
+ *
+ * This software is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+@FromQNotified
 fun getBuildTimestamp(context: Context? = null): Long {
     var ctx: Context? = context
     if (ctx == null) {
@@ -267,6 +293,7 @@ fun paramsTypesToString(vararg c: Class<*>?): String {
     return sb.toString()
 }
 
+@FromQNotified
 @Throws(java.lang.Exception::class)
 fun copy(s: File, f: File) {
     if (!s.exists()) throw FileNotFoundException("源文件不存在")

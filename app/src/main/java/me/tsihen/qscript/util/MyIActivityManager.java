@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@FromQNotified
 public class MyIActivityManager implements InvocationHandler {
     private final Object mOrigin;
 

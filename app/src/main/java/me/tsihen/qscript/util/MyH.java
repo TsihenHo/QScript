@@ -33,6 +33,7 @@ import static me.tsihen.qscript.util.ConstsKt.JUMP_ACTION_CHECK_ACTIVITY;
 import static me.tsihen.qscript.util.ConstsKt.JUMP_ACTION_CMD;
 import static me.tsihen.qscript.util.Utils.log;
 
+@FromQNotified
 public class MyH implements Handler.Callback {
     private final Handler.Callback current;
 

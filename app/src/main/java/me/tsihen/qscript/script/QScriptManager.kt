@@ -23,13 +23,31 @@ import bsh.Interpreter
 import me.tsihen.qscript.util.*
 import java.io.*
 import java.util.*
-
+/* QNotified - An Xposed module for QQ/TIM
+ * Copyright (C) 2019-2020 xenonhydride@gmail.com
+ * https://github.com/ferredoxin/QNotified
+ *
+ * This software is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
 object QScriptManager {
     var enables = 0
     private val scripts: MutableList<QScript> = mutableListOf()
     var scriptsPath: String? = null
     private var init = false
 
+    @FromQNotified
     fun init() {
         if (init) return
         scriptsPath =
@@ -54,6 +72,7 @@ object QScriptManager {
      * @param file 文件
      * @return
      */
+    @FromQNotified
     @Throws(java.lang.Exception::class)
     fun addScript(file: String): String {
         if (file.isEmpty()) return "file is null"
@@ -70,6 +89,7 @@ object QScriptManager {
     }
 
     @Throws(Throwable::class)
+    @FromQNotified
     fun addScriptFD(fileDescriptor: FileDescriptor?, scriptName: String): String {
         val dir = File(scriptsPath!!)
         if (!dir.exists()) dir.mkdirs()
@@ -107,6 +127,7 @@ object QScriptManager {
      * @param script
      * @return
      */
+    @FromQNotified
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     fun delScript(script: QScript): Boolean {
         // 删除文件
@@ -172,19 +193,23 @@ object QScriptManager {
     }
 
     @Throws(EvalError::class)
+    @FromQNotified
     fun execute(code: String?): QScript {
         val lp = Interpreter()
         lp.setClassLoader(Initiator::class.java.classLoader)
         return QScript.create(lp, code ?: throw java.lang.RuntimeException("无效脚本"))
     }
 
+    @FromQNotified
     fun getScripts() = scripts
 
+    @FromQNotified
     fun addEnable() {
         enables++
         if (enables > scripts.size - 1) enables = scripts.size
     }
 
+    @FromQNotified
     fun delEnable() {
         enables--
         if (enables < 0) enables = 0
@@ -196,6 +221,7 @@ object QScriptManager {
      * @param file 文件
      * @return 是否存在
      */
+    @FromQNotified
     @Throws(Exception::class)
     fun hasScript(file: String?): Boolean {
         if (file.isNullOrEmpty()) return false
@@ -210,6 +236,7 @@ object QScriptManager {
         return false
     }
 
+    @FromQNotified
     @Throws(java.lang.Exception::class)
     fun hasScriptStr(code: String): Boolean {
         val info: QScriptInfo = QScriptInfo.getInfo(code)
@@ -227,6 +254,7 @@ object QScriptManager {
      *
      * @return
      */
+    @FromQNotified
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     fun getScriptCodes(): List<String?> {
         // to do

@@ -25,7 +25,31 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
 
-// From QNotified
+private fun findMethod(
+    methodName: String,
+    clz: Class<*>,
+    argsTypes: Array<Class<*>>,
+    returnType: Class<*>? = null
+): Method {
+    val types = argsTypes.toMutableList()
+    var clazz = clz
+    if (clz.superclass != null) {
+        do {
+            clazz.declaredMethods.forEach {
+                if (it.parameterTypes.size != argsTypes.size) return@forEach
+                if (!it.parameterTypes.contentEquals(argsTypes)) return@forEach
+                if (it.returnType != returnType && returnType != null) return@forEach
+                if (it.name != methodName) return@forEach
+                it.isAccessible = true
+                return it
+            }
+            clazz = clazz.superclass!!
+        } while (clazz.superclass != Any::class.java)
+        throw NoSuchMethodException("找不到方法$methodName${argsTypes.contentToString()}在${clz.simpleName}")
+    }
+    throw IllegalArgumentException("不支持基本数据类型")
+}
+
 /**
  * 调用某个非静态方法
  *
@@ -40,127 +64,71 @@ fun Any.callVisualMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
 ): Any? {
-    var clazz: Class<*> = this.javaClass
-    val argc: Int = argsTypesAndReturnType.size / 2
-    val argt: Array<Class<*>?> = arrayOfNulls(argc)
-    val argv = arrayOfNulls<Any>(argc)
-    var returnType: Class<*>? = null
-    if (argc * 2 + 1 == argsTypesAndReturnType.size)
-        returnType = argsTypesAndReturnType.get(argsTypesAndReturnType.size - 1) as Class<*>
-    var i: Int
-    var ii: Int
-    var m: Array<Method>
-    var method: Method? = null
-    var _argt: Array<Class<*>>
-    i = 0
-    while (i < argc) {
-        argt[i] = argsTypesAndReturnType[argc + i] as Class<*>
-        argv[i] = argsTypesAndReturnType[i]
-        i++
+    val clazz: Class<*> = this.javaClass
+    var returnType =
+        if (argsTypesAndReturnType.size % 2 == 1) argsTypesAndReturnType.last() else null
+    val args = argsTypesAndReturnType.slice(0 until (argsTypesAndReturnType.size / 2))
+    val types =
+        argsTypesAndReturnType.slice((argsTypesAndReturnType.size / 2) until argsTypesAndReturnType.size)
+            .toMutableList()
+    if (returnType != null) types.removeAt(types.size - 1)
+    val t = mutableListOf<Class<*>>()
+    types.forEach { e ->
+        if (e !is Class<*>) throw IllegalArgumentException("参数类型不是 Class<?>")
+        t.add(e)
     }
-    loop_main@ do {
-        m = clazz.declaredMethods
-        i = 0
-        loop@ while (i < m.size) {
-            if (m[i].name == methodName) {
-                _argt = m[i].parameterTypes
-                if (_argt.size == argt.size) {
-                    ii = 0
-                    while (ii < argt.size) {
-                        if (argt[ii] != _argt[ii]) {
-                            i++
-                            continue@loop
-                        }
-                        ii++
-                    }
-                    if (returnType != null && returnType != m[i].returnType) {
-                        i++
-                        continue
-                    }
-                    method = m[i]
-                    break@loop_main
-                }
-            }
-            i++
-        }
-    } while (Any::class.java != clazz.superclass.also { clazz = it!! })
-    if (method == null) throw NoSuchMethodException(methodName + paramsTypesToString(*argt) + " in " + this.javaClass.name)
-    method.isAccessible = true
-    return method.invoke(this, *argv)
+    try {
+        returnType = returnType as? Class<*>?
+    } catch (e: Exception) {
+        throw IllegalArgumentException("返回值类型不是 Class<?>")
+    }
+    return findMethod(methodName, clazz, t.toTypedArray(), returnType).invoke(
+        this,
+        *args.toTypedArray()
+    )
 }
 
-// From QNotified
 fun Class<*>.callStaticMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
 ): Any? {
-    var clazz: Class<*> = this
-    val argc: Int = argsTypesAndReturnType.size / 2
-    val argt: Array<Class<*>?> = arrayOfNulls(argc)
-    val argv = arrayOfNulls<Any>(argc)
-    var returnType: Class<*>? = null
-    if (argc * 2 + 1 == argsTypesAndReturnType.size)
-        returnType = argsTypesAndReturnType[argsTypesAndReturnType.size - 1] as Class<*>
-    var i: Int
-    var ii: Int
-    var m: Array<Method>
-    var method: Method? = null
-    var _argt: Array<Class<*>>
-    i = 0
-    while (i < argc) {
-        argt[i] = argsTypesAndReturnType[argc + i] as Class<*>
-        argv[i] = argsTypesAndReturnType[i]
-        i++
+    val clazz: Class<*> = this
+    val returnType =
+        if (argsTypesAndReturnType.size % 2 == 1) argsTypesAndReturnType.last() else null
+    val args = argsTypesAndReturnType.slice(0 until (argsTypesAndReturnType.size / 2))
+    val types =
+        argsTypesAndReturnType.slice((argsTypesAndReturnType.size / 2 + 1) until argsTypesAndReturnType.size)
+            .toMutableList()
+    if (returnType != null) types.removeAt(types.size - 1)
+    val t = mutableListOf<Class<*>>()
+    types.forEach { e ->
+        if (e !is Class<*>) throw IllegalArgumentException("参数类型不是 Class<?>")
+        t.add(e)
     }
-    loop_main@ do {
-        m = clazz.declaredMethods
-        i = 0
-        loop@ while (i < m.size) {
-            if (m[i].name == methodName) {
-                _argt = m[i].parameterTypes
-                if (_argt.size == argt.size) {
-                    ii = 0
-                    while (ii < argt.size) {
-                        if (argt[ii] != _argt[ii]) {
-                            i++
-                            continue@loop
-                        }
-                        ii++
-                    }
-                    if (returnType != null && returnType != m[i].returnType) {
-                        i++
-                        continue
-                    }
-                    method = m[i]
-                    break@loop_main
-                }
-            }
-            i++
-        }
-    } while (Any::class.java != clazz.superclass.also { clazz = it!! })
-    if (method == null) throw NoSuchMethodException(methodName + paramsTypesToString(*argt) + " in " + this.name)
-    method.isAccessible = true
-    return method.invoke(null, *argv)
+    if (returnType !is Class<*>) throw IllegalArgumentException("返回值类型不是 Class<?>")
+    return findMethod(methodName, clazz, t.toTypedArray(), returnType).invoke(
+        null,
+        *args.toTypedArray()
+    )
 }
 
-// From QNotified
-fun getStaticObject(
+@Suppress("UNCHECKED_CAST")
+fun <T> getStaticObject(
     clazz: Class<*>,
     name: String,
-    type: Class<*>? = null
+    type: Class<T>? = null
 ): Any? {
     try {
         val f = findField(clazz, type, name)
             ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
-        return f[null]
+        return f[null] as? T?
     } catch (e: Exception) {
         log(e)
     }
     return null
 }
 
-// From QNotified
 @Suppress("UNCHECKED_CAST")
 fun <T> getObject(
     obj: Any,
@@ -169,15 +137,15 @@ fun <T> getObject(
 ): T? {
     val clazz: Class<*> = obj.javaClass
     try {
-        val f: Field = findField(clazz, type, name)!!
+        val f: Field = findField(clazz, type, name)
+            ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
-        return f[obj] as T
+        return f[obj] as? T?
     } catch (e: Exception) {
     }
     return null
 }
 
-// From QNotified
 fun setObject(
     obj: Any,
     name: String,
@@ -186,7 +154,8 @@ fun setObject(
 ) {
     val clazz: Class<*> = obj.javaClass
     try {
-        val f: Field = findField(clazz, type, name)!!
+        val f: Field = findField(clazz, type, name)
+            ?: throw NullPointerException("Cannot find the field.Class is ${clazz.name}, name is $name, type is $type")
         f.isAccessible = true
         f[obj] = value
     } catch (e: Exception) {
@@ -221,14 +190,13 @@ fun newInstance(
     val argc: Int = argsAndTypes.size / 2
     val argt: Array<Class<*>?> = arrayOfNulls(argc)
     val argv = arrayOfNulls<Any>(argc)
-    val m: Constructor<*>
     var i = 0
     while (i < argc) {
         argt[i] = argsAndTypes[argc + i] as Class<*>
         argv[i] = argsAndTypes[i]
         i++
     }
-    m = clazz.getDeclaredConstructor(*argt)
+    val m: Constructor<*> = clazz.getDeclaredConstructor(*argt)
     m.isAccessible = true
     return try {
         m.newInstance(*argv)
@@ -238,34 +206,22 @@ fun newInstance(
     }
 }
 
-// From QNotified
 @JvmOverloads
 fun hasField(
-    obj: Any?,
+    obj: Any,
     name: String,
     type: Class<*>? = null
-): Field? {
-    if (obj == null) throw NullPointerException("obj/class == null")
-    val clazz: Class<*> = if (obj is Class<*>) obj else obj.javaClass
-    return findField(clazz, type, name)
-}
+) = findField(if (obj is Class<*>) obj else obj.javaClass, type, name)
 
-// From QNotified
+
 fun findField(
-    clazz: Class<*>?,
+    clazz: Class<*>,
     type: Class<*>?,
     name: String
 ): Field? {
-    if (clazz != null && name.isNotEmpty()) {
-        var clz: Class<*> = clazz
-        do {
-            clz.declaredFields.forEach {
-                if ((type == null || it.type == type) && it.name == name) {
-                    it.isAccessible = true
-                    return it
-                }
-            }
-        } while (clz.superclass.also { clz = it!! } != null)
+    clazz.declaredFields.forEach {
+        if (it.name != name) return@forEach
+        if (it.type == type || type == null) return it
     }
     return null
 }

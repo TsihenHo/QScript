@@ -30,6 +30,7 @@ import com.topjohnwu.superuser.Shell
 import me.tsihen.qscript.R
 import java.io.File
 
+@FromQNotified
 object HookStatue {
 
     private fun isEnabled(): Boolean {

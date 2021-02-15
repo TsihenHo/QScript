@@ -36,6 +36,7 @@ import static me.tsihen.qscript.util.Utils.log;
 /**
  * Use custom toast anywhere
  */
+@FromQNotified
 public class Toasts {
     public static final int TYPE_PLAIN = -1;
     public static final int TYPE_INFO = 0;

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 
+@FromQNotified
 public class MyInstrumentation extends Instrumentation {
     private final Instrumentation mBase;
 
@@ -31,7 +32,7 @@ public class MyInstrumentation extends Instrumentation {
         this.mBase = instrumentation;
     }
 
-//    @SuppressWarnings("UNUSED")
+    //    @SuppressWarnings("UNUSED")
 //    public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 //        Intent newIntent = new Intent(intent);
 //        String stubPackage = "com.tencent.mobileqq";
@@ -59,8 +60,8 @@ public Activity newActivity(ClassLoader cl, String className, Intent intent) thr
     if (className.startsWith("me.tsihen.qscript.activity.")) {
         return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
     }
-        return mBase.newActivity(cl, className, intent);
-    }
+    return mBase.newActivity(cl, className, intent);
+}
 /*
 
     @Override
