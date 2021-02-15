@@ -29,7 +29,6 @@ import me.tsihen.qscript.util.ReflexUtils;
 import me.tsihen.qscript.util.Utils;
 
 import static me.tsihen.qscript.util.ConstsKt.C_QQ_APP_INTERFACE;
-import static me.tsihen.qscript.util.Utils.logd;
 import static me.tsihen.qscript.util.Utils.loge;
 
 @SuppressWarnings("unused")
@@ -152,7 +151,6 @@ public class ScriptApi {
         for (int i = 0; i < at.length; i++) {
             l[i] = at[i];
         }
-        logd("测试");
         SendMsgHook.Companion.get().sendText(msg, qNum, l);
     }
 

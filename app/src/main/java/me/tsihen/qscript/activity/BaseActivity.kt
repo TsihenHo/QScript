@@ -22,7 +22,10 @@ import android.app.Activity
 import android.content.ComponentName
 import android.os.Bundle
 import me.tsihen.qscript.R
-import me.tsihen.qscript.util.*
+import me.tsihen.qscript.util.Initiator
+import me.tsihen.qscript.util.JUMP_ACTION_CHECK_ACTIVITY
+import me.tsihen.qscript.util.JUMP_ACTION_CMD
+import me.tsihen.qscript.util.logd
 
 open class BaseActivity : Activity() {
     override fun getComponentName(): ComponentName =
@@ -30,7 +33,6 @@ open class BaseActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initDebugMode()
         setTheme(R.style.Theme_MyTheme)
         Initiator.init(this.classLoader)
         if (intent.getStringExtra(JUMP_ACTION_CMD) != JUMP_ACTION_CHECK_ACTIVITY) {

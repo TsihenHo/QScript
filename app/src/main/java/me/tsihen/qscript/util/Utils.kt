@@ -95,14 +95,14 @@ fun loge(msg: String) {
     // 错误日志需要保存
     val mgr = ConfigManager.tryGetDefaultConfig() ?: return
     mgr["has_error"] = true
+    // 日志过多时，清理一下
+    if ((mgr["error_message"] as String).length > 10000) mgr["error_message"] =
+        mgr["error_message"]?.toString()?.substring(8000) ?: ""
     mgr["error_message"] = (mgr["error_message"]?.toString() ?: "") + "[" +
             getDateTimeInstance(
                 DateFormat.MEDIUM,
                 DateFormat.MEDIUM
             ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]E/ " + msg + "\n"
-//    if (getQQApplication() != null) {
-//        Toasts.show(getQQApplication(), "QScript遇到错误，详见错误日志")
-//    }
 }
 
 fun logd(msg: String) {

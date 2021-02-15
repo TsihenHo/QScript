@@ -26,6 +26,16 @@ import java.lang.reflect.Method
 import java.util.*
 
 // From QNotified
+/**
+ * 调用某个非静态方法
+ *
+ * 如果您不想输入参数类型，请 `XposedHelpers.callMethod(thisObject, methodName, args)`
+ *
+ * @param methodName 方法名
+ * @param argsTypesAndReturnType 方法参数+参数类型(+方法返回值)
+ * @return 被调用的方法的返回值
+ * @throws NoSuchMethodException 找不到方法
+ */
 fun Any.callVisualMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
@@ -83,7 +93,7 @@ fun Any.callVisualMethod(
 fun Class<*>.callStaticMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?
-):Any? {
+): Any? {
     var clazz: Class<*> = this
     val argc: Int = argsTypesAndReturnType.size / 2
     val argt: Array<Class<*>?> = arrayOfNulls(argc)

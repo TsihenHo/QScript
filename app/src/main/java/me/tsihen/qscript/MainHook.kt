@@ -42,49 +42,53 @@ class MainHook {
     }
 
     fun doInit(classLoader: ClassLoader) {
-        if (firstInited) {
-            return
-        }
+        // 如果已经初始化，直接跳过
+        if (firstInited) return
         try {
+            // 初始化 Initiator，方便以后使用
             Initiator.init(classLoader)
-//            val splashActivity: Class<*> =
-//                classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
-//            var onCreate: Method? = null
-//            var clazz = splashActivity
-//            try {
-//                do {
-//                    try {
-//                        onCreate = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
-//                    } catch (ignored: NoSuchMethodException) {
-//                    }
-//                    clazz = clazz.superclass!!
-//                } while (onCreate == null && clazz.superclass != Any::class.java)
-//            } catch (e: Exception) {
-//                log(e)
-//            }
 
-            val loadDex: Class<*> =
-                classLoader.loadClass("com.tencent.mobileqq.startup.step.LoadDex")
-            val ms = loadDex.declaredMethods
+//            val loadDex: Class<*> =
+//                classLoader.loadClass("com.tencent.mobileqq.startup.step.LoadDex")
+//            val ms = loadDex.declaredMethods
+//            var m: Method? = null
+//            for (method in ms) {
+//                if (method.returnType == Boolean::class.javaPrimitiveType && method.parameterTypes.isEmpty()) {
+//                    m = method
+//                    break
+//                }
+//            }
+            val splashActivity: Class<*> =
+                classLoader.loadClass("com.tencent.mobileqq.activity.SplashActivity")!!
             var m: Method? = null
-            for (method in ms) {
-                if (method.returnType == Boolean::class.javaPrimitiveType && method.parameterTypes.isEmpty()) {
-                    m = method
-                    break
-                }
+            var clazz = splashActivity
+            try {
+                do {
+                    try {
+                        m = clazz.getDeclaredMethod("onCreate", Bundle::class.java)
+                    } catch (ignored: NoSuchMethodException) {
+                    }
+                    clazz = clazz.superclass!!
+                } while (m == null && clazz.superclass != Any::class.java)
+            } catch (e: Exception) {
+                log(e)
             }
+            // m 是 hook 点，这个方法通常会在不同的进程里调用多次
             XposedBridge.hookMethod(
                 m,
                 object : XC_MethodHook(51) {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
                             val ctx = getQQApplication()!!
+                            // 完成初始化就退出
                             if (secInited) return
                             if (System.getProperty(QS_FULL_TAG) == "true") {
                                 loge("Error: QScript reload.Stop it.")
                                 return
                             }
                             System.setProperty(QS_FULL_TAG, "true")
+
+                            // 开始 hook
                             getInstance().performHook(ctx)
                         } catch (e: Exception) {
                             log(e)
@@ -92,6 +96,8 @@ class MainHook {
                         secInited = true
                     }
                 })
+
+            // 完成
             firstInited = true
         } catch (e: Exception) {
             log(e)
@@ -103,9 +109,16 @@ class MainHook {
         var failed = false
         try {
             if (thirdInited) return
+            // 尽早替换 classLoader
             JumpActivityHook.loadDex(ctx)
+
+            // 检查调试模式
             initDebugMode()
+
+            // 初始化 Native
             Natives.load(ctx, true)
+
+            // 保存 QQAppInterface，方便以后调用
             XposedHelpers.findAndHookMethod(
                 Initiator.load(".app.QQAppInterface"),
                 "onCreate",
@@ -116,7 +129,11 @@ class MainHook {
                         qqAppInterface = param.thisObject
                     }
                 })
+
+            // 初始化每个 absHook
             AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }
+
+            // 这个玩意是用来解决一些无法启动的 BUG，不知道有没有作用
             var m: Method? = null
             ctx.classLoader.loadClass("com.google.android.material.internal.ThemeEnforcement").declaredMethods.forEach {
                 if (it.name == "checkTheme") m = it
@@ -129,12 +146,22 @@ class MainHook {
                 }
             })
 
-            // Test block
+            // 测试块，用于检测是否成功替换 ClassLoader
             try {
+                // 检查 androidx
                 Initiator.load("androidx.lifecycle.ProcessLifecycleOwnerInitializer")
+                // 检查内部类
+                XposedHelpers.findClass(
+                    "$PACKAGE_NAME_QQ.activity.ChatActivityFacade\$SendMsgParams",
+                    Initiator.getHostClassLoader()
+                )
+                XposedHelpers.findClass(
+                    "$PACKAGE_NAME_QQ.activity.ChatActivityFacade.SendMsgParams",
+                    Initiator.getHostClassLoader()
+                )
             } catch (e: Exception) {
                 log(e)
-                Toasts.error(ctx, "错误：未通过测试")
+                Toasts.error(ctx, "错误：测试失败，请带上QQ版本反馈")
             }
         } catch (e: Throwable) {
             log(e)

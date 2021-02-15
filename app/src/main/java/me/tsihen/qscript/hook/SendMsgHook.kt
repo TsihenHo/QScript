@@ -44,10 +44,8 @@ class SendMsgHook : AbsDelayableHook() {
         try {
             sessionInfoClass = ClassFinder.findClass(C_SESSION_INFO)!!
             qqAppInterfaceClass = ClassFinder.findClass(C_QQ_APP_INTERFACE)!!
-            sendMsgParamsClass = Initiator.load(".activity.ChatActivityFacade\$SendMsgParams")!!
-        } catch (e: KotlinNullPointerException) {
-            loge("SendMsgHook : FATAL : Didn't find SessionInfo or QQAppInterface or SendMsgParams.")
-            log(e)
+        } catch (e: Exception) {
+            loge("SendMsgHook : FATAL : Didn't find SessionInfo or QQAppInterface.")
             return false
         }
         val chatActivityFacade = ClassFinder.findClass(C_CHAT_ACTIVITY_FACADE)
@@ -56,15 +54,6 @@ class SendMsgHook : AbsDelayableHook() {
             return false
         }
         try {
-            sendTextMethod = chatActivityFacade.getDeclaredMethod(
-                "a",
-                qqAppInterfaceClass,
-                Context::class.java,
-                sessionInfoClass,
-                String::class.java,
-                ArrayList::class.java,
-                sendMsgParamsClass
-            )
             val absStructMsgClass = Initiator.load(".structmsg.AbsStructMsg")!!
             val arkAppMessageClass = Initiator.load(".data.ArkAppMessage")!!
             for (m in ClassFinder.findClass(C_CHAT_ACTIVITY_FACADE)!!.methods) {
@@ -86,12 +75,22 @@ class SendMsgHook : AbsDelayableHook() {
                         clz[3] == Int::class.java &&
                         m.returnType == Void.TYPE
                     ) {
-                        logd("find photo sender")
                         sendPicMethod = m
                     }
+                } else if (clz.size == 6) {
+                    if (clz[0].name == qqAppInterfaceClass.name &&
+                        clz[1] == Context::class.java &&
+                        clz[2].name == sessionInfoClass.name &&
+                        clz[3] == String::class.java &&
+                        clz[4] == ArrayList::class.java &&
+                        m.returnType.name == "[J"
+                    ) {
+                        logd("SendMsgHook : Find sendTextMsg()")
+                        sendTextMethod = m
+                        sendMsgParamsClass = clz[5]
+                    }
                 }
-
-                if (sendAbsStructMethod != null && sendArkAppMethod != null && sendPicMethod != null)
+                if (sendAbsStructMethod != null && sendArkAppMethod != null && sendPicMethod != null && sendTextMethod != null)
                     break
             }
         } catch (e: NoSuchMethodException) {

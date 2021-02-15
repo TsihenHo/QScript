@@ -58,6 +58,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
         mViewBinding.scriptManage.setOnClickListener(this)
         mViewBinding.settings.setOnClickListener(this)
         mViewBinding.bug.setOnClickListener(this)
+        mViewBinding.license.setOnClickListener(this)
         mViewBinding.aboutMe.setOnClickListener(this)
 
         mViewBinding.topAppBar.setOnMenuItemClickListener {
@@ -97,29 +98,6 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                     mViewBinding.aboutMe.performClick()
                     return@setOnMenuItemClickListener true
                 }
-                R.id.menu_item_thanks -> {
-                    androidx.appcompat.app.AlertDialog.Builder(this@SettingActivity)
-                        .setTitle("特别鸣谢（排名不分先后）").setPositiveButton(android.R.string.ok, null)
-                        .setMessage(
-                            "+ QNotified: https://github.com/ferredoxin/QNotified/\nferredoxin\n\nCopyright (C) 2019-2021 xenonhydride@gmail.com\n" +
-                                    "https://github.com/ferredoxin/QNotified\n" +
-                                    "n" +
-                                    "This software is free software: you can redistribute it and/or\n" +
-                                    "modify it under the terms of the GNU General Public License\n" +
-                                    "as published by the Free Software Foundation; either\n" +
-                                    "version 3 of the License, or (at your option) any later version.\n" +
-                                    "\n" +
-                                    "This software is distributed in the hope that it will be useful,\n" +
-                                    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
-                                    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n" +
-                                    "General Public License for more details.\n" +
-                                    "\n" +
-                                    "You should have received a copy of the GNU General Public License\n" +
-                                    "along with this software.  If not, see\n" +
-                                    "<https://www.gnu.org/licenses/>."
-                        ).show()
-                    return@setOnMenuItemClickListener true
-                }
                 else -> {
                     return@setOnMenuItemClickListener super.onOptionsItemSelected(it)
                 }
@@ -134,6 +112,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
 
     private fun refresh() {
         val mgr = ConfigManager.getDefaultConfig()
+        // 如果没有错误
         if (!mgr.getOrDefault("has_error", false)) {
             mViewBinding.statusLinearLayout.color =
                 ResourcesCompat.getDrawable(resources, R.drawable.bg_green_solid, theme)
@@ -201,6 +180,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
                 .setNegativeButton("好") { d, _ -> d.dismiss() }
                 .show()
+            R.id.license -> startActivity<OpenSourceLicenseActivity>()
         }
     }
 }

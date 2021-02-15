@@ -19,22 +19,15 @@
 package me.tsihen.qscript.util;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,14 +36,11 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import dalvik.system.BaseDexClassLoader;
-import dalvik.system.DexClassLoader;
-import dalvik.system.PathClassLoader;
 import me.tsihen.qscript.MainHook;
 import me.tsihen.qscript.R;
 
 import static me.tsihen.qscript.util.ReflexUtils.callVisualMethod;
 import static me.tsihen.qscript.util.ReflexUtils.getObject;
-import static me.tsihen.qscript.util.ReflexUtils.hasField;
 import static me.tsihen.qscript.util.Utils.log;
 import static me.tsihen.qscript.util.Utils.loge;
 
@@ -80,7 +70,7 @@ public class JavaUtil {
             field_mCallback.setAccessible(true);
             Handler.Callback current = (Handler.Callback) field_mCallback.get(oriHandler);
             if (current == null || !current.getClass().getName().equals(MyH.class.getName())) {
-                field_mCallback.set(oriHandler, new MyH());
+                field_mCallback.set(oriHandler, new MyH(current));
             }
             //End of Handler
             Class activityManagerClass;
@@ -234,70 +224,6 @@ public class JavaUtil {
         field2.set(info, new androidxLoader(hostLoader));
     }
 
-    public static void loadPlugin(Context context, String dexPath) {
-
-        //判断dex是否存在
-        File dex = new File(dexPath);
-        if (!dex.exists()) {
-            return;
-        }
-
-        try {
-            //获取自己的dexElements
-            PathClassLoader pathClassLoader = (PathClassLoader) context.getClassLoader();
-
-            Field pathListField = hasField(pathClassLoader.getClass(), "pathList");
-            Object pathListObject = pathListField.get(pathClassLoader);
-
-            Field dexElementsField = hasField(pathListObject.getClass(), "dexElements");
-            Object[] dexElementsObject = (Object[]) dexElementsField.get(pathListObject);
-
-            //获取dex中的dexElements
-            File odex = context.getDir("odex", Context.MODE_PRIVATE);
-            DexClassLoader dexClassLoader = new DexClassLoader(dexPath, odex.getAbsolutePath(), null, pathClassLoader);
-
-            Field pluginPathListField = hasField(dexClassLoader.getClass(), "pathList");
-            Object pluginPathListObject = pluginPathListField.get(dexClassLoader);
-
-            Field pluginDexElementsField = hasField(pluginPathListObject.getClass(), "dexElements");
-            Object[] pluginDexElementsObject = (Object[]) pluginDexElementsField.get(pluginPathListObject);
-
-            Class<?> elementClazz = dexElementsObject.getClass().getComponentType();
-            Object newDexElements = Array.newInstance(elementClazz, pluginDexElementsObject.length + dexElementsObject.length);
-            System.arraycopy(pluginDexElementsObject, 0, newDexElements, 0, pluginDexElementsObject.length);
-            System.arraycopy(dexElementsObject, 0, newDexElements, pluginDexElementsObject.length, dexElementsObject.length);
-
-            //设置
-            dexElementsField.set(pathListObject, newDexElements);
-        } catch (Exception e) {
-            log(e);
-        }
-    }
-
-    // From QNotified
-
-    /**
-     * 根据包名构建目标Context,并调用getPackageCodePath()来定位apk
-     *
-     * @param context           context参数
-     * @param modulePackageName 当前模块包名
-     * @return return apk file
-     */
-    @TargetApi(Build.VERSION_CODES.FROYO)
-    public static File findApkFile(Context context, String modulePackageName) {
-        if (context == null) {
-            return null;
-        }
-        try {
-            Context moudleContext = context.createPackageContext(modulePackageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-            String apkPath = moudleContext.getPackageCodePath();
-            return new File(apkPath);
-        } catch (PackageManager.NameNotFoundException e) {
-            log(e);
-        }
-        return null;
-    }
-
     /**
      * 使用这个类来解决一些莫名其妙的问题
      */
@@ -310,7 +236,7 @@ public class JavaUtil {
 
         @Override
         public Class<?> loadClass(String name) throws ClassNotFoundException {
-            // 优先使用本模块的 CL 加载
+            // 优先使用本模块的 ClassLoader 加载
             try {
                 if (name.startsWith("androidx") || name.startsWith("com.google.android.material.") || name.startsWith("me.tsihen.qscript.ui."))
                     return Initiator.class.getClassLoader().loadClass(name);
@@ -319,8 +245,8 @@ public class JavaUtil {
             return hostLoader.loadClass(name);
         }
 
-        protected Class<?> findClass(String name) {
-            return (Class<?>) callVisualMethod(hostLoader, "findClass", name, String.class);
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            return hostLoader.loadClass(name);
         }
 
         @Override
@@ -335,12 +261,12 @@ public class JavaUtil {
 
         @Override
         protected URL findResource(String name) {
-            return (URL) callVisualMethod(hostLoader, "findResource", name, String.class);
+            return hostLoader.getResource(name);
         }
 
         @Override
         protected Enumeration<URL> findResources(String name) throws IOException {
-            return (Enumeration<URL>) callVisualMethod(hostLoader, "findResources", name, String.class);
+            return hostLoader.getResources(name);
         }
 
         @Override
@@ -396,33 +322,6 @@ public class JavaUtil {
         @Override
         public void clearAssertionStatus() {
             hostLoader.clearAssertionStatus();
-        }
-
-        @Override
-        public int hashCode() {
-            return hostLoader.hashCode();
-        }
-
-        @Override
-        public boolean equals(@Nullable Object obj) {
-            return hostLoader.equals(obj);
-        }
-
-        @NonNull
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return callVisualMethod(hostLoader, "clone");
-        }
-
-        @NonNull
-        @Override
-        public String toString() {
-            return hostLoader.toString();
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            callVisualMethod(hostLoader, "finalize");
         }
     }
 }

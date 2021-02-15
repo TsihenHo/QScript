@@ -19,6 +19,10 @@
 package me.tsihen.qscript.util
 
 object ClassFinder {
+    /**
+     * Just a link to ConstsKt
+     * [C_BASE_CHAT_PIE]
+     */
     fun findClass(id: Int): Class<*>? {
         return when (id) {
             C_BASE_CHAT_PIE ->

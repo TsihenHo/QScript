@@ -28,11 +28,18 @@ object Natives {
     external fun ntGetPageSize(): Int
     lateinit var soFilePath: String
 
+    /**
+     * 加载 Native
+     *
+     * @param ctx 上下文
+     * @param must 是否强制加载
+     */
     @Suppress("DEPRECATION", "RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("UnsafeDynamicallyLoadedCode")
     @JvmOverloads
     @Throws(Throwable::class)
     fun load(ctx: Context, must: Boolean = false) {
+        // 如果没有要求强制加载，那么检验模块是否已经成功加载
         if (!must) {
             try {
                 ntGetPageSize()
@@ -51,18 +58,22 @@ object Natives {
                 dir.mkdir()
             }
             val soFile = File(dir, soName)
+            // 如果 so 不存在或者要求强制加载
             if (!soFile.exists() || must) {
+                // delete 仅仅针对强制加载
                 soFile.delete()
                 val inputStream = Natives::class.java.classLoader!!
                     .getResourceAsStream("lib/$abi/libnative-lib.so")
                     ?: throw UnsatisfiedLinkError("Unsupported ABI: $abi")
-                //clean up old files
+
+                // 清空旧文件
                 for (name in dir.list()) {
                     if (name.startsWith("libnatives_")) {
                         File(dir, name).delete()
                     }
                 }
-                //extract so file
+
+                // 提取 so
                 soFile.createNewFile()
                 val fileOutputStream = FileOutputStream(soFile)
                 val buf = ByteArray(1024)
@@ -76,7 +87,9 @@ object Natives {
             }
             System.load(soFile.absolutePath)
             soFilePath = soFile.absolutePath
-            ntGetPageSize() // Just test
+
+            // 检验是否加载成功
+            ntGetPageSize()
         } catch (e: Exception) {
             log(e)
         }

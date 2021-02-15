@@ -64,3 +64,4 @@ const val C_QQ_APP_INTERFACE = 8
 const val C_SESSION_INFO = 16
 const val C_MESSAGE_FOR_ARK_APP = 32
 const val C_TROOP_MEMBER_INFO = 64
+const val C_SEND_MSG_PARAMS = 128

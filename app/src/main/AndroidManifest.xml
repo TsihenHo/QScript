@@ -18,6 +18,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.OpenSourceLicenseActivity" />
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

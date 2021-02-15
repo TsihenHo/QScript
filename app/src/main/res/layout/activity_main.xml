@@ -313,7 +313,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/main_help"
+                android:id="@+id/main_license"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -335,7 +335,7 @@
                     android:layout_marginRight="16dp"
                     android:contentDescription="@string/nothing"
                     android:scaleType="fitXY"
-                    android:src="@drawable/ic_help"
+                    android:src="@drawable/ic_file"
                     app:tint="@color/secondTextColor" />
 
                 <LinearLayout
@@ -347,7 +347,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
-                        android:text="@string/tips"
+                        android:text="@string/open_source_license"
                         android:textColor="@color/firstTextColor"
                         android:textSize="18sp" />
 

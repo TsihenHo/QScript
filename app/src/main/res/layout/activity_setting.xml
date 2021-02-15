@@ -190,6 +190,18 @@
                 app:title="问题反馈" />
 
             <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/license"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="开放源代码许可"
+                app:image="@drawable/ic_file"
+                app:title="开放源代码许可" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/about_me"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
