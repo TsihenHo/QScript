@@ -63,7 +63,7 @@ class ConfigManager private constructor(private val file: File, private val type
                 }
                 return sDefaultConfig!!
             } catch (e: java.lang.Exception) {
-                log(e)
+                log(e, true)
                 throw e
             }
         }
