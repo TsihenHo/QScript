@@ -35,7 +35,6 @@ private fun findMethod(
     if (clz.superclass != null) {
         do {
             clazz.declaredMethods.forEach {
-                if (it.parameterTypes.size != argsTypes.size) return@forEach
                 if (!it.parameterTypes.contentEquals(argsTypes)) return@forEach
                 if (it.returnType != returnType && returnType != null) return@forEach
                 if (it.name != methodName) return@forEach
@@ -43,7 +42,7 @@ private fun findMethod(
                 return it
             }
             clazz = clazz.superclass!!
-        } while (clazz.superclass != Any::class.java)
+        } while (clazz != Any::class.java)
         throw NoSuchMethodException("找不到方法$methodName${argsTypes.contentToString()}在${clz.simpleName}")
     }
     throw IllegalArgumentException("不支持基本数据类型")

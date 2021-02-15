@@ -66,7 +66,7 @@ class JumpActivityHook : AbsDelayableHook() {
                 } catch (ignored: NoSuchMethodException) {
                 }
                 jumpActivity = jumpActivity!!.superclass!!
-            } while (doOnCreate == null && jumpActivity!!.superclass != Any::class.java)
+            } while (doOnCreate == null && jumpActivity != Any::class.java)
         } catch (e: Exception) {
             log(e)
         }

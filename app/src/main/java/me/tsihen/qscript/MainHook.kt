@@ -69,7 +69,7 @@ class MainHook {
                     } catch (ignored: NoSuchMethodException) {
                     }
                     clazz = clazz.superclass!!
-                } while (m == null && clazz.superclass != Any::class.java)
+                } while (m == null && clazz != Any::class.java)
             } catch (e: Exception) {
                 log(e)
             }

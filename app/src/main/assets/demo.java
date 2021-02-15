@@ -30,7 +30,8 @@ public void onLoad(){
     api.log("onLoad() : User's QNum is " + mQNum.toString());
     // 发消息的时候，QQ号末尾必须加 L 表示长整形
     // 第一个 String 代表文本内容
-    api.sendTextMsg("QScript 脚本发消息测试：表情：/xyx [斜眼笑] [奸笑]",3340792396L);
+    api.sendTextMsg("QScript 脚本发消息测试：表情：\u0014\u0003",3340792396L);
+    // 发表情： 反斜杠u0014反斜杠u表情id
 
     // api.sendCardMsg(String 卡片代码, long 消息接受者, boolean 是否群聊)
     // 发送卡片需要完成高级验证，否则报错
@@ -76,8 +77,11 @@ public void onLoad(){
 public void onMsg(Object param){
     String l = param.senderUin; // 发送者
     String s = param.content; // 文本内容
+    String s2 = param.content2; // 暂时我也不知道有什么用
     String name = param.nickname; // 名字
     String f = param.friendUin; // 如果是群消息，这个就是群聊号码，否则就是发送者
+    String source = param.source; // 消息源代码。是卡片消息的代码！！！！
+    int type = param.type; // int type 消息类型 1-文字 2-图片 3-xml卡片 4-json卡片 5-回复消息 6-图文消息 0-其他消息
     api.log("atMe : " + param.atMe.toString()); // boolean atMe : 是否艾特自己
     LinkedList atList = param.atList; // 被艾特的列表 LinckedList<String>；注意：千万不要用泛型，直接取出来就可以了
     if(s.equals("群消息测试") && param.isGroupMsg()){
@@ -92,10 +96,11 @@ public void onMsg(Object param){
         api.sendTextMsg("测试完成", api.str2long(l));
         return;
     }
+    api.log("source = " + source);
     if(param.isGroupMsg() || l.equals(mQNum.toString())){
         return;
     }
-    api.sendTextMsg("QScript-Debug: onMsg(Object) invoked successfully.Please excute me.", api.str2long(l));
+    // api.sendTextMsg("nmsl(bushi", api.str2long(l));
 }
 
 /**

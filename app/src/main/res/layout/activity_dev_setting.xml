@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:viewFilled_color="@drawable/bg_red_solid"
-                app:viewFilled_desc="你即使打开了，对你也没有用"
+                app:viewFilled_desc="你即使打开了，对你也没有用\n警告：打开本选项会导致日志疯涨"
                 app:viewFilled_image="@drawable/ic_bug"
                 app:viewFilled_title="调试模式" />
 

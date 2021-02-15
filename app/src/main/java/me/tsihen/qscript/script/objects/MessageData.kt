@@ -28,6 +28,8 @@ class MessageData {
 
     var content: String = ""
 
+    var content2: String = ""
+
     var isGroup = false
 
     var atMe = false
@@ -46,21 +48,15 @@ class MessageData {
 
     var atList: LinkedList<String>? = null
 
+    var source: String = ""
+
+    var type = 0
+
     fun isGroupMsg() = isGroup
 
     companion object {
         fun getMessage(qqAppInterface: Any, messageRecord: Any): MessageData {
             val data = MessageData()
-            /*
-            All Types:
-            ForText,
-            ForMixedMsg,
-            ForArkApp,
-            ForAutoReply,
-            ForFile,
-            ForPic,
-            and so on
-             */
             try {
                 val isTroop = getObject<Int>(messageRecord, "istroop")
                 val senderUin = getObject<String>(messageRecord, "senderuin") ?: ""
@@ -93,6 +89,7 @@ class MessageData {
                 data.time = getObject<Long>(messageRecord, "time") ?: -1L
                 data.isGroup = isTroop == 1
                 data.content = getObject<String>(messageRecord, "msg") ?: ""
+                data.content2 = getObject<String>(messageRecord, "msg2") ?: ""
                 data.id = getObject<Long>(messageRecord, "msgUid") ?: {
                     logw("MessageData : GetMessage : 找不到 MsgId")
                     -1L
@@ -110,6 +107,28 @@ class MessageData {
                     Int::class.java,
                     Int::class.java
                 ) as? String? ?: ""
+
+                when (messageRecord.javaClass.simpleName) {
+                    ("MessageForText") -> data.type = 1 // 1 for text
+                    ("MessageForPic") -> data.type = 2 // 2 for pic
+                    ("MessageForStructing") -> {
+                        data.type = 3 // 3 for xml
+                        data.source = getObject<Any>(
+                            messageRecord,
+                            "structingMsg"
+                        )?.callVisualMethod("getXml") as? String? ?: ""
+                    }
+                    ("MessageForArkApp") -> {
+                        data.type = 4 // 4 for json
+                        data.source = getObject<Any>(
+                            messageRecord,
+                            "ark_app_message"
+                        )?.callVisualMethod("toAppXml") as? String? ?: ""
+                    }
+                    ("MessageForReplyMsg") -> data.type = 5 // 5 for reply
+                    ("MessageForMixedMsg") -> data.type = 6 // 6 for mixed
+                    else -> data.type = 0 // others
+                }
             } catch (e: Exception) {
                 log(e)
             }

@@ -41,7 +41,7 @@ class ConfigManager private constructor(private val file: File, private val type
                 HashMap()
             }
         } catch (e: JsonSyntaxException) {
-            log(e)
+            log(e, true)
             // 读取失败，清空 file
             file.delete()
             file.createNewFile()

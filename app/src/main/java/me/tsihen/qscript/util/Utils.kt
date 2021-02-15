@@ -52,11 +52,13 @@ fun appendToFile(fileName: String, content: String?) {
     f.writeText(f.readText() + content)
 }
 
-fun log(e: Throwable) {
-    loge(Log.getStackTraceString(e))
+@JvmOverloads
+fun log(e: Throwable, noFile: Boolean = false) {
+    loge(Log.getStackTraceString(e), noFile)
 }
 
-fun loge(msg: String) {
+@JvmOverloads
+fun loge(msg: String, noFile: Boolean = false) {
     try {
         XposedBridge.log(msg)
     } catch (e: NoClassDefFoundError) {
@@ -81,6 +83,7 @@ fun loge(msg: String) {
     } catch (e: Exception) {
     }
 
+    if (noFile) return
     // 错误日志需要保存
     val mgr = ConfigManager.tryGetDefaultConfig() ?: return
     mgr["has_error"] = true
