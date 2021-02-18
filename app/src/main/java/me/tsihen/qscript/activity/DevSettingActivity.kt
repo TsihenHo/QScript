@@ -52,6 +52,7 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
         mViewBinding.showLog.setOnClickListener(this)
         mViewBinding.removeAllLog.setOnClickListener(this)
         mViewBinding.removeAllData.setOnClickListener(this)
+        mViewBinding.devMoveData.setOnClickListener(this)
         mViewBinding.devSettingData.setOnClickListener(this)
         mViewBinding.devSettingShowSetting.setOnClickListener(this)
         mViewBinding.repairModule.setOnClickListener(this)
@@ -184,6 +185,13 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
                     }
                 }.start()
             }
+            R.id.dev_move_data -> {
+                val oldData =
+                    File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json")
+                oldData.createNewFile()
+                oldData.writeText("{\"test_move_data\":true}")
+                Toasts.success(this, "成功，请重启软件查看效果")
+            }
             R.id.dev_setting_data -> {
                 val bool = true
                 val str = "\\\\\\\\\"测试${'$'}"
@@ -213,7 +221,7 @@ class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFil
                     .show()
             }
             R.id.dev_setting_show_setting -> AlertDialog.Builder(this)
-                .setTitle(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json")
+                .setTitle(ConfigManager.getFileDirPath(this) + "/qscript_config.json")
                 .setNegativeButton("好") { d, _ -> d.dismiss() }
                 .setMessage(ConfigManager.getDefaultConfig().getFileContent())
                 .show()

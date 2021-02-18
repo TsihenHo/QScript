@@ -143,7 +143,7 @@ class ScriptManageActivity : BaseActivity() {
                     override fun onLongClick(v: ViewFilledWithTwoLinesAndImage): Boolean {
                         if (!it.isEnable()) {
                             if (it.getLabel() == "qscript-demo") {
-                                Toasts.error(this@ScriptManageActivity, "您不能删除自带脚本")
+                                Toasts.error(this@ScriptManageActivity, "您不能删除示例脚本")
                             } else {
                                 AlertDialog.Builder(this@ScriptManageActivity)
                                     .setTitle("确定删除这个脚本吗？")
@@ -165,7 +165,7 @@ class ScriptManageActivity : BaseActivity() {
                             )
                             intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_START_ACTIVITY)
                                 .putExtra(JUMP_ACTION_TARGET, ScriptEditActivity::class.java.name)
-                                .putExtra("script_code", it.getCode())
+                                .putExtra("script_label", it.getLabel())
 
                             this@ScriptManageActivity.startActivityForResult(intent, codeEditScript)
                         }

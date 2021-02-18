@@ -68,9 +68,9 @@ class SettingEntryHook : AbsDelayableHook() {
                             param.thisObject,
                             Context::class.java
                         ) as View
-                        item.callVisualMethod("setLeftText", "QScript", CharSequence::class.java)
-                        item.callVisualMethod("setBgType", 2, Int::class.java)
-                        item.callVisualMethod(
+                        item.callVirtualMethod("setLeftText", "QScript", CharSequence::class.java)
+                        item.callVirtualMethod("setBgType", 2, Int::class.java)
+                        item.callVirtualMethod(
                             "setRightText",
                             QS_VERSION_NAME,
                             CharSequence::class.java

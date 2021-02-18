@@ -74,12 +74,12 @@ class JumpActivityHook : AbsDelayableHook() {
         XposedBridge.hookMethod(doOnCreate, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val thiz = param.thisObject as Activity
-                initForActivity(thiz)
                 val intent = thiz.intent
                 val cmd: String? = intent.getStringExtra(JUMP_ACTION_CMD)
                 if (intent == null || cmd == null) {
                     return
                 }
+                initForActivity(thiz)
                 if (JUMP_ACTION_SETTING_ACTIVITY == cmd) {
                     val realIntent = Intent(intent)
                     realIntent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_SETTING_ACTIVITY)
@@ -115,20 +115,6 @@ class JumpActivityHook : AbsDelayableHook() {
         val instrumentation =
             MyInstrumentation(getObject(ctx, "mInstrumentation", Instrumentation::class.java)!!)
         setObject(ctx, "mInstrumentation", instrumentation)
-
-        // Hook handler
-//        val sCurrentActivityThreadThread: Field = hasField(
-//            Class.forName("android.app.ActivityThread"),
-//            "sCurrentActivityThread"
-//        )!!
-//        val activityThread: Any = sCurrentActivityThreadThread.get(null)!!
-//
-//        val mHField: Field = hasField(Class.forName("android.app.ActivityThread"), "mH")!!
-//        val mH: Any = mHField.get(activityThread)!!
-//
-//        val mCallbackField: Field =
-//            hasField(Class.forName("android.os.Handler"), "mCallback")!!
-//        mCallbackField.set(mH, MyH())
     }
 
     override fun getEnabled(): Boolean = true

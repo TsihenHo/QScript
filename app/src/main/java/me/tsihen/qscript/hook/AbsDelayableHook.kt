@@ -18,6 +18,7 @@
  */
 package me.tsihen.qscript.hook
 
+import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.util.FromQNotified
 
 @FromQNotified
@@ -33,7 +34,8 @@ abstract class AbsDelayableHook {
                         SendMsgHook.get(),
                         GetMsgHook.get(),
                         OnJoinHook.get(),
-                        ScriptEventHook.get()
+                        ScriptEventHook.get(),
+                        NoMiniappHook.get(),
                     )
             }
             return sAllHooks!!
@@ -45,6 +47,19 @@ abstract class AbsDelayableHook {
     }
 
     abstract fun init(): Boolean
-    abstract fun getEnabled(): Boolean
-    abstract fun setEnabled(z: Boolean)
+    open fun getEnabled(): Boolean {
+        val mgr = ConfigManager.getDefaultConfig()
+        return mgr.getOrDefault("enable_${uid()}", false)
+    }
+
+    open fun setEnabled(z: Boolean) {
+        val mgr = ConfigManager.getDefaultConfig()
+        mgr["enable_${uid()}"] = z
+        if (z) init()
+    }
+
+    protected fun uid(): Int = javaClass.name.hashCode()
+    fun changeEnabled() {
+        setEnabled(!getEnabled())
+    }
 }

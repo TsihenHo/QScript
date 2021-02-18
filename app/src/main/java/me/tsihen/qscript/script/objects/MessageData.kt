@@ -76,7 +76,6 @@ class MessageData {
                             }
                         }
                     }
-                    logd("JSONObject : $jsonObject")
                 } catch (ignored: Throwable) {
                 }
 
@@ -116,14 +115,14 @@ class MessageData {
                         data.source = getObject<Any>(
                             messageRecord,
                             "structingMsg"
-                        )?.callVisualMethod("getXml") as? String? ?: ""
+                        )?.callVirtualMethod("getXml") as? String? ?: ""
                     }
                     ("MessageForArkApp") -> {
                         data.type = 4 // 4 for json
                         data.source = getObject<Any>(
                             messageRecord,
                             "ark_app_message"
-                        )?.callVisualMethod("toAppXml") as? String? ?: ""
+                        )?.callVirtualMethod("toAppXml") as? String? ?: ""
                     }
                     ("MessageForReplyMsg") -> data.type = 5 // 5 for reply
                     ("MessageForMixedMsg") -> data.type = 6 // 6 for mixed

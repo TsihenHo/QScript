@@ -57,6 +57,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
 
         mViewBinding.scriptManage.setOnClickListener(this)
         mViewBinding.settings.setOnClickListener(this)
+        mViewBinding.additionalFunctions.setOnClickListener(this)
         mViewBinding.bug.setOnClickListener(this)
         mViewBinding.license.setOnClickListener(this)
         mViewBinding.aboutMe.setOnClickListener(this)
@@ -163,6 +164,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 .show()
             R.id.script_manage -> startActivity<ScriptManageActivity>()
             R.id.settings -> startActivity<DevSettingActivity>()
+            R.id.additional_functions -> startActivity<AdditionalFunctionsActivity>()
             R.id.bug -> AlertDialog.Builder(this)
                 .setTitle("问题反馈")
                 .setMessage(

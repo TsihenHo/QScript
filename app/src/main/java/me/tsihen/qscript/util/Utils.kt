@@ -88,7 +88,7 @@ fun loge(msg: String, noFile: Boolean = false) {
     val mgr = ConfigManager.tryGetDefaultConfig() ?: return
     mgr["has_error"] = true
     // 日志过多时，清理一下
-    if ((mgr["error_message"] as String).length > 10000) mgr["error_message"] =
+    if ((mgr["error_message"] as? String?)?.length ?: 0 > 10000) mgr["error_message"] =
         mgr["error_message"]?.toString()?.substring(8000) ?: ""
     mgr["error_message"] = (mgr["error_message"]?.toString() ?: "") + "[" +
             getDateTimeInstance(

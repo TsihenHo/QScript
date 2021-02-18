@@ -89,6 +89,15 @@
                 app:title="重置模块设置" />
 
             <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/dev_move_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="仅供调试\n警告：操作不当会清空当前模块数据"
+                app:image="@drawable/ic_script"
+                app:title="数据迁移测试" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/dev_setting_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

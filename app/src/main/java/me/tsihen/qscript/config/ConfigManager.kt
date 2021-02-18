@@ -18,6 +18,7 @@
  */
 package me.tsihen.qscript.config
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import me.tsihen.qscript.util.FILE_DEFAULT_CONFIG
@@ -31,6 +32,8 @@ class ConfigManager private constructor(private val file: File, private val type
 
     init {
         if (!file.exists()) {
+            file.delete()
+            file.parentFile?.mkdirs()
             file.createNewFile()
         }
         val fileContent = file.readText()
@@ -57,7 +60,8 @@ class ConfigManager private constructor(private val file: File, private val type
             try {
                 if (sDefaultConfig == null) {
                     sDefaultConfig = ConfigManager(
-                        File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json"),
+                        File(getFileDirPath(getApplicationNonNull()) + "/qscript_config.json"),
+//                        File(getApplicationNonNull().filesDir.absolutePath + "/qscript_config.json"),
                         FILE_DEFAULT_CONFIG
                     )
                 }
@@ -71,7 +75,7 @@ class ConfigManager private constructor(private val file: File, private val type
         fun getCache(): ConfigManager {
             if (sCache == null) {
                 sCache = ConfigManager(
-                    File(getApplicationNonNull().filesDir.absolutePath + "/qscript_cache.json"),
+                    File(getFileDirPath(getApplicationNonNull()) + "/qscript_cache.json"),
                     FILE_DEFAULT_CONFIG
                 )
             }
@@ -85,6 +89,12 @@ class ConfigManager private constructor(private val file: File, private val type
                 null
             }
         }
+
+        fun getFileDir(ctx: Context): File {
+            return File(ctx.getExternalFilesDir(null)!!.path + "/QScript")
+        }
+
+        fun getFileDirPath(ctx: Context): String = getFileDir(ctx).absolutePath
     }
 
     operator fun get(key: String): Any? = config[key]

@@ -166,6 +166,19 @@
                 app:title="脚本管理" />
 
             <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/additional_functions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:arrow="true"
+                app:desc="不务正业"
+                app:image="@drawable/ic_add"
+                app:title="附加功能" />
+
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
                 android:id="@+id/settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

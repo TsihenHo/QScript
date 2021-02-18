@@ -20,8 +20,26 @@ package me.tsihen.qscript.util;
 // This file is copy from QNotified.
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Instrumentation;
+import android.app.UiAutomation;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.PersistableBundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Pattern;
+
+import static me.tsihen.qscript.util.JavaUtil.injectModuleResources;
 
 @FromQNotified
 public class MyInstrumentation extends Instrumentation {
@@ -54,14 +72,13 @@ public class MyInstrumentation extends Instrumentation {
 //        return (ActivityResult) m.invoke(mBase, objects);
 //    }
 //
-@Override
-public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    if (className.startsWith("me.tsihen.qscript.activity.")) {
-        return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
+    @Override
+    public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        if (className.startsWith("me.tsihen.qscript.activity.")) {
+            return (Activity) Initiator.class.getClassLoader().loadClass(className).newInstance();
+        }
+        return mBase.newActivity(cl, className, intent);
     }
-    return mBase.newActivity(cl, className, intent);
-}
-/*
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
@@ -384,6 +401,4 @@ public Activity newActivity(ClassLoader cl, String className, Intent intent) thr
     public UiAutomation getUiAutomation() {
         return mBase.getUiAutomation();
     }
-
- */
 }

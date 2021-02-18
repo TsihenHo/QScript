@@ -25,19 +25,97 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
 
-private fun findMethod(
+class DexMethod(methodPath: String) {
+    private var clazzName: String
+    private var methodName: String
+    private var methodParamsName: String
+    private var methodReturnTypeName: String
+
+    init {
+        if (methodPath.isEmpty()) throw NullPointerException("方法路径不能为空")
+        // 示例输入：Lcom/tencent/mobileqq/activity/ChatActivityFacade;->a(Lcom/tencent/mobileqq/app/QQAppInterface;JJ)V
+        clazzName = methodPath.substring(1, methodPath.indexOf(";->")).replace('/', '.')
+        // clazzName = com.tencent...Facade
+        methodName = methodPath.substring(clazzName.length + 4, methodPath.indexOf('('))
+        // methodName = a
+        methodParamsName =
+            methodPath.substring(methodPath.indexOf('(') + 1, methodPath.indexOf(')'))
+        // ()之间的部分
+        methodReturnTypeName = methodPath.substring(methodPath.indexOf(')') + 1)
+        // methodReturnTypeName = V
+    }
+
+    fun getMethod(): Method = getMethod(Initiator.getHostClassLoader()!!)
+
+    fun getMethod(loader: ClassLoader): Method {
+        var clz = loader.loadClass(clazzName)
+        if (clz.superclass != null) {
+            do {
+                clz.declaredMethods.forEach {
+                    if (it.name != methodName) return@forEach
+                    if (it.returnType.getSign() != methodReturnTypeName) return@forEach
+                    val paramsArray =
+                        Array(it.parameterTypes.size) { index -> it.parameterTypes[index].getSign() }
+                    if (paramsArray.joinToString("") != methodParamsName) return@forEach
+                    return it
+                }
+                clz = clz.superclass
+            } while (clz != Any::class.java)
+            throw NoSuchMethodException("找不到方法 $methodName($methodParamsName): $methodReturnTypeName 在 $clazzName")
+        }
+        throw java.lang.IllegalArgumentException("不支持基本数据类型")
+    }
+}
+
+class DexField(fieldPath: String) {
+    private var clazzName: String
+    private var fieldName: String
+    private var fieldTypeName: String
+
+    init {
+        if (fieldPath.isEmpty()) throw NullPointerException("属性路径不能为空")
+        // 示例输入：Lcom/tencent/mobileqq/activity/ChatActivityFacade;->a:Lcom/tencent/mobileqq/app/QQAppInterface;
+        clazzName = fieldPath.substring(1, fieldPath.indexOf(";->")).replace('/', '.')
+        fieldName = fieldPath.substring(clazzName.length + 4, fieldPath.indexOf(':'))
+        fieldTypeName = fieldPath.substring(fieldPath.indexOf(':') + 1)
+    }
+
+    fun getField(): Field = getField(Initiator.getHostClassLoader()!!)
+
+    fun getField(loader: ClassLoader): Field {
+        var clz = loader.loadClass(clazzName)
+        if (clz.superclass != null) {
+            do {
+                clz.declaredFields.forEach {
+                    if (it.name != fieldName) return@forEach
+                    if (it.type.getSign() != fieldTypeName) return@forEach
+                    return it
+                }
+                clz = clz.superclass
+            } while (clz != Any::class.java)
+            throw NoSuchMethodException("找不到属性 $fieldName:$fieldTypeName 在 $clazzName")
+        }
+        throw java.lang.IllegalArgumentException("不支持基本数据类型")
+    }
+}
+
+/**
+ * 支持正则表达式
+ */
+fun findMethod(
     methodName: String,
     clz: Class<*>,
     argsTypes: Array<Class<*>>,
-    returnType: Class<*>? = null
+    returnType: Class<*>? = null,
 ): Method {
     var clazz = clz
+    val regex = Regex("^$methodName\$")
     if (clz.superclass != null) {
         do {
             clazz.declaredMethods.forEach {
+                if (!it.name.matches(regex)) return@forEach
                 if (!it.parameterTypes.contentEquals(argsTypes)) return@forEach
                 if (it.returnType != returnType && returnType != null) return@forEach
-                if (it.name != methodName) return@forEach
                 it.isAccessible = true
                 return it
             }
@@ -47,6 +125,32 @@ private fun findMethod(
     }
     throw IllegalArgumentException("不支持基本数据类型")
 }
+
+fun findMethodBySignWithRegex(sign: String, clazz: Class<*>): Method {
+    var clz = clazz
+    val regex = Regex("^$sign\$")
+    if (clz.superclass != null) {
+        do {
+            clz.declaredMethods.forEach {
+                val itSign = StringBuilder()
+                itSign.append(it.name)
+                itSign.append('(')
+                it.parameterTypes.forEach { type ->
+                    itSign.append(type.getSign())
+                }
+                itSign.append(')')
+                itSign.append(it.returnType.getSign())
+                if (itSign.toString().matches(regex)) return it
+                clz = clazz.superclass!!
+            }
+        } while (clz != Any::class.java)
+        throw NoSuchMethodException("找不到方法 $sign 在 ${clazz.simpleName}")
+    }
+    throw IllegalArgumentException("不支持基本数据类型")
+}
+
+fun findMethodBySign(sign: String, clazz: Class<*>): Method =
+    findMethodBySignWithRegex(sign.replace("(", "\\(").replace(")", "\\)"), clazz)
 
 /**
  * 调用某个非静态方法
@@ -58,9 +162,9 @@ private fun findMethod(
  * @return 被调用的方法的返回值
  * @throws NoSuchMethodException 找不到方法
  */
-fun Any.callVisualMethod(
+fun Any.callVirtualMethod(
     methodName: String,
-    vararg argsTypesAndReturnType: Any?
+    vararg argsTypesAndReturnType: Any?,
 ): Any? {
     val clazz: Class<*> = this.javaClass
     var returnType =
@@ -88,7 +192,7 @@ fun Any.callVisualMethod(
 
 fun Class<*>.callStaticMethod(
     methodName: String,
-    vararg argsTypesAndReturnType: Any?
+    vararg argsTypesAndReturnType: Any?,
 ): Any? {
     val clazz: Class<*> = this
     var returnType =
@@ -118,7 +222,7 @@ fun Class<*>.callStaticMethod(
 fun <T> getStaticObject(
     clazz: Class<*>,
     name: String,
-    type: Class<T>? = null
+    type: Class<T>? = null,
 ): Any? {
     try {
         val f = findField(clazz, type, name)
@@ -135,7 +239,7 @@ fun <T> getStaticObject(
 fun <T> getObject(
     obj: Any,
     name: String,
-    type: Class<T>? = null
+    type: Class<T>? = null,
 ): T? {
     val clazz: Class<*> = obj.javaClass
     try {
@@ -153,7 +257,7 @@ fun setObject(
     obj: Any,
     name: String,
     value: Any?,
-    type: Class<*>? = null
+    type: Class<*>? = null,
 ) {
     val clazz: Class<*> = obj.javaClass
     try {
@@ -171,7 +275,7 @@ fun setStaticObject(
     clazz: Class<*>,
     name: String,
     value: Any?,
-    type: Class<*>? = null
+    type: Class<*>? = null,
 ) {
     try {
         val f: Field = findField(clazz, type, name)!!
@@ -188,7 +292,7 @@ fun setStaticObject(
  */
 fun newInstance(
     clazz: Class<*>,
-    vararg argsAndTypes: Any?
+    vararg argsAndTypes: Any?,
 ): Any {
     val argc: Int = argsAndTypes.size / 2
     val argt: Array<Class<*>?> = arrayOfNulls(argc)
@@ -213,14 +317,13 @@ fun newInstance(
 fun hasField(
     obj: Any,
     name: String,
-    type: Class<*>? = null
+    type: Class<*>? = null,
 ) = findField(if (obj is Class<*>) obj else obj.javaClass, type, name)
-
 
 fun findField(
     clz: Class<*>,
     type: Class<*>?,
-    name: String
+    name: String,
 ): Field? {
     var clazz = clz
     if (clz.superclass != null) {
@@ -233,4 +336,25 @@ fun findField(
         } while (clazz.superclass != Any::class.java)
     }
     return null
+}
+
+fun Class<*>.getSign(): String {
+    if (isPrimitive) {
+        return when (this) {
+            Int::class.java -> "I"
+            Long::class.java -> "J"
+            Byte::class.java -> "B"
+            Boolean::class.java -> "Z"
+            Float::class.java -> "F"
+            Double::class.java -> "D"
+            Char::class.java -> "C"
+            Short::class.java -> "S"
+            Void.TYPE -> "V"
+            else -> throw RuntimeException("未知错误")
+        }
+    }
+    if (isArray) {
+        return "[${componentType!!.getSign()}"
+    }
+    return "L${name.replace('.', '/')};"
 }

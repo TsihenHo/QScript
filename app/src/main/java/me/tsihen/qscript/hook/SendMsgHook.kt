@@ -31,10 +31,10 @@ class SendMsgHook : AbsDelayableHook() {
     }
 
     var inited = false
-    private var sendTextMethod: Method? = null
-    private var sendArkAppMethod: Method? = null
-    private var sendAbsStructMethod: Method? = null
-    private var sendPicMethod: Method? = null
+    var sendTextMethod: Method? = null
+    var sendArkAppMethod: Method? = null
+    var sendAbsStructMethod: Method? = null
+    var sendPicMethod: Method? = null
     private lateinit var sessionInfoClass: Class<*>
     private lateinit var qqAppInterfaceClass: Class<*>
     private lateinit var sendMsgParamsClass: Class<*>
@@ -196,11 +196,14 @@ class SendMsgHook : AbsDelayableHook() {
      * 发送 JSON 消息
      */
     fun sendArkApp(msg: String, qNum: Long, isGroup: Boolean) {
-        if (sendArkAppMethod == null) return
+        if (sendArkAppMethod == null) {
+            logw("SendMsgHook : Invoke before init.")
+            return
+        }
         try {
             val session = buildSessionInfo(qNum.toString(), isGroup)
             val arkAppMsg = Initiator.load(".data.ArkAppMessage")!!.newInstance()
-            if (!(arkAppMsg.callVisualMethod(
+            if (!(arkAppMsg.callVirtualMethod(
                     "fromAppXml",
                     msg,
                     String::class.java,
@@ -217,7 +220,10 @@ class SendMsgHook : AbsDelayableHook() {
      * 发送 XML 消息
      */
     fun sendAbsStruct(msg: String, qNum: Long, isGroup: Boolean) {
-        if (sendAbsStructMethod == null) return
+        if (sendAbsStructMethod == null) {
+            logw("SendMsgHook : Invoke before init.")
+            return
+        }
         try {
             val session = buildSessionInfo(qNum.toString(), isGroup)
             val absStructMsg = Initiator.load(".structmsg.TestStructMsg")
@@ -237,7 +243,10 @@ class SendMsgHook : AbsDelayableHook() {
      * 发送图片消息
      */
     fun sendPic(path: String, qNum: Long, isGroup: Boolean) {
-        if (sendPicMethod == null) return
+        if (sendPicMethod == null) {
+            logw("SendMsgHook : Invoke before init.")
+            return
+        }
         try {
             val session = buildSessionInfo(qNum.toString(), isGroup)
             val chatMessage =

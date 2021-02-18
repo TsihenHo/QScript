@@ -45,7 +45,7 @@ fun getQQApplication(): Application? {
             clz
         ) as? Application? else f[null] as? Application?
     } catch (e: java.lang.Exception) {
-        log(e)
+        log(e, true)
         throw (java.lang.RuntimeException("FATAL: Utils.getApplication() failure!")
             .initCause(e) as java.lang.RuntimeException)
     }
@@ -57,8 +57,8 @@ fun getApplicationNonNull(): Application {
 
 fun getAppRuntime(): Any {
     val ctx = getApplicationNonNull()
-    return ctx.callVisualMethod("getRuntime")
+    return ctx.callVirtualMethod("getRuntime")
         ?: throw java.lang.NullPointerException("Utils : GetAppRuntime : Runtime is null.")
 }
 
-fun getLongAccountUin(): Long = getAppRuntime().callVisualMethod("getLongAccountUin") as Long
+fun getLongAccountUin(): Long = getAppRuntime().callVirtualMethod("getLongAccountUin") as Long

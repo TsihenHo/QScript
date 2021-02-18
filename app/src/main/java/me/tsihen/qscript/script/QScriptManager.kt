@@ -20,6 +20,7 @@ package me.tsihen.qscript.script
 
 import bsh.EvalError
 import bsh.Interpreter
+import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.util.*
 import java.io.*
 import java.util.*
@@ -33,7 +34,7 @@ object QScriptManager {
     fun init() {
         if (init) return
         scriptsPath =
-            getApplicationNonNull().filesDir.absolutePath.toString() + "/qs_scripts/"
+            ConfigManager.getFileDirPath(getApplicationNonNull()) + "/qs_scripts/"
         for (code in getScriptCodes()) {
             try {
                 val qs: QScript = execute(code)
@@ -63,10 +64,14 @@ object QScriptManager {
         val s = File(file)
         val dir = File(scriptsPath!!)
         if (!dir.exists()) dir.mkdirs()
-        val f = File(dir, s.name)
-        copy(s, f)
-        val code: String = f.readText()
-        if (code.isNotEmpty()) scripts.add(execute(code))
+        val code: String = s.readText()
+        try {
+            if (code.isNotEmpty()) scripts.add(execute(code))
+            val f = File(dir, execute(code).getLabel() + ".java")
+            copy(s, f)
+        } catch (e: Exception) {
+            return "脚本无效"
+        }
         return ""
     }
 
@@ -179,7 +184,7 @@ object QScriptManager {
     fun execute(code: String?): QScript {
         val lp = Interpreter()
         lp.setClassLoader(Initiator::class.java.classLoader)
-        return QScript.create(lp, code ?: throw java.lang.RuntimeException("无效脚本"))
+        return QScript.create(lp, code ?: throw java.lang.IllegalArgumentException("无效脚本"))
     }
 
     @FromQNotified
