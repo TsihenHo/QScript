@@ -16,18 +16,19 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.script
+package me.tsihen.qscript.script.qscript
 
 import bsh.EvalError
 import bsh.Interpreter
 import me.tsihen.qscript.config.ConfigManager
-import me.tsihen.qscript.script.api.ScriptApi
-import me.tsihen.qscript.script.objects.MemberJoinData
-import me.tsihen.qscript.script.objects.MessageData
+import me.tsihen.qscript.script.qscript.api.NewScriptApi
+import me.tsihen.qscript.script.qscript.objects.MemberJoinData
+import me.tsihen.qscript.script.qscript.objects.MessageData
 import me.tsihen.qscript.util.FromQNotified
 import me.tsihen.qscript.util.getLongAccountUin
 import me.tsihen.qscript.util.getQQApplication
-import me.tsihen.qscript.util.log
+import me.tsihen.qscript.util.scriptLog
+
 class QScript private constructor(private val instance: Interpreter, private val code: String) {
     private val info: QScriptInfo = QScriptInfo.getInfo(code) ?: throw RuntimeException("无效脚本")
     private var enable = false
@@ -61,7 +62,8 @@ class QScript private constructor(private val instance: Interpreter, private val
             }
             instance.set("ctx", getQQApplication())
             instance.set("thisScript", this)
-            instance.set("api", ScriptApi.get(this))
+//            instance.set("api", ScriptApi.get(this))
+            instance.set("api", NewScriptApi(this))
             instance.set("mQNum", getLongAccountUin())
             Thread {
                 instance.eval("onLoad()")
@@ -69,7 +71,7 @@ class QScript private constructor(private val instance: Interpreter, private val
             QScriptManager.addEnable()
         } catch (evalError: EvalError) {
             if ((evalError.message ?: "d").contains("Command not found")) return // ignore
-            log(evalError)
+            scriptLog(evalError)
         }
     }
 
@@ -81,7 +83,7 @@ class QScript private constructor(private val instance: Interpreter, private val
                 m.invoke(arrayOf(data), instance)
             }.start()
         } catch (e: Exception) {
-            log(e)
+            scriptLog(e)
         }
     }
 
@@ -93,7 +95,7 @@ class QScript private constructor(private val instance: Interpreter, private val
                 m.invoke(arrayOf(data), instance)
             }.start()
         } catch (e: Exception) {
-            log(e)
+            scriptLog(e)
         }
     }
 

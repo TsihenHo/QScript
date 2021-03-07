@@ -52,9 +52,36 @@ fun appendToFile(fileName: String, content: String?) {
     f.writeText(f.readText() + content)
 }
 
+fun Throwable.getStackTraceWithoutSystemAndMsg(): String {
+    val str = Log.getStackTraceString(this)
+    val reader = BufferedReader(StringReader(str))
+    val res = java.lang.StringBuilder(javaClass.simpleName)
+    res.append(":$message")
+    res.append('\n')
+    var count = 0
+    if (this !is Error) {
+        while (reader.readLine() != null) {
+            val r = reader.readLine()
+            if (r.contains(Regex("\\s*at android\\."))
+                || r.contains(Regex("\\s*at com\\.android\\."))
+                || r.contains(Regex("\\s*at java\\."))
+            ) {
+                continue
+            }
+            count += 1
+            if (count >= 40) {
+                res.append("推测：栈溢出，停止\n")
+                break
+            }
+            res.append("$r\n")
+        }
+        return res.toString()
+    } else return str
+}
+
 @JvmOverloads
 fun log(e: Throwable, noFile: Boolean = false) {
-    loge(Log.getStackTraceString(e), noFile)
+    loge(e.getStackTraceWithoutSystemAndMsg(), noFile)
 }
 
 @JvmOverloads
@@ -184,6 +211,38 @@ fun logv(msg: String) {
     }
     Log.v(QS_LOG_TAG, msg)
 }
+
+fun scriptLog(e: Throwable) {
+    scriptLog(e.getStackTraceWithoutSystemAndMsg())
+}
+
+fun scriptLog(msg: String) {
+    try {
+        XposedBridge.log("QScript : $msg")
+    } catch (e: NoClassDefFoundError) {
+    }
+    Log.i(QS_LOG_TAG, "QScript : $msg")
+    try {
+        val path =
+            Environment.getExternalStorageDirectory().absolutePath + "/me.tsihen.qscript_scripts.log"
+        val f = File(path)
+        try {
+            if (!f.exists()) f.createNewFile()
+            appendToFile(
+                path,
+                "[" +
+                        getDateTimeInstance(
+                            DateFormat.MEDIUM,
+                            DateFormat.MEDIUM
+                        ).format(Date(System.currentTimeMillis())) + " " + myPid() + "]/ " + msg + "\n"
+            )
+        } catch (e: IOException) {
+        }
+    } catch (e: Exception) {
+    }
+}
+
+// log end
 
 fun getActiveModuleVersion(): String? {
     Log.v("FAKE", "FAKE")

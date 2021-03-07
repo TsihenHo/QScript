@@ -1,4 +1,4 @@
-package me.tsihen.qscript.script.objects
+package me.tsihen.qscript.script.qscript.objects
 
 class MemberJoinData {
     var uin: String = ""

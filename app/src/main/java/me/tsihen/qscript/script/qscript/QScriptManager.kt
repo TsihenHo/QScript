@@ -16,7 +16,7 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.script
+package me.tsihen.qscript.script.qscript
 
 import bsh.EvalError
 import bsh.Interpreter
@@ -24,6 +24,7 @@ import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.util.*
 import java.io.*
 import java.util.*
+
 object QScriptManager {
     var enables = 0
     private val scripts: MutableList<QScript> = mutableListOf()
@@ -47,6 +48,11 @@ object QScriptManager {
             }
         }
         init = true
+    }
+
+    fun reInit() {
+        init = false
+        init()
     }
 
     /**
@@ -101,10 +107,18 @@ object QScriptManager {
             fileInputStream?.close()
             fileOutputStream?.close()
         }
-        val code = File(scriptsPath + scriptName).readText()
+        val file = File(scriptsPath + scriptName)
+        val code = file.readText()
         if (code.isNotEmpty()) {
-            scripts.add(execute(code))
+            val qs = execute(code)
+            scripts.add(qs)
+            File(scriptsPath + qs.getLabel() + ".java").let {
+                it.delete()
+                it.createNewFile()
+                it.writeText(code)
+            }
         }
+        file.delete()
         return ""
     }
 
@@ -131,7 +145,7 @@ object QScriptManager {
                 if (info.label == script.getLabel()) {
                     f.delete()
                     for (q in scripts) {
-                        if (q.getLabel()  == script.getLabel()) {
+                        if (q.getLabel() == script.getLabel()) {
                             scripts.remove(q)
                         }
                     }

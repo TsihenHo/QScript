@@ -18,7 +18,7 @@
  */
 @file:JvmName("QScriptInfo")
 
-package me.tsihen.qscript.script
+package me.tsihen.qscript.script.qscript
 
 import me.tsihen.qscript.util.FromQNotified
 

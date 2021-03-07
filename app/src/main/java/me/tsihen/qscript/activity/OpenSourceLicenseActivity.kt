@@ -21,7 +21,7 @@ import de.psdev.licensesdialog.model.Notices
 import me.tsihen.qscript.R
 import me.tsihen.qscript.databinding.ActivityOpenSourceLicenseBinding
 
-class OpenSourceLicenseActivity : BaseActivity() {
+class OpenSourceLicenseActivity : AbsActivity() {
     private lateinit var mViewBinding: ActivityOpenSourceLicenseBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

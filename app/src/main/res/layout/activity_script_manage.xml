@@ -40,6 +40,25 @@
                 android:layout_marginBottom="16dp"
                 android:text="@string/reboot_qq_then_apply_script" />
 
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/script_log"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="这里安放着所有脚本的运行日志"
+                app:image="@drawable/ic_script"
+                app:title="脚本日志" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/apply_changes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="无需重启QQ，立即应用更改\n警告：实验性功能，可能出现错误。"
+                app:image="@drawable/ic_success_white"
+                app:title="实验性：立即应用更改" />
+
             <LinearLayout
                 android:id="@+id/script_root"
                 android:layout_width="match_parent"

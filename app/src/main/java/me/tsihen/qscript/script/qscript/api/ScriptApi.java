@@ -16,12 +16,12 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.script.api;
+package me.tsihen.qscript.script.qscript.api;
 
 import me.tsihen.qscript.config.ConfigManager;
 import me.tsihen.qscript.hook.SendMsgHook;
-import me.tsihen.qscript.script.QScript;
-import me.tsihen.qscript.script.objects.MessageData;
+import me.tsihen.qscript.script.qscript.QScript;
+import me.tsihen.qscript.script.qscript.objects.MessageData;
 import me.tsihen.qscript.util.ClassFinder;
 import me.tsihen.qscript.util.Initiator;
 import me.tsihen.qscript.util.QQFields;
@@ -29,13 +29,13 @@ import me.tsihen.qscript.util.ReflexUtils;
 import me.tsihen.qscript.util.Utils;
 
 import static me.tsihen.qscript.util.ConstsKt.C_QQ_APP_INTERFACE;
-import static me.tsihen.qscript.util.Utils.loge;
+import static me.tsihen.qscript.util.Utils.scriptLog;
 
 @SuppressWarnings("unused")
 public class ScriptApi {
     private final QScript script;
 
-    private ScriptApi(QScript qs) {
+    protected ScriptApi(QScript qs) {
         script = qs;
     }
 
@@ -64,22 +64,7 @@ public class ScriptApi {
      * @param msg 日志内容
      */
     public void log(String msg) {
-        Utils.logi("Script : " + script.getName() + " : " + msg);
-    }
-
-    /**
-     * 根据 data 发送消息
-     *
-     * @param data 发送群消息时，必须加上这个群的 MessageData
-     * @param msg  消息内容
-     */
-    public void sendTextMsg(Object data, String msg, long[] at) {
-        if (!(data instanceof MessageData)) return;
-        Long[] l = new Long[at.length];
-        for (int i = 0; i < at.length; i++) {
-            l[i] = at[i];
-        }
-        SendMsgHook.Companion.get().sendText((MessageData) data, msg, l);
+        Utils.scriptLog(script.getName() + " : " + msg);
     }
 
     /**
@@ -124,7 +109,7 @@ public class ScriptApi {
     public void sendCardMsg(String msg, long qNum, boolean isGroup) {
         Boolean b = (Boolean) ConfigManager.Companion.getDefaultConfig().get("pass_by_exam");
         if (b == null || !b) {
-            loge("ScriptApi : SendCardMsg : 未通过高级验证，禁止发送卡片");
+            scriptLog(script.getName() + " : SendCardMsg : 未通过高级验证，禁止发送卡片");
             return;
         }
         if (msg.startsWith("{"))
@@ -194,7 +179,7 @@ public class ScriptApi {
         return ScriptApi.getName(senderUin, friendUin);
     }
 
-    private Object getGagManager() {
+    protected Object getGagManager() {
         int i;
         try {
             i = (int) ReflexUtils.getStaticObject(Initiator.load(".app.QQManagerFactory"), "TROOP_GAG_MANAGER", Integer.TYPE);

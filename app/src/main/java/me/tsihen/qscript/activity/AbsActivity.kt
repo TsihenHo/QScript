@@ -27,7 +27,7 @@ import me.tsihen.qscript.util.JUMP_ACTION_CHECK_ACTIVITY
 import me.tsihen.qscript.util.JUMP_ACTION_CMD
 import me.tsihen.qscript.util.logd
 
-open class BaseActivity : Activity() {
+open class AbsActivity : Activity() {
     override fun getComponentName(): ComponentName =
         ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity")
 

@@ -7,7 +7,7 @@ import me.tsihen.qscript.hook.NoMiniappHook
 import me.tsihen.qscript.ui.IOnClickListenerFilled
 import me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
 
-class AdditionalFunctionsActivity : BaseActivity(), IOnClickListenerFilled {
+class AdditionalFunctionsActivity : AbsActivity(), IOnClickListenerFilled {
     private lateinit var mViewBinding: ActivityAdditionalFunctionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

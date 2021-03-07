@@ -16,10 +16,10 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.script
+package me.tsihen.qscript.script.qscript
 
-import me.tsihen.qscript.script.objects.MemberJoinData
-import me.tsihen.qscript.script.objects.MessageData
+import me.tsihen.qscript.script.qscript.objects.MemberJoinData
+import me.tsihen.qscript.script.qscript.objects.MessageData
 
 object QScriptEventSender {
     /**

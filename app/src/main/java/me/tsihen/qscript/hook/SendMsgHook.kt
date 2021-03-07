@@ -19,8 +19,8 @@
 package me.tsihen.qscript.hook
 
 import android.content.Context
-import me.tsihen.qscript.script.api.ScriptApi.getName
-import me.tsihen.qscript.script.objects.MessageData
+import me.tsihen.qscript.script.qscript.api.ScriptApi.getName
+import me.tsihen.qscript.script.qscript.objects.MessageData
 import me.tsihen.qscript.util.*
 import java.lang.reflect.Method
 

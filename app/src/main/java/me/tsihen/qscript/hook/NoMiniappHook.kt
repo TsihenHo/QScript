@@ -1,5 +1,7 @@
 package me.tsihen.qscript.hook
 
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import me.tsihen.qscript.util.*
 
 class NoMiniappHook : AbsDelayableHook() {
@@ -20,9 +22,13 @@ class NoMiniappHook : AbsDelayableHook() {
                     Initiator::class.java
                 }.invoke()
             if (clz == Initiator::class.java) return false
+            XposedBridge.hookAllConstructors(clz, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    super.beforeHookedMethod(param)
+                    param.throwable = UnsupportedOperationException("小程序已经关闭")
+                }
+            })
             findMethodBySignWithRegex("onTouchMoving\\(.+\\)V", clz).before {
-//                val action = it.args[2].callVirtualMethod("getAction", Int::class.java) as Int
-//                if (action and 255 == 2) it.result = Void.TYPE
                 if (!getEnabled()) return@before
                 it.result = Void.TYPE
             }

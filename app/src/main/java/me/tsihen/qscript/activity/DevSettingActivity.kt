@@ -27,7 +27,7 @@ import android.os.Environment
 import me.tsihen.qscript.R
 import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.databinding.ActivityDevSettingBinding
-import me.tsihen.qscript.script.QScriptManager
+import me.tsihen.qscript.script.qscript.QScriptManager
 import me.tsihen.qscript.ui.IOnClickListener
 import me.tsihen.qscript.ui.IOnClickListenerFilled
 import me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
@@ -36,7 +36,7 @@ import me.tsihen.qscript.util.*
 import java.io.File
 import kotlin.system.exitProcess
 
-class DevSettingActivity : BaseActivity(), IOnClickListener, IOnClickListenerFilled {
+class DevSettingActivity : AbsActivity(), IOnClickListener, IOnClickListenerFilled {
     private lateinit var mViewBinding: ActivityDevSettingBinding
 
     @SuppressLint("InflateParams")

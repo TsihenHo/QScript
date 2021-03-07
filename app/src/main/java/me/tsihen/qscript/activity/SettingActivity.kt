@@ -24,8 +24,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Html
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import me.tsihen.qscript.R
 import me.tsihen.qscript.config.ConfigManager
@@ -38,7 +36,7 @@ import me.tsihen.qscript.util.*
 import java.util.*
 
 
-class SettingActivity : BaseActivity(), IOnClickListener {
+class SettingActivity : AbsActivity(), IOnClickListener {
     private lateinit var mViewBinding: ActivitySettingBinding
 
     @Suppress("DEPRECATION")
@@ -59,7 +57,6 @@ class SettingActivity : BaseActivity(), IOnClickListener {
         mViewBinding.settings.setOnClickListener(this)
         mViewBinding.additionalFunctions.setOnClickListener(this)
         mViewBinding.bug.setOnClickListener(this)
-        mViewBinding.license.setOnClickListener(this)
         mViewBinding.aboutMe.setOnClickListener(this)
 
         mViewBinding.topAppBar.setOnMenuItemClickListener {
@@ -150,18 +147,7 @@ class SettingActivity : BaseActivity(), IOnClickListener {
     @Suppress("DEPRECATION")
     override fun onClick(v: ViewWithTwoLinesAndImage) {
         when (v.id) {
-            R.id.about_me -> AlertDialog.Builder(this)
-                .setMessage(Html.fromHtml(this.getString(R.string.about_me)))
-                .setTitle("关于")
-                .setIcon(ContextCompat.getDrawable(this, R.drawable.ic_people))
-                .setPositiveButton("关闭") { d, _ -> d.dismiss() }
-                .setNeutralButton("开源地址") { d, _ ->
-                    d.dismiss()
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Uri.parse("https://github.com/GoldenHuaji/QScript")
-                    startActivity(intent)
-                }
-                .show()
+            R.id.about_me -> startActivity<AboutActivity>()
             R.id.script_manage -> startActivity<ScriptManageActivity>()
             R.id.settings -> startActivity<DevSettingActivity>()
             R.id.additional_functions -> startActivity<AdditionalFunctionsActivity>()
@@ -182,7 +168,6 @@ class SettingActivity : BaseActivity(), IOnClickListener {
                 }
                 .setNegativeButton("好") { d, _ -> d.dismiss() }
                 .show()
-            R.id.license -> startActivity<OpenSourceLicenseActivity>()
         }
     }
 }

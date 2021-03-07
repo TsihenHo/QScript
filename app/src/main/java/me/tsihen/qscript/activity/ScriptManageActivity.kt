@@ -22,20 +22,19 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import me.tsihen.qscript.R
 import me.tsihen.qscript.databinding.ActivityScriptManageBinding
-import me.tsihen.qscript.script.QScriptManager
-import me.tsihen.qscript.ui.IOnClickListenerFilled
-import me.tsihen.qscript.ui.IOnLongClickListenerFilled
-import me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
+import me.tsihen.qscript.script.qscript.QScriptManager
+import me.tsihen.qscript.ui.*
 import me.tsihen.qscript.util.*
 
 
-class ScriptManageActivity : BaseActivity() {
+class ScriptManageActivity : AbsActivity() {
     private lateinit var mViewBinding: ActivityScriptManageBinding
     private val codeAddScript = 100
     private val codeEditScript = 101
@@ -61,6 +60,23 @@ class ScriptManageActivity : BaseActivity() {
             return@setOnMenuItemClickListener true
         }
         refresh()
+
+        mViewBinding.applyChanges.setOnClickListener(object : IOnClickListener {
+            override fun onClick(v: ViewWithTwoLinesAndImage) {
+                try {
+                    QScriptManager.reInit()
+                    Toasts.success(this@ScriptManageActivity, "已应用更改")
+                } catch (e: Exception) {
+                    Toasts.error(this@ScriptManageActivity, "出现错误，请查看脚本日志")
+                }
+            }
+        })
+        mViewBinding.scriptLog.setOnClickListener(object : IOnClickListener {
+            override fun onClick(v: ViewWithTwoLinesAndImage) {
+                Toasts.success(this@ScriptManageActivity,
+                    Environment.getExternalStorageDirectory().path + "/me.tsihen.qscript_scripts.log")
+            }
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -22,17 +22,16 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import me.tsihen.qscript.R
+import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.databinding.ActivityScriptEditBinding
-import me.tsihen.qscript.script.QScript
-import me.tsihen.qscript.script.QScriptManager
+import me.tsihen.qscript.script.qscript.QScript
+import me.tsihen.qscript.script.qscript.QScriptManager
 import me.tsihen.qscript.util.Toasts
-import me.tsihen.qscript.util.copy
 import me.tsihen.qscript.util.log
 import me.tsihen.qscript.util.loge
-import java.io.File
 
 
-class ScriptEditActivity : BaseActivity() {
+class ScriptEditActivity : AbsActivity() {
     private lateinit var mViewBinding: ActivityScriptEditBinding
     private lateinit var script: QScript
 
@@ -71,7 +70,7 @@ class ScriptEditActivity : BaseActivity() {
             }
         } else {
             mViewBinding.tvReadOnly.text =
-                "温馨提示：您不应该更改“MeteData”中的内容（Version 除外）\n警告：这个编辑器做的像坨狗屎一样。建议您复制脚本后使用外部文本编辑器编辑。"
+                "温馨提示：您不应该更改“MeteData”中的内容（Version 除外）\n警告：这个编辑器做的像坨狗屎一样。建议您使用外部文本编辑器编辑。"
             mViewBinding.topAppBar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.menu_item_save -> {
@@ -102,21 +101,10 @@ class ScriptEditActivity : BaseActivity() {
         super.onStart()
         if (script.getCode().length > 1_0000_0000) {
             AlertDialog.Builder(this)
-                .setMessage("脚本文件过大，使用内置文本编辑器很可能造成卡顿甚至闪退。您真的要继续吗？我们建议您使用外部文本编辑器编辑。")
+                .setMessage("脚本文件过大，使用内置文本编辑器很可能造成卡顿甚至闪退。您真的要继续吗？我们建议您使用外部文本编辑器编辑。脚本的路径：" +
+                        "${ConfigManager.getFileDirPath(this)}/files/QScript/qs_scripts/...")
                 .setPositiveButton("关闭") { d, _ ->
                     d.dismiss()
-                    finish()
-                }
-                .setNegativeButton("复制脚本到根目录") { _, _ ->
-                    val s = File(QScriptManager.scriptsPath!! + "/" + script.getLabel() + ".java")
-                    if (!s.exists()) {
-                        Toasts.error(this, "找不到源文件")
-                        finish()
-                    }
-                    val f =
-                        File(getExternalFilesDir(null)!!.path + "/QScript/scripts/" + script.getLabel() + ".java")
-                    copy(s, f)
-                    Toasts.success(this, s.absolutePath)
                     finish()
                 }
                 .setNeutralButton("仍然继续") { _, _ ->

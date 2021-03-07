@@ -52,8 +52,8 @@ object Initiator {
         }
         return try {
             sHostClassloader!!.loadClass(className)
-        } catch (e: Throwable) {
-            log(e)
+        } catch (e: ClassNotFoundException) {
+            logw("Initiator : ${e.message}")
             null
         }
     }

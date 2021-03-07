@@ -16,26 +16,15 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-@file:Suppress("unused")
+package me.tsihen.qscript.script.bugscript
 
-package me.tsihen.qscript.script.api
-
-import me.tsihen.qscript.script.QScript
-import me.tsihen.qscript.util.log
-import org.jsoup.Connection
-import org.jsoup.Jsoup
-
-class ScriptNetwork(val script: QScript) {
-    private var bridge: Connection? = null
-
-    fun fromUrl(url: String): Connection? {
-        try {
-            if (!script.getPermissionNetwork()) return null
-            bridge = Jsoup.connect(url)
-            return bridge!!
-        } catch (e: Exception) {
-            log(e)
-            return null
-        }
-    }
-}
+open class Data(
+    open val type: Int,
+    open val atMe: Boolean,
+    open val friendUin: String,
+    open val isGroup: Boolean,
+    open val nickName: String,
+    open val senderUin: String,
+    open val time: Long,
+    open val atList: Array<String>,
+)

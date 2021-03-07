@@ -20,8 +20,8 @@ package me.tsihen.qscript.hook
 
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import me.tsihen.qscript.script.QScriptEventSender
-import me.tsihen.qscript.script.objects.MessageData.Companion.getMessage
+import me.tsihen.qscript.script.qscript.QScriptEventSender
+import me.tsihen.qscript.script.qscript.objects.MessageData.Companion.getMessage
 import me.tsihen.qscript.util.*
 
 class GetMsgHook : AbsDelayableHook() {

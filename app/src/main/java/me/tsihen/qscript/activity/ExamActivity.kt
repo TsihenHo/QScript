@@ -38,7 +38,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 
-class ExamActivity : BaseActivity() {
+class ExamActivity : AbsActivity() {
     private lateinit var mViewBinding: ActivityExamBinding
     private var trueResult: String? = null
     private val handler = Handler {

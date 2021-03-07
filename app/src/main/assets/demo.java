@@ -75,6 +75,7 @@ public void onLoad(){
  * 文本消息
  */
 public void onMsg(Object param){
+    // 发送给消息发送者（群或者人）的函数：api.sendTextMsg(param, "消息") 或者 (param, "消息", new long[]{1L, 2L, 3L})
     String l = param.senderUin; // 发送者
     String s = param.content; // 文本内容
     String s2 = param.content2; // 暂时我也不知道有什么用
@@ -92,15 +93,16 @@ public void onMsg(Object param){
         // api.getNickname(String 人, String 群) 获取 人 在 群 里面的昵称
         // api.getNickname(String 人, String 人) 获取 人 的名称
         // api.getNickname(Object data) 根据 data 获取发送者的昵称，如 api.getNickname(param);
-        api.sendTextMsg("@" + api.getNickname(3318448676L, 818333976L) + " @" + api.getNickname(3340792396L, 818333976L) + "群测试A", f, new long[]{3318448676L,3340792396L});
-        api.sendTextMsg("测试完成", api.str2long(l));
+        api.sendTextMsg(param, "@" + api.getNickname(3318448676L, 818333976L) + " @" + api.getNickname(3340792396L, 818333976L) + "群测试A", new long[]{3318448676L,3340792396L});
+        api.sendTextMsg(param, "测试完成", api.str2long(l));
         return;
     }
     api.log("source = " + source);
     if(param.isGroupMsg() || l.equals(mQNum.toString())){
         return;
     }
-    // api.sendTextMsg("nmsl(bushi", api.str2long(l));
+    api.sendTip(param, "Tip 消息，仅自己可见");
+// api.sendTextMsg(param, "nmsl(bushi");
 }
 
 /**

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.AboutActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:stateListAnimator="@null">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Toolbar"
+            android:layout_height="wrap_content"
+            app:navigationIcon="@drawable/ic_return"
+            app:title="关于" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:contentDescription="@string/nothing"
+                android:src="@drawable/ic_launcher" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="@string/app_name"
+                android:textSize="20sp" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:desc="Tsihen Ho"
+                app:image="@drawable/ic_info"
+                app:title="作者" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/license"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="开放源代码许可"
+                app:image="@drawable/ic_file"
+                app:title="开放源代码许可" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/add_qq_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="仅仅是发布更新而已"
+                app:image="@drawable/ic_tg"
+                app:title="加入 TG 频道" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/add_self_qq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="有事禀报，无事退朝"
+                app:image="@drawable/ic_people"
+                app:title="我的 QQ" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/self_mail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="这里可以提交反馈"
+                app:image="@drawable/ic_at"
+                app:title="我的邮箱" />
+
+            <me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
+                android:id="@+id/open_github"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:arrow="true"
+                app:desc="欢迎 Star &amp; PR"
+                app:image="@drawable/ic_github"
+                app:title="开源地址" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

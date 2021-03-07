@@ -22,7 +22,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import me.tsihen.qscript.databinding.ActivityScriptHelpBinding
 
-class ScriptHelpActivity : BaseActivity() {
+class ScriptHelpActivity : AbsActivity() {
     private lateinit var mViewBinding: ActivityScriptHelpBinding
 
     @SuppressLint("SetTextI18n")

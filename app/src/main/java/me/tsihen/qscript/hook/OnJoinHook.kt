@@ -2,8 +2,8 @@ package me.tsihen.qscript.hook
 
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import me.tsihen.qscript.script.QScriptEventSender
-import me.tsihen.qscript.script.objects.MemberJoinData
+import me.tsihen.qscript.script.qscript.QScriptEventSender
+import me.tsihen.qscript.script.qscript.objects.MemberJoinData
 import me.tsihen.qscript.util.C_QQ_APP_INTERFACE
 import me.tsihen.qscript.util.ClassFinder
 import me.tsihen.qscript.util.Initiator

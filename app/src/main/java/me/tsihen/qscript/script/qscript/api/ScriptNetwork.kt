@@ -16,34 +16,26 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.hook
+@file:Suppress("unused")
 
-import me.tsihen.qscript.script.qscript.QScriptManager
+package me.tsihen.qscript.script.qscript.api
+
+import me.tsihen.qscript.script.qscript.QScript
 import me.tsihen.qscript.util.log
+import org.jsoup.Connection
+import org.jsoup.Jsoup
 
-class ScriptEventHook : AbsDelayableHook() {
-    companion object {
-        private val self = ScriptEventHook()
-        fun get(): ScriptEventHook = self
-    }
+class ScriptNetwork(val script: QScript) {
+    private var bridge: Connection? = null
 
-    private var inited = false
-
-    override fun init(): Boolean {
-        if (inited) return true
-        QScriptManager.init()
-        return try {
-            inited = true
-            true
-        } catch (e: Throwable) {
+    fun fromUrl(url: String): Connection? {
+        try {
+            if (!script.getPermissionNetwork()) return null
+            bridge = Jsoup.connect(url)
+            return bridge!!
+        } catch (e: Exception) {
             log(e)
-            false
+            return null
         }
-    }
-
-    override fun getEnabled(): Boolean = true
-
-    override fun setEnabled(z: Boolean) {
-        // nothing
     }
 }

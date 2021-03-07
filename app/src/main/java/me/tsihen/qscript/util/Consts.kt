@@ -57,11 +57,15 @@ const val FILE_UIN_DATA = 3
 /**
  * For [ClassFinder]
  */
-const val C_BASE_CHAT_PIE = 1
-const val C_CHAT_ACTIVITY_FACADE = 2
-const val C_APP_INTERFACE_FACTORY = 4
-const val C_QQ_APP_INTERFACE = 8
-const val C_SESSION_INFO = 16
-const val C_MESSAGE_FOR_ARK_APP = 32
-const val C_TROOP_MEMBER_INFO = 64
-const val C_SEND_MSG_PARAMS = 128
+const val C_BASE_CHAT_PIE = 0
+const val C_CHAT_ACTIVITY_FACADE = 1
+const val C_APP_INTERFACE_FACTORY = 2
+const val C_QQ_APP_INTERFACE = 3
+const val C_SESSION_INFO = 4
+const val C_MESSAGE_FOR_ARK_APP = 5
+const val C_TROOP_MEMBER_INFO = 6
+const val C_SEND_MSG_PARAMS = 7
+const val C_MESSAGE_RECORD = 8
+
+// MsgTypes
+const val MSG_TYPE_TIP = -1013

@@ -16,7 +16,7 @@
  * along with this software.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package me.tsihen.qscript.script.objects
+package me.tsihen.qscript.script.qscript.objects
 
 import me.tsihen.qscript.util.*
 import org.json.JSONArray
@@ -52,7 +52,9 @@ class MessageData {
 
     var type = 0
 
-    fun isGroupMsg() = isGroup
+    fun isGroupMsg(): Boolean {
+        return isGroup
+    }
 
     companion object {
         fun getMessage(qqAppInterface: Any, messageRecord: Any): MessageData {
