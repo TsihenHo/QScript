@@ -38,7 +38,7 @@ import dalvik.system.BaseDexClassLoader;
 import me.tsihen.qscript.MainHook;
 import me.tsihen.qscript.R;
 
-import static me.tsihen.qscript.util.ReflexUtils.callVirtualMethod;
+import static me.tsihen.qscript.util.ReflexUtils.callMethod;
 import static me.tsihen.qscript.util.ReflexUtils.getObject;
 import static me.tsihen.qscript.util.Utils.log;
 import static me.tsihen.qscript.util.Utils.loge;
@@ -292,17 +292,17 @@ public class JavaUtil {
 
         @Override
         protected Package getPackage(String name) {
-            return (Package) callVirtualMethod(hostLoader, "getPackage", name, String.class);
+            return (Package) callMethod(hostLoader, "getPackage", name, String.class);
         }
 
         @Override
         protected Package[] getPackages() {
-            return (Package[]) callVirtualMethod(hostLoader, "getPackages");
+            return (Package[]) callMethod(hostLoader, "getPackages");
         }
 
         @Override
         protected String findLibrary(String libname) {
-            return (String) callVirtualMethod(hostLoader, "findLibrary", libname, String.class);
+            return (String) callMethod(hostLoader, "findLibrary", libname, String.class);
         }
 
         @Override

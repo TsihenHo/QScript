@@ -46,20 +46,26 @@ class GetMsgHook : AbsDelayableHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     try {
                         val p = getMessage(param.args[0], param.args[1])
-                        val type = param.args[1].javaClass.simpleName
-                        logd("GetMsgHook : type is $type.")
+                        val type = param.args[1].javaClass
+                        logd("GetMsgHook : type is ${type.simpleName}.")
                         // 仅仅接受用户发送的部分类型消息
-                        if (!type.endsWith("ForArkApp") && // XML 消息
-                            !type.endsWith("ForStructing") && // JSON 消息
-                            !type.endsWith("ForText") && // 纯文本消息
-                            !type.endsWith("ForMixedMsg") && // 文本图片消息
-                            !type.endsWith("ForPic") && // 纯图片消息
-                            !type.endsWith("ForPtt") && // 语音消息
-                            !type.endsWith("ForShakeWindow") && // 窗口抖动
-                            !type.endsWith("ForReplyText") // 回复消息
-                        ) {
-                            return
-                        }
+                        val loader = Initiator.getHostClassLoader()!!
+                        if (
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForText"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForLongMsg"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForPic"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForStructing"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForArkApp"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForReplyText"))
+                                .isAssignableFrom(type) &&
+                            !(loader.loadClass("$PACKAGE_NAME_QQ.data.MessageForMixedMsg"))
+                                .isAssignableFrom(type)
+                        ) return
 
                         // 防止重复
                         if (msgDone.contains(p.id)) return

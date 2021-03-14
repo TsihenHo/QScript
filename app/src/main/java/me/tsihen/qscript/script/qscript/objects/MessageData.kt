@@ -23,7 +23,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
-class MessageData {
+open class MessageData {
     var senderUin: String = ""
 
     var content: String = ""
@@ -46,7 +46,7 @@ class MessageData {
 
     var id = -1L
 
-    var atList: LinkedList<String>? = null
+    var atList: Array<String>? = null
 
     var source: String = ""
 
@@ -82,7 +82,7 @@ class MessageData {
                 }
 
                 data.atMe = atList.contains(getLongAccountUin().toString())
-                data.atList = atList
+                data.atList = atList.toTypedArray()
                 data.sessionInfo = session
                 data.senderUin = senderUin
                 data.selfUin = getObject<String>(messageRecord, "selfuin") ?: ""
@@ -117,14 +117,14 @@ class MessageData {
                         data.source = getObject<Any>(
                             messageRecord,
                             "structingMsg"
-                        )?.callVirtualMethod("getXml") as? String? ?: ""
+                        )?.callMethod("getXml") as? String? ?: ""
                     }
                     ("MessageForArkApp") -> {
                         data.type = 4 // 4 for json
                         data.source = getObject<Any>(
                             messageRecord,
                             "ark_app_message"
-                        )?.callVirtualMethod("toAppXml") as? String? ?: ""
+                        )?.callMethod("toAppXml") as? String? ?: ""
                     }
                     ("MessageForReplyMsg") -> data.type = 5 // 5 for reply
                     ("MessageForMixedMsg") -> data.type = 6 // 6 for mixed

@@ -147,7 +147,7 @@ public class ScriptApi {
      * @param time  时间，0=解除禁言
      */
     public void shutUp(long group, long qNum, long time) {
-        ReflexUtils.callVirtualMethod(getGagManager(), "a", String.valueOf(group), String.valueOf(qNum), time, String.class, String.class, Long.TYPE);
+        ReflexUtils.callMethod(getGagManager(), "a", String.valueOf(group), String.valueOf(qNum), time, String.class, String.class, Long.TYPE);
     }
 
     /**
@@ -167,7 +167,7 @@ public class ScriptApi {
      */
     public void shutAllUp(long group, boolean time) {
         Object mgr = getGagManager();
-        ReflexUtils.callVirtualMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
+        ReflexUtils.callMethod(mgr, "a", String.valueOf(group), time ? 268435455 : 0, String.class, Long.TYPE);
     }
 
     public String getNickname(Object data) {
@@ -186,6 +186,6 @@ public class ScriptApi {
         } catch (Exception ignored) {
             i = 48;
         }
-        return ReflexUtils.callVirtualMethod(QQFields.getQQAppInterface(), "getManager", i, Integer.TYPE);
+        return ReflexUtils.callMethod(QQFields.getQQAppInterface(), "getManager", i, Integer.TYPE);
     }
 }

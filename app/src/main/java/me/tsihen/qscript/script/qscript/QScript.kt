@@ -29,14 +29,25 @@ import me.tsihen.qscript.util.getLongAccountUin
 import me.tsihen.qscript.util.getQQApplication
 import me.tsihen.qscript.util.scriptLog
 
-class QScript private constructor(private val instance: Interpreter, private val code: String) {
-    private val info: QScriptInfo = QScriptInfo.getInfo(code) ?: throw RuntimeException("无效脚本")
-    private var enable = false
-    private var init = false
+open class QScript protected constructor(
+    protected val instance: Interpreter,
+    @get:JvmName("getScriptCode") protected val code: String,
+) {
+    protected open val info: QScriptInfo =
+        QScriptInfo.getInfo(code) ?: throw RuntimeException("无效脚本")
+
+    @set:JvmName("setIsEnable")
+    protected var enable = false
+    protected var init = false
 
     fun isEnable(): Boolean {
         enable = ConfigManager.getDefaultConfig().getOrDefault("script_enable_${getLabel()}", false)
         return enable
+    }
+
+    fun setEnable(value: Boolean) {
+        ConfigManager.getDefaultConfig()["script_enable_${getLabel()}"] = value
+        enable = value
     }
 
     fun getName(): String = info.name
@@ -47,25 +58,21 @@ class QScript private constructor(private val instance: Interpreter, private val
     fun getPermissionNetwork(): Boolean = info.permissionNetwork
     fun getCode(): String = code
 
-    fun setEnable(z: Boolean) {
-        ConfigManager.getDefaultConfig()["script_enable_${getLabel()}"] = z
-        enable = z
-    }
-
     // 事件处理器：
     @FromQNotified
-    fun onLoad() {
+    open fun onLoad() {
         try {
-            if (!init) {
-                instance.eval(code)
-                init = true
-            }
             instance.set("ctx", getQQApplication())
             instance.set("thisScript", this)
 //            instance.set("api", ScriptApi.get(this))
             instance.set("api", NewScriptApi(this))
             instance.set("mQNum", getLongAccountUin())
+            if (!init) {
+                instance.eval(code)
+                init = true
+            }
             Thread {
+                Thread.sleep(100)
                 instance.eval("onLoad()")
             }.start()
             QScriptManager.addEnable()
@@ -75,7 +82,7 @@ class QScript private constructor(private val instance: Interpreter, private val
         }
     }
 
-    fun onMsg(data: MessageData) {
+    open fun onMsg(data: MessageData) {
         if (!init) return
         try {
             val m = instance.nameSpace.getMethod("onMsg", arrayOf(Any::class.java))
@@ -87,7 +94,7 @@ class QScript private constructor(private val instance: Interpreter, private val
         }
     }
 
-    fun onJoin(data: MemberJoinData) {
+    open fun onJoin(data: MemberJoinData) {
         if (!init) return
         try {
             val m = instance.nameSpace.getMethod("onJoin", arrayOf(Any::class.java))

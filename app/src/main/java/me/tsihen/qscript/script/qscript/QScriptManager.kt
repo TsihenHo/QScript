@@ -52,6 +52,7 @@ object QScriptManager {
 
     fun reInit() {
         init = false
+        scripts.clear()
         init()
     }
 

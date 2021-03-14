@@ -43,6 +43,8 @@ object ClassFinder {
                     ?: Initiator.load(".data.TroopMemberInfo")
             C_MESSAGE_RECORD ->
                 Initiator.load(".data.MessageRecord")
+            C_MESSAGE_FACTORY ->
+                Initiator.load(".service.message.MessageRecordFactory")
             else -> null
         }
     }

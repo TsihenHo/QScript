@@ -18,12 +18,13 @@
  */
 package me.tsihen.qscript.script.qscript.api
 
+import me.tsihen.qscript.hook.SendMsgHook
 import me.tsihen.qscript.script.qscript.QScript
 import me.tsihen.qscript.script.qscript.objects.MessageData
-import me.tsihen.qscript.util.*
+import me.tsihen.qscript.util.log
 
 @Suppress("unused")
-class NewScriptApi(private val script: QScript) : ScriptApi(script) {
+class NewScriptApi(script: QScript) : ScriptApi(script) {
     fun sendTextMsg(data: MessageData, msg: String) {
         if (data.isGroup) {
             sendTextMsg(msg, data.friendUin.toLong(), longArrayOf())
@@ -47,42 +48,23 @@ class NewScriptApi(private val script: QScript) : ScriptApi(script) {
 
     fun sendTip(data: MessageData, msg: String) {
         try {
-            val messageRecord = ClassFinder.findClass(C_MESSAGE_RECORD)?.newInstance()
-            if (messageRecord == null) {
-                logw("NewScriptApi : 找不到 MessageRecord")
-                return
-            }
-            val messageFacade = qqAppInterface?.callVirtualMethod("getMessageFacade")
-            if (messageFacade == null) {
-                logw("NewScriptApi : 找不到 QQMessageFacade")
-                return
-            }
-            messageRecord.callVirtualMethod(
-                "initInner",
-                data.selfUin,
-                data.friendUin,
-                data.senderUin,
-                msg,
-                data.time,
-                MSG_TYPE_TIP,
-                if (data.isGroup) 1 else 0,
-                data.time,
-                String::class.java,
-                String::class.java,
-                String::class.java,
-                String::class.java,
-                Long::class.java,
-                Int::class.java,
-                Int::class.java,
-                Long::class.java
-            )
-            val m = messageFacade::class.java.getDeclaredMethod("a",
-                messageRecord::class.java,
-                String::class.java)
-            m.invoke(messageFacade, messageRecord, data.selfUin)
-            logd("成功")
+            SendMsgHook.get().sendTip(msg, data.friendUin, data.isGroup)
         } catch (e: Exception) {
             log(e)
         }
     }
+
+    fun sendShakeMsg(data: MessageData) {
+        try {
+            SendMsgHook.get().sendShakeMsg(data.friendUin, data.isGroup)
+        } catch (e: Exception) {
+            log(e)
+        }
+    }
+
+    fun createData(uin: String, isGroup: Boolean): MessageData =
+        MessageData().apply {
+            friendUin = uin
+            this.isGroup = isGroup
+        }
 }

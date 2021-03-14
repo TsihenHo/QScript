@@ -373,6 +373,23 @@ fun copy(s: File, f: File) {
     fr.close()
 }
 
+/**
+ * 获取精确到秒的时间戳
+ * @return
+ */
+fun getSecondTimestamp(date: Date?): Int {
+    if (null == date) {
+        return 0
+    }
+    val timestamp = java.lang.String.valueOf(date.time)
+    val length = timestamp.length
+    return if (length > 3) {
+        Integer.valueOf(timestamp.substring(0, length - 3))
+    } else {
+        0
+    }
+}
+
 inline fun <reified T : Activity> Context.startActivity() {
     val intent = Intent(this, Initiator.load(".activity.JumpActivity"))
     intent.putExtra(JUMP_ACTION_CMD, JUMP_ACTION_START_ACTIVITY)

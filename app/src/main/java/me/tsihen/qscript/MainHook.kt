@@ -25,12 +25,14 @@ import android.os.Bundle
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.tsihen.qscript.User.Companion.thisUser
 import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.hook.AbsDelayableHook
 import me.tsihen.qscript.hook.JumpActivityHook
 import me.tsihen.qscript.util.*
 import java.io.File
 import java.lang.reflect.Method
+
 
 class MainHook {
     private var firstInited = false
@@ -66,7 +68,6 @@ class MainHook {
             } catch (e: Exception) {
                 log(e)
             }
-            // m 是 hook 点，这个方法通常会在不同的进程里调用多次
             XposedBridge.hookMethod(
                 m,
                 object : XC_MethodHook(51) {
@@ -125,6 +126,9 @@ class MainHook {
                             qqAppInterface = param.thisObject
                         }
                     })
+
+                // 初始化
+                thisUser.init()
 
                 // 初始化每个 absHook
                 AbsDelayableHook.queryDelayableHooks().forEach { if (!it.init()) failed = true }

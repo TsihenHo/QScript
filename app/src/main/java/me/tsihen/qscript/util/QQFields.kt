@@ -22,6 +22,7 @@ package me.tsihen.qscript.util
 
 import android.app.Application
 import androidx.annotation.NonNull
+import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Field
 
 var qqAppInterface: Any? = null
@@ -57,8 +58,10 @@ fun getApplicationNonNull(): Application {
 
 fun getAppRuntime(): Any {
     val ctx = getApplicationNonNull()
-    return ctx.callVirtualMethod("getRuntime")
+    return ctx.callMethod("getRuntime")
         ?: throw java.lang.NullPointerException("Utils : GetAppRuntime : Runtime is null.")
 }
 
-fun getLongAccountUin(): Long = getAppRuntime().callVirtualMethod("getLongAccountUin") as Long
+fun getLongAccountUin(): Long = getAppRuntime().callMethod("getLongAccountUin") as Long
+fun getAccountUin(): String =
+    XposedHelpers.callMethod(getAppRuntime(), "getCurrentAccountUin").toString()

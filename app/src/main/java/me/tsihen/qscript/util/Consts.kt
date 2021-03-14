@@ -66,6 +66,8 @@ const val C_MESSAGE_FOR_ARK_APP = 5
 const val C_TROOP_MEMBER_INFO = 6
 const val C_SEND_MSG_PARAMS = 7
 const val C_MESSAGE_RECORD = 8
+const val C_MESSAGE_FACTORY = 9
 
 // MsgTypes
 const val MSG_TYPE_TIP = -1013
+const val MSG_TYPE_SHAKE = -2020

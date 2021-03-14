@@ -38,4 +38,5 @@
     <string name="especial_thanks">特别鸣谢</string>
     <string name="edit_data">仅供调试 - 编辑数据文件</string>
     <string name="open_source_license">开放源代码许可</string>
+    <string name="click_to_check_update">点击检查更新（github.com）</string>
 </resources>

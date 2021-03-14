@@ -152,6 +152,52 @@ fun findMethodBySignWithRegex(sign: String, clazz: Class<*>): Method {
 fun findMethodBySign(sign: String, clazz: Class<*>): Method =
     findMethodBySignWithRegex(sign.replace("(", "\\(").replace(")", "\\)"), clazz)
 
+fun <T> Any.callMethod(
+    returnType: Class<T>,
+    vararg argsAndTypes: Array<out Any?>,
+): T? {
+    val args = argsAndTypes.slice(0 until (argsAndTypes.size / 2)).toTypedArray()
+    val types: Array<Class<*>> =
+        argsAndTypes.slice(argsAndTypes.size / 2 until argsAndTypes.size)
+            .map {
+                if (it !is Class<*>) throw IllegalArgumentException("参数类型不是 Class<?>")
+                it
+            }
+            .toTypedArray()
+    val m = findMethodBySignWithRegex(""".*?(${getClassesSign(types)})${
+        returnType.name.replace('.',
+            '/')
+    }""", javaClass)
+    return m.invoke(this, *args) as T?
+}
+
+fun <T> Class<*>.callStaticMethod(
+    returnType: Class<T>,
+    vararg argsAndTypes: Array<out Any?>,
+): T? {
+    val args = argsAndTypes.slice(0 until (argsAndTypes.size / 2)).toTypedArray()
+    val types: Array<Class<*>> =
+        argsAndTypes.slice(argsAndTypes.size / 2 until argsAndTypes.size)
+            .map {
+                if (it !is Class<*>) throw IllegalArgumentException("参数类型不是 Class<?>")
+                it
+            }
+            .toTypedArray()
+    val m = findMethodBySignWithRegex(""".*?(${getClassesSign(types)})${
+        returnType.name.replace('.',
+            '/')
+    }""", this)
+    return m.invoke(null, *args) as T?
+}
+
+private fun getClassesSign(classes: Array<Class<*>>): String {
+    val sb = java.lang.StringBuilder()
+    classes.forEach {
+        sb.append(it.name.replace('.', '/'))
+    }
+    return sb.toString()
+}
+
 /**
  * 调用某个非静态方法
  *
@@ -162,7 +208,7 @@ fun findMethodBySign(sign: String, clazz: Class<*>): Method =
  * @return 被调用的方法的返回值
  * @throws NoSuchMethodException 找不到方法
  */
-fun Any.callVirtualMethod(
+fun Any.callMethod(
     methodName: String,
     vararg argsTypesAndReturnType: Any?,
 ): Any? {

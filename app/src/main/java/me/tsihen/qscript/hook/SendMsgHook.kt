@@ -19,10 +19,13 @@
 package me.tsihen.qscript.hook
 
 import android.content.Context
+import de.robv.android.xposed.XposedHelpers
 import me.tsihen.qscript.script.qscript.api.ScriptApi.getName
 import me.tsihen.qscript.script.qscript.objects.MessageData
 import me.tsihen.qscript.util.*
 import java.lang.reflect.Method
+import java.util.*
+import kotlin.collections.ArrayList
 
 class SendMsgHook : AbsDelayableHook() {
     companion object {
@@ -203,7 +206,7 @@ class SendMsgHook : AbsDelayableHook() {
         try {
             val session = buildSessionInfo(qNum.toString(), isGroup)
             val arkAppMsg = Initiator.load(".data.ArkAppMessage")!!.newInstance()
-            if (!(arkAppMsg.callVirtualMethod(
+            if (!(arkAppMsg.callMethod(
                     "fromAppXml",
                     msg,
                     String::class.java,
@@ -263,6 +266,131 @@ class SendMsgHook : AbsDelayableHook() {
                     )
             sendPicMethod?.invoke(null, qqAppInterface, session, chatMessage, 0)
         } catch (e: java.lang.Exception) {
+            log(e)
+        }
+    }
+
+    fun sendTip(msg: String, qNum: String, isGroup: Boolean) {
+        val tip = XposedHelpers.callStaticMethod(
+            ClassFinder.findClass(C_MESSAGE_FACTORY),
+            "a",
+            MSG_TYPE_TIP
+        )
+        val curr = getAccountUin()
+        val time = -1
+        tip.callMethod(
+            "initInner",
+            curr,
+            qNum,
+            curr,
+            msg,
+            time,
+            MSG_TYPE_TIP,
+            if (isGroup) 1 else 0,
+            time,
+            String::class.java,
+            String::class.java,
+            String::class.java,
+            String::class.java,
+            Long::class.java,
+            Int::class.java,
+            Int::class.java,
+            Long::class.java
+        )
+        XposedHelpers.setLongField(tip, "shmsgseq", time.toLong())
+        XposedHelpers.setBooleanField(tip, "isread", true)
+        try {
+            XposedHelpers.callMethod(
+                XposedHelpers.callMethod(
+                    qqAppInterface,
+                    "getMessageFacade"
+                ),
+                "addMessage",
+                tip,
+                curr
+            )
+        } catch (e: NoSuchMethodError) {
+            XposedHelpers.callMethod(
+                XposedHelpers.callMethod(
+                    qqAppInterface,
+                    "getMessageFacade"
+                ),
+                "a",
+                tip,
+                curr
+            )
+        }
+    }
+
+    fun sendShakeMsg(qNum: String, isGroup: Boolean) {
+        try {
+            val factory = ClassFinder.findClass(C_MESSAGE_FACTORY)
+            val shake = XposedHelpers.callStaticMethod(factory, "a", -2020)
+            XposedHelpers.setObjectField(shake, "msg", "抖动")
+            val shakeMsg =
+                XposedHelpers.findField(shake.javaClass, "mShakeWindowMsg").type.newInstance()
+            XposedHelpers.setIntField(shakeMsg, "mType", 0)
+            XposedHelpers.setIntField(shakeMsg, "mReserve", 0)
+            XposedHelpers.setIntField(shakeMsg, "onlineFlag", 1)
+            XposedHelpers.setBooleanField(shakeMsg, "shake", true)
+            XposedHelpers.setObjectField(shake, "msgData", shakeMsg.callMethod("getBytes"))
+            val curr = getAccountUin()
+            val time = getSecondTimestamp(Date(System.currentTimeMillis()))
+            shake.callMethod(
+                "initInner",
+                curr,
+                qNum,
+                curr,
+                "value",
+                time.toLong(),
+                Integer.valueOf(MSG_TYPE_SHAKE),
+                Integer.valueOf(if (isGroup) 1 else 0),
+                time.toLong(),
+                String::class.java,
+                String::class.java,
+                String::class.java,
+                String::class.java,
+                Long::class.java,
+                Int::class.java,
+                Int::class.java,
+                Long::class.java
+            )
+            XposedHelpers.callMethod(
+                shake,
+                "parse"
+            )
+            try {
+                XposedHelpers.callMethod(
+                    XposedHelpers.callMethod(
+                        qqAppInterface,
+                        "getMessageFacade"
+                    ),
+                    "addAndSendMessage",
+                    XposedHelpers.callStaticMethod(
+                        ClassFinder.findClass(C_MESSAGE_FACTORY),
+                        "a",
+                        shake
+                    ),
+                    null,
+                    true
+                )
+            } catch (e: NoSuchMethodError) {
+                XposedHelpers.callMethod(
+                    XposedHelpers.callMethod(
+                        qqAppInterface,
+                        "getMessageFacade"
+                    ),
+                    "a",
+                    XposedHelpers.callStaticMethod(
+                        ClassFinder.findClass(C_MESSAGE_FACTORY),
+                        "a",
+                        shake
+                    ),
+                    null,
+                    true
+                )
+            }
+        } catch (e: Throwable) {
             log(e)
         }
     }

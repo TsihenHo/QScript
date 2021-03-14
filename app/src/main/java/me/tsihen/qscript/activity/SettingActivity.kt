@@ -25,6 +25,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
+import me.tsihen.qscript.BuildConfig
 import me.tsihen.qscript.R
 import me.tsihen.qscript.config.ConfigManager
 import me.tsihen.qscript.databinding.ActivitySettingBinding
@@ -33,7 +35,10 @@ import me.tsihen.qscript.ui.IOnClickListenerFilled
 import me.tsihen.qscript.ui.ViewFilledWithTwoLinesAndImage
 import me.tsihen.qscript.ui.ViewWithTwoLinesAndImage
 import me.tsihen.qscript.util.*
+import org.jsoup.Jsoup
+import java.io.IOException
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class SettingActivity : AbsActivity(), IOnClickListener {
@@ -52,12 +57,62 @@ class SettingActivity : AbsActivity(), IOnClickListener {
         setContentView(mViewBinding.root)
 
         mViewBinding.textViewVersion.text = QS_VERSION_NAME
+        mViewBinding.progressHorizontal.isVisible = false
 
         mViewBinding.scriptManage.setOnClickListener(this)
         mViewBinding.settings.setOnClickListener(this)
         mViewBinding.additionalFunctions.setOnClickListener(this)
         mViewBinding.bug.setOnClickListener(this)
         mViewBinding.aboutMe.setOnClickListener(this)
+        mViewBinding.versionCheck.setOnClickListener {
+            runOnUiThread {
+                mViewBinding.versionText.isVisible = false
+                mViewBinding.progressHorizontal.isVisible = true
+                thread {
+                    try {
+                        val doc =
+                            Jsoup.connect("https://github.com/GoldenHuaji/QScript/releases/latest")
+                                .header(
+                                    "Accept",
+                                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"
+                                )
+                                .header("Accept-Encoding", "gzip, deflate")
+                                .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+                                .header("Cache-Control", "no-cache")
+                                .header("Pragma", "no-cache")
+                                .header("Proxy-Connection", "keep-alive")
+                                .header(
+                                    "User-Agent",
+                                    "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)"
+                                )
+                                .timeout(10_000)
+                                .get()
+                        val lastVersion =
+                            doc.getElementsByClass("f1 flex-auto min-width-0 text-normal")[0].text()
+                        runOnUiThread {
+                            mViewBinding.versionText.isVisible = true
+                            mViewBinding.progressHorizontal.isVisible = false
+                            AlertDialog.Builder(this@SettingActivity)
+                                .setTitle("检查更新")
+                                .setMessage("当前版本：QScript V${BuildConfig.VERSION_NAME}\n最新版本：$lastVersion")
+                                .setPositiveButton("好", null)
+                                .setNeutralButton("下载链接") { _, _ ->
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data =
+                                        Uri.parse("https://github.com/GoldenHuaji/QScript/releases/latest")
+                                    startActivity(intent)
+                                }
+                                .show()
+                        }
+                    } catch (e: IOException) {
+                        runOnUiThread { Toasts.error(this, "无法连接 github.com") }
+                    } catch (e: Exception) {
+                        log(e)
+                        runOnUiThread { Toasts.error(this@SettingActivity, "检查更新出错") }
+                    }
+                }
+            }
+        }
 
         mViewBinding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
