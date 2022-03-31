@@ -8,6 +8,6 @@ QQ 脚本 Xposed 模块
 ## 协议
 GPL3.0
 ## 关于更新
-这个模块会**一直**更新下去，
+已停止
 
 **NOTE：由于本模块代码过于难堪，导致存在诸多问题，[QTools](https://github.com/GoldenHuaji/QTools)将会尝试着解决这些问题**
